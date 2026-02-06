@@ -1,10 +1,12 @@
 use std::io::{Read, stdin};
 
-use rnacl_core::{registry, sample::batch::Batch};
+use rnacl_core::{registry, sample::Sample};
 
-use crate::args::operation::eval::EvalOperationArgs;
+use crate::{args::operation::eval::EvalOperationArgs, helper::resolve_ledger};
 
 pub(super) fn dispatch(args: EvalOperationArgs) -> anyhow::Result<()> {
+    let ledger = resolve_ledger()?;
+
     let options = match args.options {
         Some(serialized) => serde_json::from_str::<serde_json::Value>(&serialized)?,
         None => serde_json::Value::Null,
@@ -15,12 +17,12 @@ pub(super) fn dispatch(args: EvalOperationArgs) -> anyhow::Result<()> {
     let input = if !args.head {
         let mut buf = Vec::new();
         stdin().read_to_end(&mut buf)?;
-        serde_json::from_slice::<Batch>(buf.as_slice())?
+        serde_json::from_slice::<Vec<Vec<Sample>>>(buf.as_slice())?
     } else {
-        Batch::default()
+        Vec::new()
     };
 
-    let output = operation.eval(input, &options)?;
+    let output = operation.eval(&ledger, input, options)?;
 
     println!("{}", serde_json::to_string_pretty(&output)?);
 

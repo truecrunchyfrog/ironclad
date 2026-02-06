@@ -1,0 +1,354 @@
+# rnacl
+Reactive Node-Anomaly Catching Ledger
+
+# Terms
+
+- node: an observable point in the system.
+	- pipeline: the instructions used to derive the content of a beacon.
+		- stage: a step in a pipeline.
+			- operation: a function that produces output.
+				- head: a generative operation that by convention produces output based on the options provided (to be used as the first stage of a pipeline).
+				- tail: a transformative operation that by convention produces output based on the input and the options provided (to be used as the rest of the stages of a pipeline).
+			- batch: the input and output of an operation.
+				- sample: one sample in a sample set.
+					- trace: each sample is equipped with a trace for comparison and user backtracking.
+				- snapshot: a captured state with the nodes' batches.
+					- baseline: the snapshot with accepted batches.
+						- ack: accepting a batch into the baseline.
+					- audit: a snapshot compared with ack to detect anomalies.
+	- tag: a text notation reference to a node (~rnacl<123>).
+
+# main.c
+int main() { // ~rnacl<5891b5b52>
+	printf("\n");
+	return 0;
+}
+
+# core.c -- static
+char * test() {
+	return "When this changes, subscriber 5891b5b52 is notified too";
+}
+
+# pipeline stages
+
+- heads.file.content
+- heads.net.http
+- text.slice.lines
+- text.slice.bytes
+- text.tag
+- xml.find
+- xml.attribute
+- xml.value
+
+# .rnacl/nodes/167112362
+{
+	"description": "Some return statement",
+	"pipeline": [
+		{
+			"operation": "heads.file.content",
+			"options": {
+				"files": ["core.c"] // A list of globs. Each matched file is used. Defaults to all files in working directory: ["**/*"]
+			}
+		},
+
+		{
+			"operation": "text.slice.lines",
+			"options": {
+				"offset": 1,
+				"length": 1
+			}
+		},
+
+		{
+			"operation": "text.slice.bytes",
+			"options": {
+				"offset": 14,
+				"length": 4
+			}
+		}
+	]
+}
+
+# .rnacl/nodes/5891b5b52
+{
+	"pipeline": [
+		"heads.file.content", // selects all (non-hidden) files recursively.
+		"text.tag" // finds all node tags in the files.
+	]
+}
+
+# .rnacl/nodes/bf92a04e6
+{
+	"lifespan": 10000, // Audit sample cache lifespan. Defaults to 3600.
+	"pipeline": [
+		{
+			"operation": "heads.net.http",
+			"options": {
+				"url": "https://google.com/robots.txt",
+				"method": "get",
+				"authorization": "Bearer 123"
+			}
+		},
+
+		{
+			"operation": "xml.find",
+			"options": {
+				"css": "body #some-id" // or "xpath" for XPath notation
+			}
+		},
+
+		{
+			"operation": "xml.attribute",
+			"options": {
+				"name": "aria-label"
+			}
+		}
+	]
+}
+
+# .rnacl/nodes/ebdf82057
+{
+	"derive": [
+		"heads.file.content",
+
+		{
+			"operation": "text.find",
+			"options": {
+				"text": "Hello there", // or "regex" to search using regular expressions
+			}
+		}
+	]
+}
+
+# .rnacl/deps.json - dependencies between nodees
+{
+	"5891b5b52": [
+		"167112362",
+		"ebdf82057"
+	]
+}
+
+# .rnacl/snapshots/baseline.json - accepted node state
+{
+	"167112362": {
+		"samples": [
+			{
+				"trace_id": [
+					{
+						"operation": "heads.file.content",
+						"filename": "core.c"
+					},
+					{
+						"operation": "text.slice.lines",
+						"offset": 1,
+						"length": 1
+					},
+					{
+						"operation": "text.slice.bytes",
+						"offset": 14,
+						"length": 4
+					}
+				],
+				"value": "Hello there"
+			}
+		]
+	},
+
+	"5891b5b52": {
+		"dependencies": {
+			"ebdf82057": "7db85d6d2"
+		},
+		"samples": ...
+	}
+}
+
+# .rnacl/snapshots/pending.json - pending audit snapshot
+{
+	"167112362": {
+		"cached": 1768777916,
+		"digest": ...,
+		"samples": [
+			...
+		]
+	},
+
+	"5891b5b52": ...,
+
+	"bf92a04e6": ...,
+
+	"ebdf82057": ...
+}
+
+# CLI
+
+## Ledger management
+Create a rnacl ledger in the working directory:
+$ rnacl ledger init
+This sets up .rnacl.
+
+## General node management
+Create an empty node:
+$ rnacl node add
+> 5891b5b52
+This command also sets the environment variable "RNACL_USE_NODE", which can also be done with "rnacl node use <node ID>".
+With this variable enabled, "-" can be used instead of the node ID.
+
+Remove a node:
+$ rnacl node remove 5891b5b52
+
+## Pipelines
+Add a stage to a node's pipeline:
+$ rnacl pipeline add ebdf82057 heads.file.content
+
+Add a stage with options:
+$ rnacl pipeline add ebdf82057 text.find -- \
+	--text "Hello there"
+
+Display a configured node pipeline:
+$ rnacl derive show ebdf82057
+> heads.file.content
+> text.find
+>   text Hello there
+Omit the node ID to show all pipelines.
+
+Evaluate the pipeline and print the samples (without affecting state):
+$ rnacl derive eval ebdf82057 --verbose
+> heads.file.content
+>   b383187e5
+>		id
+>			0
+>				filename README.md
+>		content
+>	 		# README\nHello there!
+>   e18ca5ab6
+>		id
+>			0
+>				filename other_file.txt
+>		content
+>			blablablablabla
+> text.find
+>	8a10a8079
+>		id
+>			0
+>				filename README.md
+>			1
+>				offset 10
+>				length 11
+>			Hello there
+Argument --verbose (-b) includes sample IDs.
+Pass --stage n (-s n) where "n" is the zero-based index of a stage to only show the samples from that stage (and only derive up to that point).
+Omit the node ID to evaluate all pipelines.
+
+## Tag -- inline tags
+Generate a tag for a node (to stdout):
+$ rnacl tag 5891b5b52
+> ~rnacl<5891b5b52>
+Generate a tag for a node and insert it into "main.c" as a C comment:
+$ rnacl tag 5891b5b52 main.c \
+	--line 1 \
+	--append \
+	--prefix '// '
+Argument --comment automatically appends a comment as per the file name's extension on the specified line,
+so --append and --prefix '// ' can be replaced by --comment, or "--comment c" which overrides the file extension.
+
+## Auditing and resolving
+Audit all nodes by evaluating the pipelines and caching the samples:
+$ rnacl audit --all
+> 167112362
+> 5891b5b52 stale (1)
+> bf92a04e6
+> ebdf82057 dirty (-1 +2)
+>
+> dirty 1 (-1 +2)
+> stale 1 (1)
+> acked 2
+> total 4
+Argument --all (-a) includes acknowledged derivations.
+Pass --dry (-d) to perform the audit without caching the results.
+
+Only show the nodees that need to be resolved:
+$ rnacl audit
+> 5891b5b52 stale (1), cache (3s)
+> ebdf82057 dirty (-1 +2), cache (3s)
+>
+> dirty 1 (-1 +2)
+> stale 1 (1)
+> acked 2
+> total 4
+> cache 4 (<=3s)
+Each node has its own configurable derivation lifespan.
+Pass --force (-f) to ignore cache and perform re-evaluation.
+
+View an audited node derivation diff:
+$ rnacl audit ebdf82057 --verbose
+> -
+>	Hello there
+> +
+>	Hello there
+- = acknowledged, but missing from the audit.
++ = not yet acknowledged, but
+
+Verbose:
+$ rnacl audit ebdf82057 --verbose
+> - 8a10a8079
+>		id
+>			0
+>				filename README.md
+>			1
+>				offset 10
+>				length 11
+>		content
+>			Hello there
+> + cd66d5517
+>		id
+>			0
+>				filename README.md
+>			1
+>				offset 9
+>				length 11
+>		content
+>			Hello there
+
+$ rnacl audit 5891b5b52
+> stale ebdf82057
+5891b5b52 depends on ebdf82057, so 5891b5b52 is marked as stale because the ack'ed state differs.
+
+Drop the audit cache and return to clean state:
+$ rnacl audit --drop
+
+# Samples
+A sample is a text string as derived from a node pipeline, combined with unique ID metadata to track changes.
+A sample ID is a list consisting of metadata provided by each stage of the pipeline.
+For example, a simple `heads.file.content` -> `text.find` pipeline might produce a sample with the following ID:
+[
+	{
+		"file": "README.md"
+	},
+	{
+		"offset": 23,
+		"length": 5
+	}
+]
+Each entry of the ID must unambiguously identify exactly where the sample was found in the input, or where it was generated.
+>
+
+During a state check, each node derives its samples, and compares them to the previously acknowledged samples.
+New samples are mapped to the old samples with matching sample IDs.
+
+- New samples without corresponding old samples matching their ID are marked as"the samples without corresponding ne samples matching their ID are marked as "removed"
+If the derivation's sample set doesn't match the previously acknowledged, the system state is marked as dirty, -
+until the changes are resolved and "acknowledged".
+If the derivation has not yet been acknowledged, the state will still be dirty.
+Acknowledging a derivation saves the derived output as the new reference state.
+Whether old acknowledgments should be kept is configurable, in case no VCS is present.
+
+# State
+There are three different kinds of state:
+- the system state,
+- the audit state (a snapshot of the derived samples), and
+- the ack'ed state (accepted state).
+When an audit is performed, the system state is saved to the audit state.
+To complete the audit, all anomalies (dirty and stale) need to be resolved by ack'ing, which finally confirms the state.
+
+# TODO
+- User confirmation or signing before using (dangerous) pipeline operations

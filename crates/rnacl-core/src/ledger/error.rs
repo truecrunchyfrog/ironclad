@@ -29,6 +29,9 @@ pub enum LedgerError {
     Pipeline(#[from] PipelineError),
 
     #[error(transparent)]
+    SystemTime(#[from] std::time::SystemTimeError),
+
+    #[error(transparent)]
     Json(#[from] serde_json::Error),
 
     #[error(transparent)]

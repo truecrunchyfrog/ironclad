@@ -7,7 +7,7 @@ pub(crate) struct EvalOperationArgs {
     pub(crate) operation_id: String,
 
     /// Feed operation with an empty batch instead of reading from stdin.
-    #[arg(long)]
+    #[arg(short = 'H', long)]
     pub(crate) head: bool,
 
     /// Options to pass to the operation, in JSON.

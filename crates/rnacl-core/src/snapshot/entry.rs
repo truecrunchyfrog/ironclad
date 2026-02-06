@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{node::id::NodeId, sample::batch::Batch};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct SnapshotEntry {
     batch: Batch,
     dependencies: HashMap<NodeId, Batch>,

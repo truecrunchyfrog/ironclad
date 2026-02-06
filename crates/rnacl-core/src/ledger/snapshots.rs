@@ -10,7 +10,7 @@ use crate::{
 };
 
 impl Ledger {
-    pub fn capture_snapshot(&self) -> Result<Snapshot, LedgerError> {
+    pub fn capture_snapshot(&self, cache: Option<Snapshot>) -> Result<Snapshot, LedgerError> {
         let nodes = self.load_nodes()?;
 
         let batches = nodes
@@ -19,7 +19,18 @@ impl Ledger {
                 Ok((
                     node.id().clone(),
                     node.dependencies(),
-                    node.pipeline().eval()?,
+                    match cache
+                        .as_ref()
+                        .map(|snapshot| snapshot.entries().get(node.id()))
+                        .flatten()
+                    {
+                        Some(entry)
+                            if entry.batch().created().elapsed()? < *node.cache_lifespan() =>
+                        {
+                            entry.batch().clone()
+                        }
+                        _ => node.pipeline().eval(self)?,
+                    },
                 ))
             })
             .collect::<Result<Vec<_>, LedgerError>>()?;

@@ -54,7 +54,7 @@ pub(crate) fn set(
     let default_node = ReuseNode {
         ledger_dir: ledger.dir().to_path_buf(),
         node_id: node_id,
-        expire: expire.unwrap_or_else(|| SystemTime::now() + Duration::from_mins(5)),
+        expire: expire.unwrap_or_else(|| SystemTime::now() + Duration::from_mins(30)),
     };
 
     let contents = serde_json::to_vec(&default_node)?;

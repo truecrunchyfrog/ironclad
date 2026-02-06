@@ -1,29 +1,57 @@
+use std::time::SystemTime;
+
 use serde::{Deserialize, Serialize};
 
 use crate::sample::Sample;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Batch(Vec<Sample>);
+pub struct Batch {
+    samples: Vec<Sample>,
+    created: SystemTime,
+}
 
 impl Batch {
     pub fn new(samples: Vec<Sample>) -> Self {
-        Self(samples)
+        Self {
+            samples,
+            created: SystemTime::now(),
+        }
     }
 
-    pub fn transform<F>(self, f: F) -> Self
-    where
-        F: Fn(Sample) -> Option<Sample>,
-    {
-        Self(self.0.into_iter().filter_map(f).collect::<Vec<_>>())
+    // pub fn evolve<F>(self, f: F) -> Self
+    // where
+    //     F: Fn(Sample) -> Vec<(Trace, String)>,
+    // {
+    //     Self::new(
+    //         self.samples
+    //             .into_iter()
+    //             .flat_map(|sample| sample.evolve(&f))
+    //             .collect(),
+    //     )
+    // }
+
+    pub fn into_samples(self) -> Vec<Sample> {
+        self.samples
     }
 
-    pub fn samples(self) -> Vec<Sample> {
-        self.0
+    pub fn samples(&self) -> &[Sample] {
+        &self.samples
+    }
+
+    pub fn samples_mut(&mut self) -> &mut Vec<Sample> {
+        &mut self.samples
+    }
+
+    pub fn created(&self) -> &SystemTime {
+        &self.created
     }
 }
 
 impl Default for Batch {
     fn default() -> Self {
-        Self(Vec::new())
+        Self {
+            samples: Default::default(),
+            created: SystemTime::now(),
+        }
     }
 }

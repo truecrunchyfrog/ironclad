@@ -3,7 +3,7 @@ use std::{
     path::Path,
 };
 
-use log::warn;
+use log::{info, warn};
 
 use crate::{
     ledger::{error::LedgerError, ledger::Ledger},
@@ -132,6 +132,7 @@ impl Ledger {
 }
 
 fn write_node(path: &Path, node: &Node) -> Result<(), NodeError> {
+    info!("writing node at {:?}", path);
     fs::write(path, serde_json::to_vec_pretty(node)?)?;
     Ok(())
 }

@@ -2,9 +2,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::{
+    ledger::Ledger,
     pipeline::PipelineError,
     registry::{self},
-    sample::batch::Batch,
+    sample::Sample,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,8 +30,12 @@ impl Stage {
         &self.options
     }
 
-    pub fn eval(&self, input: Batch) -> Result<Batch, PipelineError> {
+    pub fn eval(
+        &self,
+        ledger: &Ledger,
+        input: Vec<Vec<Sample>>,
+    ) -> Result<Vec<Vec<Sample>>, PipelineError> {
         let operation = registry::resolve_op(&self.operation_id)?;
-        Ok(operation.eval(input, &self.options)?)
+        Ok(operation.eval(ledger, input, self.options.clone())?)
     }
 }

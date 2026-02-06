@@ -1,6 +1,6 @@
 use crate::{args::node::list::ListNodeArgs, helper::resolve_ledger};
 
-pub(super) fn dispatch(args: ListNodeArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_args: ListNodeArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
     let nodes = ledger.load_nodes()?;
 

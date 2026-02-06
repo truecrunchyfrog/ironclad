@@ -1,0 +1,736 @@
+{
+  "a1041773": {
+    "batch": {
+      "samples": [
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/ack/mod.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// Add samples to the baseline.\n#[derive(Args)]\npub(crate) struct AckArgs {\n    /// ID of node to ack.\n    pub(crate) node_id: Vec<String>,\n\n    /// ID of dependency node to ack, instead of acking the node itself.\n    #[arg(short, long)]\n    pub(crate) dependency: Vec<String>,\n\n    /// Ack all samples instead of selecting interactively.\n    #[arg(short, long)]\n    pub(crate) all: bool,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/audit/mod.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n#[derive(Args)]\npub(crate) struct AuditArgs {\n    /// ID of node to limit view to.\n    pub(crate) node_id: Vec<String>,\n\n    /// Show confliced samples.\n    #[arg(short = 'd', long)]\n    pub(crate) expand_diff: bool,\n\n    /// Show stale dependencies.\n    #[arg(short = 's', long)]\n    pub(crate) expand_stale: bool,\n\n    /// Use existing pending snapshot instead of capturing a new snapshot.\n    #[arg(short, long)]\n    pub(crate) cache: bool,\n\n    /// Capture a fresh snapshot, ignoring any cached batches.\n    #[arg(short, long, conflicts_with = \"cache\")]\n    pub(crate) new: bool,\n\n    /// Don't set the audit as pending state.\n    #[arg(long)]\n    pub(crate) dry_run: bool,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/dependency/add.rs"
+            }
+          ],
+          "content": "use clap::{ArgGroup, Args};\n\n/// Create dependencies.\n#[derive(Args)]\n#[command(group(\n    ArgGroup::new(\"dependency_kind\")\n        .args([\"dependency\", \"from\", \"mirror\"])\n        .required(true)\n))]\npub(crate) struct AddDependencyArgs {\n    /// ID of node to add dependencies to.\n    #[arg(default_value = \"-\")]\n    pub(crate) node_id: Vec<String>,\n\n    /// ID of node to add as dependency.\n    #[arg(short, long, required = true)]\n    pub(crate) dependency: Vec<String>,\n\n    /// ID of node to copy all dependencies from to add.\n    #[arg(long)]\n    pub(crate) from: Vec<String>,\n\n    /// Make the dependents dependencies of each other (when there are more than one dependents).\n    #[arg(long)]\n    pub(crate) mirror: bool,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/dependency/mod.rs"
+            }
+          ],
+          "content": "pub(crate) mod add;\npub(crate) mod remove;\n\nuse clap::Subcommand;\n\nuse crate::args::dependency::{add::AddDependencyArgs, remove::RemoveDependencyArgs};\n\n#[derive(Subcommand)]\npub(crate) enum DependencyCommand {\n    Add(AddDependencyArgs),\n    Remove(RemoveDependencyArgs),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/dependency/remove.rs"
+            }
+          ],
+          "content": "use clap::{ArgGroup, Args};\n\n/// Remove dependencies.\n#[derive(Args)]\n#[command(group(\n    ArgGroup::new(\"depencency_kind\")\n        .args([\"dependency\", \"all\"])\n        .required(true)\n        .multiple(false)\n))]\npub(crate) struct RemoveDependencyArgs {\n    /// ID of dependent node to remove dependency from.\n    #[arg(default_value = \"-\")]\n    pub(crate) node_id: Vec<String>,\n\n    /// ID of dependency node to remove.\n    #[arg(short, long)]\n    pub(crate) dependency: Vec<String>,\n\n    /// Remove all dependencies.\n    #[arg(short, long)]\n    pub(crate) all: bool,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/ledger/init.rs"
+            }
+          ],
+          "content": "use std::path::PathBuf;\n\nuse clap::Args;\n\n/// Set up a ledger.\n#[derive(Args)]\npub(crate) struct InitLedgerArgs {\n    /// Where to place ledger directory.\n    #[arg(long)]\n    pub(crate) dir: Option<PathBuf>,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/ledger/mod.rs"
+            }
+          ],
+          "content": "pub(crate) mod init;\n\nuse clap::Subcommand;\n\nuse crate::args::ledger::init::InitLedgerArgs;\n\n#[derive(Subcommand)]\npub(crate) enum LedgerCommand {\n    Init(InitLedgerArgs),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/mod.rs"
+            }
+          ],
+          "content": "pub(crate) mod ack;\npub(crate) mod audit;\npub(crate) mod dependency;\npub(crate) mod ledger;\npub(crate) mod node;\npub(crate) mod operation;\npub(crate) mod pipeline;\n\nuse clap::{Args, Parser, Subcommand};\n\nuse crate::args::{\n    ack::AckArgs, audit::AuditArgs, dependency::DependencyCommand, ledger::LedgerCommand,\n    node::NodeCommand, operation::OperationCommand, pipeline::PipelineCommand,\n};\n\n#[derive(Parser)]\npub(crate) struct Cli {\n    #[command(flatten)]\n    pub(crate) global: GlobalArgs,\n\n    #[command(subcommand)]\n    pub(crate) command: Command,\n}\n\n#[derive(Args)]\npub(crate) struct GlobalArgs {\n    #[arg(short, long, action = clap::ArgAction::Count)]\n    pub(crate) verbose: u8,\n}\n\n#[derive(Subcommand)]\npub(crate) enum Command {\n    #[command(subcommand, alias = \"l\")]\n    Ledger(LedgerCommand),\n\n    #[command(subcommand, alias = \"n\")]\n    Node(NodeCommand),\n\n    #[command(subcommand, name = \"dep\", alias = \"d\")]\n    Dependency(DependencyCommand),\n\n    #[command(subcommand, alias = \"p\")]\n    Pipeline(PipelineCommand),\n\n    #[command(subcommand, alias = \"o\")]\n    Operation(OperationCommand),\n\n    #[command(alias = \"a\")]\n    Audit(AuditArgs),\n\n    #[command(alias = \"k\")]\n    Ack(AckArgs),\n}\n\npub(crate) fn parse() -> Cli {\n    Cli::parse()\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/node/add.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// Create a node.\n#[derive(Args)]\npub(crate) struct AddNodeArgs {\n    /// Choose the new node's ID instead of generating one.\n    #[arg(long)]\n    pub(crate) id: Option<String>,\n\n    /// Describe the node.\n    #[arg(long)]\n    pub(crate) description: Option<String>,\n\n    /// Skip automatic node reuse (see `node use`).\n    #[arg(long)]\n    pub(crate) no_use: bool,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/node/edit.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// Edit a node.\n#[derive(Args)]\npub(crate) struct EditNodeArgs {\n    /// ID of node to edit.\n    pub(crate) node_id: Option<String>,\n\n    /// Change the description.\n    #[arg(long)]\n    pub(crate) description: Option<String>,\n\n    /// Remove the description.\n    #[arg(long, conflicts_with = \"description\")]\n    pub(crate) unset_description: bool,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/node/list.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// List nodes.\n#[derive(Args)]\npub(crate) struct ListNodeArgs {}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/node/mod.rs"
+            }
+          ],
+          "content": "pub(crate) mod add;\npub(crate) mod edit;\npub(crate) mod list;\npub(crate) mod remove;\npub(crate) mod reuse;\npub(crate) mod show;\n\nuse clap::Subcommand;\n\nuse crate::args::node::{\n    add::AddNodeArgs, edit::EditNodeArgs, list::ListNodeArgs, remove::RemoveNodeArgs,\n    reuse::ReuseNodeArgs, show::ShowNodeArgs,\n};\n\n#[derive(Subcommand)]\npub(crate) enum NodeCommand {\n    #[command(name = \"use\")]\n    Reuse(ReuseNodeArgs),\n    Add(AddNodeArgs),\n    Edit(EditNodeArgs),\n    Remove(RemoveNodeArgs),\n    List(ListNodeArgs),\n    #[command(alias = \"s\")]\n    Show(ShowNodeArgs),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/node/remove.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// Remove a node.\n#[derive(Args)]\npub(crate) struct RemoveNodeArgs {\n    /// ID of node to remove.\n    pub(crate) node_id: Option<String>,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/node/reuse.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// Select a node, allowing you to omit the node ID in the following commands.\n#[derive(Args)]\npub(crate) struct ReuseNodeArgs {\n    pub(crate) node_id: Option<String>,\n\n    /// Unset.\n    #[arg(short, long, conflicts_with = \"node_id\")]\n    pub(crate) unset: bool,\n\n    /// Time until reuse expires.\n    #[arg(short, long, requires = \"node_id\")]\n    pub(crate) duration: Option<humantime::Duration>,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/node/show.rs"
+            }
+          ],
+          "content": "use clap::{ArgGroup, Args};\n\n/// Show details about a node.\n#[derive(Args)]\n#[command(group(\n    ArgGroup::new(\"display\")\n        .args([\"raw\", \"path\"])\n        .multiple(false)\n))]\npub(crate) struct ShowNodeArgs {\n    /// ID of node to show.\n    pub(crate) node_id: Option<String>,\n\n    /// Show the node's raw JSON object.\n    #[arg(short, long)]\n    pub(crate) raw: bool,\n\n    /// Show the node's path.\n    #[arg(short, long)]\n    pub(crate) path: bool,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/operation/eval.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// Evaluate an operation.\n#[derive(Args)]\npub(crate) struct EvalOperationArgs {\n    /// ID of operation to evaluate.\n    pub(crate) operation_id: String,\n\n    /// Feed operation with an empty batch instead of reading from stdin.\n    #[arg(short = 'H', long)]\n    pub(crate) head: bool,\n\n    /// Options to pass to the operation, in JSON.\n    #[arg(short, long)]\n    pub(crate) options: Option<String>,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/operation/list.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// List registered operations.\n#[derive(Args)]\npub(crate) struct ListOperationArgs {}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/operation/mod.rs"
+            }
+          ],
+          "content": "pub(crate) mod eval;\npub(crate) mod list;\n\nuse clap::Subcommand;\n\nuse crate::args::operation::{eval::EvalOperationArgs, list::ListOperationArgs};\n\n#[derive(Subcommand)]\npub(crate) enum OperationCommand {\n    Eval(EvalOperationArgs),\n    List(ListOperationArgs),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/pipeline/eval.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// Evaluate a pipeline.\n#[derive(Args)]\npub(crate) struct EvalPipelineArgs {\n    /// ID of node.\n    pub(crate) node_id: Option<String>,\n\n    /// Show the output of these stages.\n    #[arg(short, long)]\n    pub(crate) show: Option<Vec<usize>>,\n\n    /// Show the output of all stages.\n    #[arg(short = 'a', long, conflicts_with = \"show\")]\n    pub(crate) show_all: bool,\n\n    /// Only evaluate these stages.\n    #[arg(short, long)]\n    pub(crate) indices: Option<Vec<usize>>,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/pipeline/list.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// List a pipeline's stages.\n#[derive(Args)]\npub(crate) struct ListPipelineArgs {\n    /// ID of node to show pipeline of.\n    pub(crate) node_id: Option<String>,\n\n    /// Show the pipeline's raw JSON array.\n    #[arg(short, long)]\n    pub(crate) raw: bool,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/pipeline/mod.rs"
+            }
+          ],
+          "content": "pub(crate) mod eval;\npub(crate) mod list;\npub(crate) mod pop;\npub(crate) mod push;\n\nuse clap::Subcommand;\n\nuse crate::args::pipeline::{\n    eval::EvalPipelineArgs, list::ListPipelineArgs, pop::PopPipelineArgs, push::PushPipelineArgs,\n};\n\n#[derive(Subcommand)]\npub(crate) enum PipelineCommand {\n    Push(PushPipelineArgs),\n    Pop(PopPipelineArgs),\n    Eval(EvalPipelineArgs),\n    List(ListPipelineArgs),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/pipeline/pop.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// Remove a stage from a pipeline.\n#[derive(Args)]\npub(crate) struct PopPipelineArgs {\n    /// ID of node.\n    pub(crate) node_id: Option<String>,\n\n    /// Remove at a position instead of at the end.\n    #[arg(short, long)]\n    pub(crate) index: Option<usize>,\n\n    /// Remove all stages.\n    #[arg(long, conflicts_with = \"index\")]\n    pub(crate) all: bool,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/args/pipeline/push.rs"
+            }
+          ],
+          "content": "use clap::Args;\n\n/// Add a stage to a pipeline.\n#[derive(Args)]\npub(crate) struct PushPipelineArgs {\n    /// ID of node.\n    pub(crate) node_id: String,\n\n    /// ID of operation.\n    pub(crate) operation_id: String,\n\n    /// Options to pass to the operation, in JSON.\n    #[arg(short, long)]\n    pub(crate) options: Option<String>,\n\n    /// Insert at a position instead of at the end.\n    #[arg(short, long)]\n    pub(crate) index: Option<usize>,\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/ack/mod.rs"
+            }
+          ],
+          "content": "use std::io::{self, Write, stdin};\n\nuse anyhow::anyhow;\nuse rnacl_core::{\n    node::id::NodeId,\n    sample::{Sample, batch::Batch},\n    snapshot::diff::{BatchDiff, SamplePresence},\n};\n\nuse crate::{\n    args::ack::AckArgs,\n    helper::{resolve_explicit_or_reused_node_id, resolve_ledger},\n    output, ui,\n};\n\npub(super) fn dispatch(args: AckArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let node_ids = args\n        .node_id\n        .into_iter()\n        .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))\n        .collect::<anyhow::Result<Vec<_>>>()?;\n    let dependency_node_ids = args\n        .dependency\n        .into_iter()\n        .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))\n        .collect::<anyhow::Result<Vec<_>>>()?;\n\n    let audit = ledger.load_pending_snapshot().unwrap_or_default();\n    let mut baseline = ledger.load_baseline_snapshot().unwrap_or_default();\n    let mut diffs = audit.diff(baseline.clone());\n\n    let node_ids = if !node_ids.is_empty() {\n        node_ids\n    } else {\n        audit\n            .entries()\n            .keys()\n            .map(|node_id| node_id.clone())\n            .collect::<Vec<_>>()\n    };\n\n    'nodes: for node_id in node_ids {\n        let (diff, dep_diffs) = diffs\n            .remove(&node_id)\n            .ok_or_else(|| anyhow!(\"node absent in both pending and baseline snapshot\"))?;\n\n        let baseline_entry = baseline.entries_mut().entry(node_id.clone()).or_default();\n\n        let interactive = !args.all;\n\n        if dependency_node_ids.is_empty() {\n            let should_quit = !ack_batch_diff(\n                BatchOrigin::DirtyNode(node_id),\n                diff,\n                baseline_entry.batch_mut(),\n                interactive,\n            )?;\n            if should_quit {\n                break;\n            }\n        } else {\n            for (dep_node_id, dep_diff) in dep_diffs\n                .into_iter()\n                .filter(|(node_id, _)| dependency_node_ids.contains(node_id))\n            {\n                let should_quit = ack_batch_diff(\n                    BatchOrigin::StaleDependencyNode {\n                        dependent: node_id.clone(),\n                        dependency: dep_node_id.clone(),\n                    },\n                    dep_diff,\n                    baseline_entry\n                        .dependencies_mut()\n                        .entry(dep_node_id)\n                        .or_default(),\n                    interactive,\n                )?;\n                if should_quit {\n                    break 'nodes;\n                }\n            }\n        }\n    }\n\n    ledger.save_baseline_snapshot(baseline)?;\n\n    Ok(())\n}\n\nenum BatchOrigin {\n    DirtyNode(NodeId),\n    StaleDependencyNode {\n        dependent: NodeId,\n        dependency: NodeId,\n    },\n}\n\nfn ack_batch_diff(\n    origin: BatchOrigin,\n    batch_diff: BatchDiff,\n    working_batch: &mut Batch,\n    interactive: bool,\n) -> anyhow::Result<bool> {\n    let sample_diffs = batch_diff\n        .sample_diffs()\n        .into_iter()\n        .filter(|(_, presence)| presence != &SamplePresence::Both)\n        .collect::<Vec<_>>();\n\n    if interactive && !sample_diffs.is_empty() {\n        match origin {\n            BatchOrigin::DirtyNode(node_id) => {\n                println!(\"{} is dirty\", node_id)\n            }\n            BatchOrigin::StaleDependencyNode {\n                dependent,\n                dependency,\n            } => println!(\"{} is stale due to dependency of {}\", dependent, dependency),\n        }\n    }\n\n    for sample_diff in sample_diffs {\n        if interactive {\n            match prompt_ack_sample_diff(&sample_diff)? {\n                SamplePromptResponse::AckSample => (),\n                SamplePromptResponse::SkipSample => continue,\n                SamplePromptResponse::SkipBatch => break,\n                SamplePromptResponse::SkipAll => return Ok(false),\n            }\n        }\n\n        match sample_diff {\n            (sample, SamplePresence::OnlyBefore) => {\n                working_batch.samples_mut().retain(|s| s != &sample)\n            }\n            (sample, SamplePresence::OnlyAfter) => working_batch.samples_mut().push(sample),\n            _ => (),\n        }\n    }\n\n    Ok(true)\n}\n\nenum SamplePromptResponse {\n    AckSample,\n    SkipSample,\n    SkipBatch,\n    SkipAll,\n}\n\nfn prompt_ack_sample_diff(\n    sample_diff: &(Sample, SamplePresence),\n) -> anyhow::Result<SamplePromptResponse> {\n    println!(\"{}\", output::display_sample_diff(&sample_diff));\n    loop {\n        print!(\"y/n/N/q/s/t/? = \");\n        io::stdout().flush()?;\n\n        let mut choice = String::new();\n        stdin().read_line(&mut choice)?;\n\n        match choice.trim() {\n            \"y\" | \"yes\" => return Ok(SamplePromptResponse::AckSample),\n            \"n\" | \"no\" => return Ok(SamplePromptResponse::SkipSample),\n            \"N\" | \"NO\" => return Ok(SamplePromptResponse::SkipBatch),\n            \"q\" | \"quit\" => return Ok(SamplePromptResponse::SkipAll),\n            \"s\" | \"sample\" => println!(\"{}\", output::display_sample_diff(&sample_diff)),\n            \"t\" | \"trace\" => println!(\"{}\", serde_json::to_string_pretty(sample_diff.0.traces())?),\n            \"?\" | \"h\" | \"help\" => println!(\n                \"\\\nyes:    ack the sample\nno:     skip the sample\nNO:     skip the rest of the samples in the batch (keeps previous acks)\nquit:   skip the rest of the samples and quit (keeps previous acks)\nsample: show the sample\ntrace:  show the sample's trace to determine its origin\nhelp:   show this\n\neach command has its first letter as an alias\"\n            ),\n            \"\" => (),\n            input => ui::error(format!(\n                \"no such command '{input}'. try 'help' for an explanation.\"\n            )),\n        }\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/dependency/add.rs"
+            }
+          ],
+          "content": "use log::info;\n\nuse crate::{\n    args::dependency::add::AddDependencyArgs,\n    helper::{resolve_explicit_or_reused_node, resolve_explicit_or_reused_node_id, resolve_ledger},\n};\n\npub(super) fn dispatch(args: AddDependencyArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n\n    let dependents = args\n        .node_id\n        .into_iter()\n        .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))\n        .collect::<anyhow::Result<Vec<_>>>()?;\n\n    let new_dependencies = {\n        let mut result = Vec::new();\n\n        for node_id in args.dependency {\n            result.push(resolve_explicit_or_reused_node_id(&ledger, Some(node_id))?);\n        }\n\n        for node_id in args.from {\n            let node = resolve_explicit_or_reused_node(&ledger, Some(node_id))?;\n            result.extend(node.dependencies().to_owned());\n        }\n\n        if args.mirror {\n            result.extend(dependents.to_owned());\n        }\n\n        result\n    };\n\n    for node_id in dependents {\n        let mut node = ledger.load_node_for_id(&node_id)?;\n        let deps = node.dependencies_mut();\n\n        for new_dependency in &new_dependencies {\n            if new_dependency != &node_id && !deps.contains(new_dependency) {\n                info!(\"adding dependency to {}: {}\", node_id, new_dependency);\n                deps.push(new_dependency.clone());\n            }\n        }\n\n        ledger.save_node(&node)?;\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/dependency/mod.rs"
+            }
+          ],
+          "content": "mod add;\nmod remove;\n\nuse crate::args::dependency::DependencyCommand;\n\npub(super) fn dispatch(command: DependencyCommand) -> anyhow::Result<()> {\n    match command {\n        DependencyCommand::Add(args) => add::dispatch(args),\n        DependencyCommand::Remove(args) => remove::dispatch(args),\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/dependency/remove.rs"
+            }
+          ],
+          "content": "use log::info;\n\nuse crate::{\n    args::dependency::remove::RemoveDependencyArgs,\n    helper::{resolve_explicit_or_reused_node_id, resolve_ledger},\n};\n\npub(super) fn dispatch(args: RemoveDependencyArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n\n    let dependents = args\n        .node_id\n        .into_iter()\n        .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))\n        .collect::<anyhow::Result<Vec<_>>>()?;\n\n    let remove_deps = args\n        .dependency\n        .into_iter()\n        .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))\n        .collect::<anyhow::Result<Vec<_>>>()?;\n\n    for node_id in dependents {\n        let mut node = ledger.load_node_for_id(&node_id)?;\n        let deps = node.dependencies_mut();\n\n        deps.retain(|dep| {\n            if args.all || remove_deps.contains(dep) {\n                info!(\"removing dependency from {}: {}\", node_id, dep);\n                false\n            } else {\n                true\n            }\n        });\n\n        ledger.save_node(&node)?;\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/ledger/init.rs"
+            }
+          ],
+          "content": "use std::env::current_dir;\n\nuse rnacl_core::ledger::Ledger;\n\nuse crate::args::ledger::init::InitLedgerArgs;\n\npub(super) fn dispatch(args: InitLedgerArgs) -> anyhow::Result<()> {\n    let dir = args.dir.unwrap_or(current_dir()?);\n    Ledger::create_ledger(&dir)?;\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/ledger/mod.rs"
+            }
+          ],
+          "content": "mod init;\n\nuse crate::args::ledger::LedgerCommand;\n\npub(super) fn dispatch(command: LedgerCommand) -> anyhow::Result<()> {\n    match command {\n        LedgerCommand::Init(args) => init::dispatch(args),\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/mod.rs"
+            }
+          ],
+          "content": "mod ack;\nmod audit;\nmod dependency;\nmod ledger;\nmod node;\nmod operation;\nmod pipeline;\n\nuse crate::args::{Cli, Command};\n\npub(super) fn dispatch(cli: Cli) -> anyhow::Result<()> {\n    match cli.command {\n        Command::Ledger(cmd) => ledger::dispatch(cmd),\n        Command::Node(cmd) => node::dispatch(cmd),\n        Command::Dependency(cmd) => dependency::dispatch(cmd),\n        Command::Pipeline(cmd) => pipeline::dispatch(cmd),\n        Command::Operation(cmd) => operation::dispatch(cmd),\n        Command::Audit(args) => audit::dispatch(args),\n        Command::Ack(args) => ack::dispatch(args),\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/node/add.rs"
+            }
+          ],
+          "content": "use std::time::Duration;\n\nuse rnacl_core::node::Node;\n\nuse crate::{args::node::add::AddNodeArgs, helper::resolve_ledger, reuse_node};\n\npub(super) fn dispatch(args: AddNodeArgs) -> anyhow::Result<()> {\n    let node = Node::new(\n        args.id.map_or(Default::default(), |id| id.into()),\n        args.description,\n        Default::default(),\n        Duration::from_hours(1),\n        Default::default(),\n    );\n\n    let ledger = resolve_ledger()?;\n    ledger.add_node(&node)?;\n\n    println!(\"{}\", node.id());\n\n    if !args.no_use {\n        reuse_node::set(&ledger, node.id().clone(), None)?;\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/node/edit.rs"
+            }
+          ],
+          "content": "use crate::{\n    args::node::edit::EditNodeArgs,\n    helper::{resolve_explicit_or_reused_node, resolve_ledger},\n};\n\npub(super) fn dispatch(args: EditNodeArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let mut node = resolve_explicit_or_reused_node(&ledger, args.node_id)?;\n\n    if let Some(description) = args.description {\n        *node.description_mut() = Some(description);\n    }\n\n    if args.unset_description {\n        *node.description_mut() = None;\n    }\n\n    ledger.save_node(&node)?;\n\n    println!(\"{}\", node.id());\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/node/list.rs"
+            }
+          ],
+          "content": "use crate::{args::node::list::ListNodeArgs, helper::resolve_ledger};\n\npub(super) fn dispatch(_args: ListNodeArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let nodes = ledger.load_nodes()?;\n\n    let node_id_width = nodes\n        .iter()\n        .map(|node| node.id().to_string().len())\n        .max()\n        .unwrap_or(0);\n    for node in nodes {\n        println!(\n            \"{:width$}  {}\",\n            node.id().to_string(),\n            node.description()\n                .clone()\n                .unwrap_or_else(|| String::from(\"-\")),\n            width = node_id_width\n        );\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/node/mod.rs"
+            }
+          ],
+          "content": "mod add;\nmod edit;\nmod list;\nmod remove;\nmod reuse;\nmod show;\n\nuse crate::args::node::NodeCommand;\n\npub(super) fn dispatch(command: NodeCommand) -> anyhow::Result<()> {\n    match command {\n        NodeCommand::Reuse(args) => reuse::dispatch(args),\n        NodeCommand::Add(args) => add::dispatch(args),\n        NodeCommand::Edit(args) => edit::dispatch(args),\n        NodeCommand::Remove(args) => remove::dispatch(args),\n        NodeCommand::List(args) => list::dispatch(args),\n        NodeCommand::Show(args) => show::dispatch(args),\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/node/remove.rs"
+            }
+          ],
+          "content": "use crate::{\n    args::node::remove::RemoveNodeArgs,\n    helper::{resolve_explicit_or_reused_node_id, resolve_ledger},\n};\n\npub(super) fn dispatch(args: RemoveNodeArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let node_id = resolve_explicit_or_reused_node_id(&ledger, args.node_id)?;\n    ledger.remove_node(&node_id)?;\n\n    println!(\"{}\", node_id);\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/node/reuse.rs"
+            }
+          ],
+          "content": "use std::time::SystemTime;\n\nuse crate::{args::node::reuse::ReuseNodeArgs, helper::resolve_ledger, reuse_node, ui};\n\npub(super) fn dispatch(args: ReuseNodeArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n\n    match args {\n        ReuseNodeArgs {\n            node_id: Some(node_id),\n            duration,\n            ..\n        } => {\n            let node_id = ledger.resolve_node_id(&node_id)?;\n\n            println!(\"{node_id}\");\n\n            reuse_node::set(\n                &ledger,\n                node_id,\n                duration.map(|d| SystemTime::now() + d.into()),\n            )?;\n        }\n\n        ReuseNodeArgs { unset: true, .. } => match reuse_node::get(&ledger)? {\n            Some(node_id) => {\n                println!(\"{node_id}\");\n                reuse_node::remove()?;\n            }\n\n            None => {\n                ui::error(\"no reuse node set\");\n            }\n        },\n\n        ReuseNodeArgs { .. } => match reuse_node::get(&ledger)? {\n            Some(node_id) => println!(\"{node_id}\"),\n            None => eprintln!(\"no reuse node set\"),\n        },\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/node/show.rs"
+            }
+          ],
+          "content": "use crate::{\n    args::node::show::ShowNodeArgs,\n    helper::{resolve_explicit_or_reused_node, resolve_ledger},\n};\n\npub(super) fn dispatch(args: ShowNodeArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let node = resolve_explicit_or_reused_node(&ledger, args.node_id)?;\n\n    match args {\n        ShowNodeArgs { raw: true, .. } => {\n            println!(\"{}\", serde_json::to_string_pretty(&node)?);\n        }\n\n        ShowNodeArgs { path: true, .. } => {\n            println!(\"{}\", ledger.node_path(node.id()).to_string_lossy());\n        }\n\n        _ => {\n            println!(\n                \"{}\\ndescription: {}\\ndependencies: {}\\nstages: {}\",\n                node.id(),\n                node.description()\n                    .clone()\n                    .unwrap_or_else(|| String::from(\"none\")),\n                node.dependencies()\n                    .iter()\n                    .map(ToString::to_string)\n                    .collect::<Vec<_>>()\n                    .join(\" \"),\n                node.pipeline().stages().len()\n            );\n        }\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/operation/eval.rs"
+            }
+          ],
+          "content": "use std::io::{Read, stdin};\n\nuse rnacl_core::{registry, sample::batch::Batch};\n\nuse crate::{args::operation::eval::EvalOperationArgs, helper::resolve_ledger};\n\npub(super) fn dispatch(args: EvalOperationArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n\n    let options = match args.options {\n        Some(serialized) => serde_json::from_str::<serde_json::Value>(&serialized)?,\n        None => serde_json::Value::Null,\n    };\n\n    let operation = registry::resolve_op(&args.operation_id)?;\n\n    let input = if !args.head {\n        let mut buf = Vec::new();\n        stdin().read_to_end(&mut buf)?;\n        serde_json::from_slice::<Batch>(buf.as_slice())?\n    } else {\n        Batch::default()\n    };\n\n    let output = operation.eval(&ledger, input, options)?;\n\n    println!(\"{}\", serde_json::to_string_pretty(&output)?);\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/operation/list.rs"
+            }
+          ],
+          "content": "use rnacl_core::registry;\n\nuse crate::args::operation::list::ListOperationArgs;\n\npub(super) fn dispatch(_args: ListOperationArgs) -> anyhow::Result<()> {\n    let ops = registry::with_all_ops(|ops| ops.clone());\n\n    let op_id_width = ops.iter().map(|op| op.0.len()).max().unwrap_or(0);\n    for (id, op) in ops {\n        println!(\"{:width$}  {}\", id, op.description(), width = op_id_width);\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/operation/mod.rs"
+            }
+          ],
+          "content": "mod eval;\nmod list;\n\nuse crate::args::operation::OperationCommand;\n\npub(super) fn dispatch(command: OperationCommand) -> anyhow::Result<()> {\n    match command {\n        OperationCommand::Eval(args) => eval::dispatch(args),\n        OperationCommand::List(args) => list::dispatch(args),\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/pipeline/eval.rs"
+            }
+          ],
+          "content": "use anyhow::anyhow;\nuse rnacl_core::sample::batch::Batch;\n\nuse crate::{\n    args::pipeline::eval::EvalPipelineArgs,\n    helper::{resolve_explicit_or_reused_node, resolve_ledger},\n    ui,\n};\n\npub(super) fn dispatch(args: EvalPipelineArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let node = resolve_explicit_or_reused_node(&ledger, args.node_id)?;\n\n    let stage_len = node.pipeline().stages().len();\n\n    let eval_stages = node\n        .pipeline()\n        .stages()\n        .into_iter()\n        .zip(0..)\n        .filter(|(_, index)| {\n            args.indices\n                .as_ref()\n                .is_none_or(|indices| indices.contains(index))\n        })\n        .collect::<Vec<_>>();\n\n    if eval_stages.is_empty() {\n        return Err(anyhow!(\"empty pipeline\"));\n    }\n\n    eval_stages.into_iter().try_fold(\n        Batch::default(),\n        |input, (stage, index)| -> anyhow::Result<Batch> {\n            ui::info(format!(\n                \"{}  {}  {}\",\n                index,\n                stage.operation_id(),\n                stage.options()\n            ));\n\n            let output = stage.eval(&ledger, input)?;\n\n            if args.show_all\n                || args\n                    .show\n                    .as_ref()\n                    .is_some_and(|indices| indices.contains(&index))\n                || (args.show.is_none() && index == stage_len - 1)\n            {\n                println!(\"{}\", serde_json::to_string_pretty(&output)?);\n            }\n\n            Ok(output)\n        },\n    )?;\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/pipeline/list.rs"
+            }
+          ],
+          "content": "use crate::{\n    args::pipeline::list::ListPipelineArgs,\n    helper::{resolve_explicit_or_reused_node, resolve_ledger},\n};\n\npub(super) fn dispatch(args: ListPipelineArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let node = resolve_explicit_or_reused_node(&ledger, args.node_id)?;\n    let stages = node.pipeline().stages();\n\n    if !args.raw {\n        for stage in stages {\n            println!(\"{}  {}\", stage.operation_id(), stage.options());\n        }\n    } else {\n        println!(\"{}\", serde_json::to_string_pretty(stages)?);\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/pipeline/mod.rs"
+            }
+          ],
+          "content": "mod eval;\nmod list;\nmod pop;\nmod push;\n\nuse crate::args::pipeline::PipelineCommand;\n\npub(super) fn dispatch(command: PipelineCommand) -> anyhow::Result<()> {\n    match command {\n        PipelineCommand::Push(args) => push::dispatch(args),\n        PipelineCommand::Pop(args) => pop::dispatch(args),\n        PipelineCommand::Eval(args) => eval::dispatch(args),\n        PipelineCommand::List(args) => list::dispatch(args),\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/pipeline/pop.rs"
+            }
+          ],
+          "content": "use anyhow::anyhow;\n\nuse crate::{\n    args::pipeline::pop::PopPipelineArgs,\n    helper::{resolve_explicit_or_reused_node, resolve_ledger},\n    ui,\n};\n\npub(super) fn dispatch(args: PopPipelineArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let mut node = resolve_explicit_or_reused_node(&ledger, args.node_id)?;\n\n    if node.pipeline().stages().is_empty() {\n        return Err(anyhow!(\"empty pipeline\"));\n    }\n\n    let removed_stage = node.pipeline_mut().remove(args.index)?;\n\n    ledger.save_node(&node)?;\n\n    ui::info(format!(\n        \"removed operation '{}' with options '{}'\",\n        removed_stage.operation_id(),\n        removed_stage.options()\n    ));\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/pipeline/push.rs"
+            }
+          ],
+          "content": "use rnacl_core::{pipeline::Stage, registry};\n\nuse crate::{\n    args::pipeline::push::PushPipelineArgs,\n    helper::{resolve_explicit_or_reused_node, resolve_ledger},\n};\n\npub(super) fn dispatch(args: PushPipelineArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let mut node = resolve_explicit_or_reused_node(&ledger, Some(args.node_id))?;\n\n    registry::resolve_op(&args.operation_id)?;\n\n    let options = match args.options {\n        Some(serialized) => serde_json::from_str::<serde_json::Value>(&serialized)?,\n        None => serde_json::Value::Null,\n    };\n\n    let stage = Stage::new(args.operation_id, options);\n\n    node.pipeline_mut().add(args.index, stage)?;\n\n    ledger.save_node(&node)?;\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/helper.rs"
+            }
+          ],
+          "content": "use anyhow::anyhow;\nuse rnacl_core::{\n    ledger::Ledger,\n    node::{Node, id::NodeId},\n};\n\nuse crate::reuse_node;\n\npub(crate) fn resolve_ledger() -> anyhow::Result<Ledger> {\n    Ok(Ledger::find_for_working_dir(&std::env::current_dir()?)?)\n}\n\nfn explicit_or_reused_node_id(\n    ledger: &Ledger,\n    specified_node_id: Option<String>,\n) -> anyhow::Result<String> {\n    let reuse_node_id = reuse_node::get(ledger)?.map(|node_id| node_id.to_string());\n    specified_node_id\n        .filter(|node_id| node_id != \"-\")\n        .or(reuse_node_id)\n        .ok_or(anyhow!(\"node ID not specified, and not reusing\"))\n}\n\npub(crate) fn resolve_explicit_or_reused_node_id(\n    ledger: &Ledger,\n    specified_node_id: Option<String>,\n) -> anyhow::Result<NodeId> {\n    Ok(ledger.resolve_node_id(&explicit_or_reused_node_id(ledger, specified_node_id)?)?)\n}\n\npub(crate) fn resolve_explicit_or_reused_node(\n    ledger: &Ledger,\n    specified_node_id: Option<String>,\n) -> anyhow::Result<Node> {\n    Ok(ledger.resolve_node(&explicit_or_reused_node_id(ledger, specified_node_id)?)?)\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/logging.rs"
+            }
+          ],
+          "content": "use log::LevelFilter;\n\nuse crate::args::Cli;\n\npub(crate) fn init(cli: &Cli) {\n    let level = match cli.global.verbose {\n        0 => LevelFilter::Warn,\n        1 => LevelFilter::Info,\n        2 => LevelFilter::Debug,\n        _ => LevelFilter::Trace,\n    };\n\n    env_logger::builder().filter_level(level).init();\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/main.rs"
+            }
+          ],
+          "content": "mod args;\nmod commands;\npub(crate) mod helper;\nmod logging;\npub(crate) mod output;\npub(crate) mod reuse_node;\npub(crate) mod ui;\n\nuse std::process::ExitCode;\n\nuse rnacl_ops::register_ops;\n\nfn main() -> ExitCode {\n    match start() {\n        Ok(_) => ExitCode::SUCCESS,\n        Err(err) => {\n            ui::error(format!(\"{}\", err));\n            ExitCode::FAILURE\n        }\n    }\n}\n\nfn start() -> anyhow::Result<()> {\n    let cli = args::parse();\n    logging::init(&cli);\n    register_ops()?;\n    commands::dispatch(cli)?;\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/reuse_node.rs"
+            }
+          ],
+          "content": "use std::{\n    env::home_dir,\n    fs,\n    path::PathBuf,\n    time::{Duration, SystemTime},\n};\n\nuse anyhow::anyhow;\nuse log::info;\nuse rnacl_core::{ledger::Ledger, node::id::NodeId};\nuse serde::{Deserialize, Serialize};\n\n#[derive(Serialize, Deserialize, Debug)]\nstruct ReuseNode {\n    ledger_dir: PathBuf,\n    node_id: NodeId,\n    expire: SystemTime,\n}\n\nfn reuse_node_path() -> anyhow::Result<PathBuf> {\n    home_dir()\n        .map(|path| path.join(\".rnacl_reuse_node\"))\n        .ok_or_else(|| anyhow!(\"user has no home directory. cannot get file path for node reuse.\"))\n}\n\npub(crate) fn get(ledger: &Ledger) -> anyhow::Result<Option<NodeId>> {\n    let read_file = fs::read_to_string(reuse_node_path()?);\n\n    let default_node = match read_file {\n        Ok(content) => serde_json::from_str::<ReuseNode>(&content),\n        Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(None),\n        Err(err) => return Err(err.into()),\n    }?;\n\n    if default_node.expire < SystemTime::now() {\n        info!(\"reuse node expired, removing it\");\n        remove()?;\n        return Ok(None);\n    }\n\n    if default_node.ledger_dir != ledger.dir() {\n        return Ok(None);\n    }\n\n    Ok(Some(default_node.node_id))\n}\n\npub(crate) fn set(\n    ledger: &Ledger,\n    node_id: NodeId,\n    expire: Option<SystemTime>,\n) -> anyhow::Result<()> {\n    let default_node_path = reuse_node_path()?;\n    let default_node = ReuseNode {\n        ledger_dir: ledger.dir().to_path_buf(),\n        node_id: node_id,\n        expire: expire.unwrap_or_else(|| SystemTime::now() + Duration::from_mins(30)),\n    };\n\n    let contents = serde_json::to_vec(&default_node)?;\n    info!(\n        \"reusing node at {:#?} with {}\",\n        default_node_path, default_node.node_id\n    );\n    fs::write(default_node_path, &contents)?;\n\n    Ok(())\n}\n\npub(crate) fn remove() -> anyhow::Result<()> {\n    let default_node_path = reuse_node_path()?;\n\n    info!(\"removing reuse node at {:#?}\", default_node_path);\n    fs::remove_file(default_node_path)?;\n\n    Ok(())\n}\n\n// TODO\n// pub(crate) fn noerr_get(ledger: &Ledger) -> Option<NodeId> {\n//     get(ledger)\n//         .inspect_err(|e| warn!(\"cannot get reused node: {}\", e))\n//         .ok()\n//         .flatten()\n// }\n\n// pub(crate) fn noerr_set(ledger: &Ledger, node_id: NodeId) {\n//     let _ = set(ledger, node_id, None).inspect_err(|e| warn!(\"cannot reuse node: {}\", e));\n// }\n\n// pub(crate) fn noerr_remove() {\n//     let _ = remove().inspect_err(|e| warn!(\"cannot remove reused node: {}\", e));\n// }\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/ui.rs"
+            }
+          ],
+          "content": "use console::style;\n\npub fn error(msg: impl AsRef<str>) {\n    eprintln!(\"{} {}\", style(\"error:\").red(), msg.as_ref());\n}\n\npub fn warn(msg: impl AsRef<str>) {\n    eprintln!(\"{} {}\", style(\"warn:\").yellow(), msg.as_ref());\n}\n\npub fn info(msg: impl AsRef<str>) {\n    eprintln!(\"{} {}\", style(\"info:\").cyan(), msg.as_ref());\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/ledger/error.rs"
+            }
+          ],
+          "content": "use std::path::PathBuf;\n\nuse crate::{\n    node::{error::NodeError, id::NodeId},\n    pipeline::PipelineError,\n};\n\n#[derive(thiserror::Error, Debug)]\npub enum LedgerError {\n    #[error(\"no ledger found at {0}\")]\n    PathNotFound(PathBuf),\n\n    #[error(\"ledger already initialized at {0}\")]\n    PathAlreadyExists(PathBuf),\n\n    #[error(\"path already exists, but is not a directory: {0}\")]\n    PathNotDirectory(PathBuf),\n\n    #[error(\"an operation does not exist by such ID: {0}\")]\n    OperationNotFound(String),\n\n    #[error(\"dependency node could not be found: {0}\")]\n    DependencyNodeNotFound(NodeId),\n\n    #[error(transparent)]\n    Node(#[from] NodeError),\n\n    #[error(transparent)]\n    Pipeline(#[from] PipelineError),\n\n    #[error(transparent)]\n    SystemTime(#[from] std::time::SystemTimeError),\n\n    #[error(transparent)]\n    Json(#[from] serde_json::Error),\n\n    #[error(transparent)]\n    Io(#[from] std::io::Error),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/ledger/find.rs"
+            }
+          ],
+          "content": "use std::{ffi::OsStr, path::Path};\n\nuse crate::ledger::{Ledger, error::LedgerError};\n\nimpl Ledger {\n    pub(crate) fn is_ledger_dir(path: &Path) -> bool {\n        path.file_name() == Some(OsStr::new(\".rnacl\")) && path.is_dir()\n    }\n\n    pub fn find_for_working_dir(working_dir: &Path) -> Result<Ledger, LedgerError> {\n        working_dir\n            .ancestors()\n            .find_map(|ancestor| {\n                ancestor\n                    .read_dir()\n                    .ok()\n                    .map(|read_dir| {\n                        read_dir\n                            .flatten()\n                            .map(|child| child.path())\n                            .find(|child| Ledger::is_ledger_dir(child))\n                            .map(|ledger_dir| Ledger::new(ledger_dir))\n                    })\n                    .flatten()\n            })\n            .ok_or_else(|| LedgerError::PathNotFound(working_dir.to_path_buf()))\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/ledger/init.rs"
+            }
+          ],
+          "content": "use std::{fs, path::Path};\n\nuse log::info;\n\nuse crate::ledger::{error::LedgerError, ledger::Ledger};\n\nimpl Ledger {\n    pub fn create_ledger(working_dir: &Path) -> Result<Ledger, LedgerError> {\n        let ledger = Ledger::new(Ledger::ledger_dir(working_dir));\n\n        populate_ledger_dir(&ledger)?;\n\n        Ok(ledger)\n    }\n}\n\nfn populate_ledger_dir(ledger: &Ledger) -> Result<(), LedgerError> {\n    if ledger.dir().try_exists()? {\n        if ledger.dir().is_dir() {\n            return Err(LedgerError::PathAlreadyExists(ledger.dir().to_path_buf()));\n        }\n\n        return Err(LedgerError::PathNotDirectory(ledger.dir().to_path_buf()));\n    }\n\n    {\n        info!(\"creating {:#?}\", ledger.dir());\n        fs::create_dir(&ledger.dir())?;\n\n        {\n            let nodes_dir = ledger.nodes_dir();\n            info!(\"creating {:#?}\", nodes_dir);\n            fs::create_dir(nodes_dir)?;\n        }\n\n        {\n            let snapshots_dir = ledger.snapshots_dir();\n            info!(\"creating {:#?}\", snapshots_dir);\n            fs::create_dir(snapshots_dir)?;\n\n            {\n                let snapshot_baseline_path = ledger.snapshot_baseline_path();\n                info!(\"creating {:#?}\", snapshot_baseline_path);\n                fs::write(snapshot_baseline_path, \"{}\")?; // TODO\n            }\n\n            {\n                let snapshot_pending_path = ledger.snapshot_pending_path();\n                info!(\"creating {:#?}\", snapshot_pending_path);\n                fs::write(snapshot_pending_path, \"{}\")?; // TODO\n            }\n        }\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/ledger/ledger.rs"
+            }
+          ],
+          "content": "use std::path::{Path, PathBuf};\n\npub struct Ledger {\n    dir: PathBuf,\n}\n\nimpl Ledger {\n    pub fn new(dir: PathBuf) -> Self {\n        Self { dir }\n    }\n\n    pub fn dir(&self) -> &Path {\n        &self.dir\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/ledger/mod.rs"
+            }
+          ],
+          "content": "pub(crate) mod error;\npub mod find;\nmod init;\nmod ledger;\nmod nodes;\nmod paths;\nmod snapshots;\n\npub use ledger::Ledger;\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/ledger/nodes.rs"
+            }
+          ],
+          "content": "use std::{\n    fs::{self, DirEntry},\n    path::Path,\n};\n\nuse log::{info, warn};\n\nuse crate::{\n    ledger::{error::LedgerError, ledger::Ledger},\n    node::{Node, error::NodeError, id::NodeId},\n};\n\nimpl Ledger {\n    fn node_files(&self) -> Vec<DirEntry> {\n        let nodes_dir = self.nodes_dir();\n        let entries = nodes_dir\n            .read_dir()\n            .expect(&format!(\"cannot read {:#?} as directory\", nodes_dir));\n\n        entries\n            .flat_map(|entry| {\n                entry\n                    .inspect_err(|err| warn!(\"strange entry: {}\", err))\n                    .ok()\n                    .filter(|entry| {\n                        entry\n                            .file_type()\n                            .inspect_err(|err| warn!(\"cannot check file type: {}\", err))\n                            .is_ok_and(|filetype| {\n                                if filetype.is_file() {\n                                    true\n                                } else {\n                                    warn!(\"non-file node entry ignored: {:#?}\", entry.path());\n                                    false\n                                }\n                            })\n                    })\n            })\n            .collect::<Vec<_>>()\n    }\n\n    pub fn node_ids(&self) -> Vec<NodeId> {\n        self.node_files()\n            .iter()\n            .map(|file| NodeId::for_path(&file.path()))\n            .collect()\n    }\n\n    pub fn resolve_node_id(&self, id: &str) -> Result<NodeId, NodeError> {\n        let node_ids = self.node_ids();\n\n        if let Some(node_id) = node_ids.iter().find(|node_id| node_id.to_string() == id) {\n            return Ok(node_id.clone());\n        }\n\n        let mut possible_ids = node_ids\n            .iter()\n            .filter(|node_id| node_id.to_string().starts_with(id));\n\n        match (possible_ids.next(), possible_ids.next()) {\n            (Some(node_id), None) => Ok(node_id.clone()),\n            (None, _) => Err(NodeError::NoSuchNodeId(id.to_string()).into()),\n            _ => Err(NodeError::AmbiguousNodeId(id.to_string()).into()),\n        }\n    }\n\n    pub fn resolve_node(&self, id: &str) -> Result<Node, NodeError> {\n        self.load_node_for_id(&self.resolve_node_id(id)?)\n    }\n\n    pub fn load_nodes(&self) -> Result<Vec<Node>, LedgerError> {\n        Ok(self\n            .node_files()\n            .iter()\n            .flat_map(|entry| {\n                self.load_node_for_path(&entry.path())\n                    .inspect_err(|err| warn!(\"failed to load node {:#?}: {}\", entry.path(), err))\n            })\n            .collect::<Vec<_>>())\n    }\n\n    pub fn load_node_for_path(&self, path: &Path) -> Result<Node, NodeError> {\n        if !path.try_exists()? {\n            return Err(NodeError::PathNotFound(path.to_path_buf()));\n        }\n\n        let mut node: Node = serde_json::from_str(&fs::read_to_string(path)?)?;\n        node.set_id(NodeId::for_path(path));\n\n        Ok(node)\n    }\n\n    pub fn load_node_for_id(&self, id: &NodeId) -> Result<Node, NodeError> {\n        self.load_node_for_path(&self.node_path(id))\n    }\n\n    pub fn save_node(&self, node: &Node) -> Result<(), NodeError> {\n        let path = self.node_path(&node.id());\n\n        if !path.try_exists()? {\n            return Err(NodeError::PathNotFound(path));\n        }\n\n        write_node(&path, node)?;\n\n        Ok(())\n    }\n\n    pub fn add_node(&self, node: &Node) -> Result<(), NodeError> {\n        let path = self.node_path(&node.id());\n\n        if path.try_exists()? {\n            return Err(NodeError::PathAlreadyExists(path));\n        }\n\n        write_node(&path, node)?;\n\n        self.save_node(node)\n    }\n\n    pub fn remove_node(&self, id: &NodeId) -> Result<(), NodeError> {\n        let path = self.node_path(&id);\n\n        if !path.try_exists()? {\n            return Err(NodeError::PathNotFound(path));\n        }\n\n        fs::remove_file(path)?;\n\n        Ok(())\n    }\n}\n\nfn write_node(path: &Path, node: &Node) -> Result<(), NodeError> {\n    info!(\"writing node at {:?}\", path);\n    fs::write(path, serde_json::to_vec_pretty(node)?)?;\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/ledger/paths.rs"
+            }
+          ],
+          "content": "use std::path::{Path, PathBuf};\n\nuse crate::{ledger::ledger::Ledger, node::id::NodeId};\n\nimpl Ledger {\n    pub fn ledger_dir(path: &Path) -> PathBuf {\n        path.join(\".rnacl\")\n    }\n\n    pub fn container_dir(&self) -> PathBuf {\n        self.dir().parent().unwrap_or(self.dir()).to_path_buf()\n    }\n\n    pub fn nodes_dir(&self) -> PathBuf {\n        self.dir().join(\"nodes\")\n    }\n\n    pub fn node_path(&self, id: &NodeId) -> PathBuf {\n        self.nodes_dir().join(&id.to_string())\n    }\n\n    pub fn snapshots_dir(&self) -> PathBuf {\n        self.dir().join(\"snapshots\")\n    }\n\n    pub fn snapshot_baseline_path(&self) -> PathBuf {\n        self.snapshots_dir().join(\"baseline.json\")\n    }\n\n    pub fn snapshot_pending_path(&self) -> PathBuf {\n        self.snapshots_dir().join(\"pending.json\")\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/ledger/snapshots.rs"
+            }
+          ],
+          "content": "use std::{collections::HashMap, fs, path::Path};\n\nuse rayon::iter::{FromParallelIterator, IntoParallelRefIterator, ParallelIterator};\n\nuse crate::{\n    ledger::{Ledger, error::LedgerError},\n    node::id::NodeId,\n    sample::batch::Batch,\n    snapshot::{Snapshot, SnapshotEntry},\n};\n\nimpl Ledger {\n    pub fn capture_snapshot(&self, cache: Option<Snapshot>) -> Result<Snapshot, LedgerError> {\n        let nodes = self.load_nodes()?;\n\n        let batches = nodes\n            .par_iter()\n            .map(|node| {\n                Ok((\n                    node.id().clone(),\n                    node.dependencies(),\n                    match cache\n                        .as_ref()\n                        .map(|snapshot| snapshot.entries().get(node.id()))\n                        .flatten()\n                    {\n                        Some(entry)\n                            if entry.batch().created().elapsed()? < *node.cache_lifespan() =>\n                        {\n                            entry.batch().clone()\n                        }\n                        _ => node.pipeline().eval(self)?,\n                    },\n                ))\n            })\n            .collect::<Result<Vec<_>, LedgerError>>()?;\n\n        let node_dependencies = |deps: &[NodeId]| -> Result<HashMap<NodeId, Batch>, LedgerError> {\n            Ok(HashMap::from_iter(\n                deps.iter()\n                    .map(|dep_node_id| -> Result<(NodeId, Batch), LedgerError> {\n                        Ok((\n                            dep_node_id.clone(),\n                            batches\n                                .iter()\n                                .find_map(|(node_id, _, batch)| {\n                                    if node_id == dep_node_id {\n                                        Some(batch.to_owned())\n                                    } else {\n                                        None\n                                    }\n                                })\n                                .ok_or_else(|| {\n                                    LedgerError::DependencyNodeNotFound(dep_node_id.clone())\n                                })?,\n                        ))\n                    })\n                    .collect::<Result<Vec<_>, LedgerError>>()?,\n            ))\n        };\n\n        Ok(Snapshot::new(HashMap::from_par_iter(\n            batches\n                .par_iter()\n                .map(|(node_id, deps, batch)| {\n                    Ok((\n                        node_id.clone(),\n                        SnapshotEntry::new(batch.to_owned(), node_dependencies(deps)?),\n                    ))\n                })\n                .collect::<Result<Vec<_>, LedgerError>>()?,\n        )))\n    }\n\n    fn load_snapshot(&self, path: &Path) -> Result<Snapshot, LedgerError> {\n        Ok(serde_json::from_str(&fs::read_to_string(path)?)?)\n    }\n\n    fn save_snapshot(&self, path: &Path, snapshot: Snapshot) -> Result<(), LedgerError> {\n        fs::write(path, serde_json::to_string_pretty(&snapshot)?)?;\n        Ok(())\n    }\n\n    pub fn load_pending_snapshot(&self) -> Result<Snapshot, LedgerError> {\n        self.load_snapshot(&self.snapshot_pending_path())\n    }\n\n    pub fn save_pending_snapshot(&self, snapshot: Snapshot) -> Result<(), LedgerError> {\n        self.save_snapshot(&self.snapshot_pending_path(), snapshot)\n    }\n\n    pub fn load_baseline_snapshot(&self) -> Result<Snapshot, LedgerError> {\n        self.load_snapshot(&self.snapshot_baseline_path())\n    }\n\n    pub fn save_baseline_snapshot(&self, snapshot: Snapshot) -> Result<(), LedgerError> {\n        self.save_snapshot(&self.snapshot_baseline_path(), snapshot)\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/lib.rs"
+            }
+          ],
+          "content": "pub mod ledger;\npub mod node;\npub mod operation;\npub mod pipeline;\npub mod registry;\npub mod sample;\npub mod snapshot;\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/node/error.rs"
+            }
+          ],
+          "content": "use std::path::PathBuf;\n\n#[derive(thiserror::Error, Debug)]\npub enum NodeError {\n    #[error(\"node already exists at {0}\")]\n    PathAlreadyExists(PathBuf),\n\n    #[error(\"node not found at {0}\")]\n    PathNotFound(PathBuf),\n\n    #[error(\"node not found: {0}\")]\n    NoSuchNodeId(String),\n\n    #[error(\"ambiguous node ID: {0}\")]\n    AmbiguousNodeId(String),\n\n    #[error(transparent)]\n    Json(#[from] serde_json::Error),\n\n    #[error(transparent)]\n    Io(#[from] std::io::Error),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/node/id.rs"
+            }
+          ],
+          "content": "use std::{fmt::Display, path::Path, str::FromStr};\n\nuse rand::{RngCore, rngs::ThreadRng};\nuse serde::{Deserialize, Serialize};\n\n#[derive(Serialize, Deserialize, Clone, Debug, Hash)]\npub struct NodeId(String);\n\nimpl NodeId {\n    pub fn for_path(path: &Path) -> Self {\n        Self(\n            path.file_name()\n                .expect(\"node path should have file name\")\n                .to_str()\n                .expect(\"node file name should be UTF-8\")\n                .to_string(),\n        )\n    }\n\n    pub fn random(rng: Option<ThreadRng>) -> Self {\n        let mut bytes = [0u8; 4];\n        rng.unwrap_or_else(rand::rng).fill_bytes(&mut bytes);\n        Self(hex::encode(bytes))\n    }\n}\n\nimpl Default for NodeId {\n    fn default() -> Self {\n        Self::random(None)\n    }\n}\n\nimpl PartialEq for NodeId {\n    fn eq(&self, other: &Self) -> bool {\n        self.0 == other.0\n    }\n}\n\nimpl Eq for NodeId {}\n\nimpl Display for NodeId {\n    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {\n        write!(f, \"{}\", self.0)\n    }\n}\n\nimpl From<String> for NodeId {\n    fn from(value: String) -> Self {\n        Self(value)\n    }\n}\n\nimpl FromStr for NodeId {\n    type Err = ();\n\n    fn from_str(s: &str) -> Result<Self, Self::Err> {\n        Ok(Self(s.to_string()))\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/node/mod.rs"
+            }
+          ],
+          "content": "pub(crate) mod error;\npub mod id;\nmod node;\n\npub use node::Node;\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/node/node.rs"
+            }
+          ],
+          "content": "use std::time::Duration;\n\nuse serde::{Deserialize, Serialize};\n\nuse crate::{node::id::NodeId, pipeline::Pipeline};\n\n#[derive(Serialize, Deserialize, Debug)]\npub struct Node {\n    #[serde(skip)]\n    id: NodeId,\n    description: Option<String>,\n    dependencies: Vec<NodeId>,\n    pipeline: Pipeline,\n    cache_lifespan: Duration,\n}\n\nimpl Node {\n    pub fn new(\n        id: NodeId,\n        description: Option<String>,\n        dependencies: Vec<NodeId>,\n        cache_lifespan: Duration,\n        pipeline: Pipeline,\n    ) -> Self {\n        Self {\n            id,\n            description,\n            dependencies,\n            cache_lifespan,\n            pipeline,\n        }\n    }\n\n    pub fn id(&self) -> &NodeId {\n        &self.id\n    }\n\n    pub fn set_id(&mut self, new_id: NodeId) {\n        self.id = new_id;\n    }\n\n    pub fn description(&self) -> &Option<String> {\n        &self.description\n    }\n\n    pub fn description_mut(&mut self) -> &mut Option<String> {\n        &mut self.description\n    }\n\n    pub fn dependencies(&self) -> &Vec<NodeId> {\n        &self.dependencies\n    }\n\n    pub fn dependencies_mut(&mut self) -> &mut Vec<NodeId> {\n        &mut self.dependencies\n    }\n\n    pub fn pipeline(&self) -> &Pipeline {\n        &self.pipeline\n    }\n\n    pub fn pipeline_mut(&mut self) -> &mut Pipeline {\n        &mut self.pipeline\n    }\n\n    pub fn cache_lifespan(&self) -> &Duration {\n        &self.cache_lifespan\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/operation/error.rs"
+            }
+          ],
+          "content": "#[derive(thiserror::Error, Debug)]\npub enum OperationError {\n    #[error(\"could not evaluate operation: {0}\")]\n    EvalError(String),\n\n    #[error(transparent)]\n    Json(#[from] serde_json::Error),\n\n    #[error(transparent)]\n    Io(#[from] std::io::Error),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/operation/mod.rs"
+            }
+          ],
+          "content": "mod error;\nmod operation;\n\npub use error::OperationError;\npub use operation::Operation;\npub use operation::TypedOperation;\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/operation/operation.rs"
+            }
+          ],
+          "content": "use serde::de::DeserializeOwned;\n\nuse crate::{ledger::Ledger, operation::OperationError, sample::batch::Batch};\n\npub trait Operation: Send + Sync {\n    fn description(&self) -> &'static str;\n    fn eval(\n        &self,\n        ledger: &Ledger,\n        input: Batch,\n        options: serde_json::Value,\n    ) -> Result<Batch, OperationError>;\n}\n\npub trait TypedOperation: Send + Sync + 'static {\n    type Options: DeserializeOwned;\n\n    fn description(&self) -> &'static str;\n    fn eval(\n        &self,\n        ledger: &Ledger,\n        input: Batch,\n        options: Self::Options,\n    ) -> Result<Batch, OperationError>;\n}\n\nstruct TypedOperationAdapter<T: TypedOperation>(T);\n\nimpl<T: TypedOperation> Operation for TypedOperationAdapter<T> {\n    fn description(&self) -> &'static str {\n        self.0.description()\n    }\n\n    fn eval(\n        &self,\n        ledger: &Ledger,\n        input: Batch,\n        options: serde_json::Value,\n    ) -> Result<Batch, OperationError> {\n        self.0.eval(\n            ledger,\n            input,\n            serde_json::from_value::<T::Options>(options)?,\n        )\n    }\n}\n\nimpl<T: TypedOperation> From<T> for Box<dyn Operation> {\n    fn from(op: T) -> Self {\n        Box::new(TypedOperationAdapter(op))\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/pipeline/error.rs"
+            }
+          ],
+          "content": "use crate::{operation::OperationError, registry::error::RegistryError};\n\n#[derive(thiserror::Error, Debug)]\npub enum PipelineError {\n    #[error(\"pipeline is empty\")]\n    Empty,\n\n    #[error(\"index {index} is larger than pipeline's length {length}\")]\n    OutOfRange { index: usize, length: usize },\n\n    #[error(transparent)]\n    Registry(#[from] RegistryError),\n\n    #[error(transparent)]\n    Operation(#[from] OperationError),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/pipeline/mod.rs"
+            }
+          ],
+          "content": "mod error;\nmod pipeline;\nmod stage;\n\npub use error::PipelineError;\npub use pipeline::Pipeline;\npub use stage::Stage;\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/pipeline/pipeline.rs"
+            }
+          ],
+          "content": "use serde::{Deserialize, Serialize};\n\nuse crate::{\n    ledger::Ledger,\n    pipeline::{PipelineError, stage::Stage},\n    sample::batch::Batch,\n};\n\n#[derive(Serialize, Deserialize, Default, Debug)]\npub struct Pipeline(Vec<Stage>);\n\nimpl Pipeline {\n    pub fn new(stages: Vec<Stage>) -> Self {\n        Self(stages)\n    }\n\n    pub fn stages(&self) -> &[Stage] {\n        &self.0\n    }\n\n    pub fn add(&mut self, index: Option<usize>, stage: Stage) -> Result<(), PipelineError> {\n        match index {\n            Some(index) if index > self.0.len() => Err(PipelineError::OutOfRange {\n                index,\n                length: self.0.len(),\n            }),\n            Some(index) => Ok(self.0.insert(index, stage)),\n            None => Ok(self.0.push(stage)),\n        }\n    }\n\n    pub fn remove(&mut self, index: Option<usize>) -> Result<Stage, PipelineError> {\n        match index {\n            Some(index) if index > self.0.len() => Err(PipelineError::OutOfRange {\n                index,\n                length: self.0.len(),\n            }),\n            Some(index) => Ok(self.0.remove(index)),\n            None => self.0.pop().ok_or(PipelineError::OutOfRange {\n                index: 0,\n                length: self.0.len(),\n            }),\n        }\n    }\n\n    pub fn eval(&self, ledger: &Ledger) -> Result<Batch, PipelineError> {\n        self.0\n            .iter()\n            .try_fold(Batch::default(), |input, stage| stage.eval(ledger, input))\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/pipeline/stage.rs"
+            }
+          ],
+          "content": "use serde::{Deserialize, Serialize};\nuse serde_json::Value;\n\nuse crate::{\n    ledger::Ledger,\n    pipeline::PipelineError,\n    registry::{self},\n    sample::batch::Batch,\n};\n\n#[derive(Serialize, Deserialize, Debug)]\npub struct Stage {\n    operation_id: String,\n    options: Value,\n}\n\nimpl Stage {\n    pub fn new(operation_id: String, options: Value) -> Self {\n        Self {\n            operation_id,\n            options,\n        }\n    }\n\n    pub fn operation_id(&self) -> &str {\n        &self.operation_id\n    }\n\n    pub fn options(&self) -> &Value {\n        &self.options\n    }\n\n    pub fn eval(&self, ledger: &Ledger, input: Batch) -> Result<Batch, PipelineError> {\n        let operation = registry::resolve_op(&self.operation_id)?;\n        Ok(operation.eval(ledger, input, self.options.clone())?)\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/registry/error.rs"
+            }
+          ],
+          "content": "#[derive(thiserror::Error, Debug)]\npub enum RegistryError {\n    #[error(\"operation with same ID already exists: {0}\")]\n    OperationAlreadyExists(String),\n\n    #[error(\"operation not found in registry: {0}\")]\n    OperationNotFound(String),\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/registry/mod.rs"
+            }
+          ],
+          "content": "pub mod error;\n\nuse std::{\n    collections::HashMap,\n    sync::{Arc, OnceLock, RwLock},\n};\n\nuse log::{info, warn};\n\nuse crate::{operation::Operation, registry::error::RegistryError};\n\nstruct Registry {\n    ops: HashMap<String, Arc<dyn Operation>>,\n}\n\nstatic REGISTRY: OnceLock<RwLock<Registry>> = OnceLock::new();\n\nfn registry() -> &'static RwLock<Registry> {\n    REGISTRY.get_or_init(|| {\n        RwLock::new(Registry {\n            ops: HashMap::new(),\n        })\n    })\n}\n\npub fn register_op(id: String, op: Box<dyn Operation>) -> Result<(), RegistryError> {\n    let mut registry = registry().write().unwrap();\n\n    if registry.ops.contains_key(&id) {\n        warn!(\n            \"an operation with ID '{}' is already registered, ignoring registration\",\n            id\n        );\n        return Err(RegistryError::OperationAlreadyExists(id));\n    }\n\n    info!(\"registering operation '{}'\", id);\n    registry.ops.insert(id, op.into());\n\n    Ok(())\n}\n\npub fn with_all_ops<F, R>(f: F) -> R\nwhere\n    F: FnOnce(&HashMap<String, Arc<dyn Operation>>) -> R,\n{\n    f(&registry().read().unwrap().ops)\n}\n\npub fn resolve_op(id: &str) -> Result<Arc<dyn Operation>, RegistryError> {\n    registry()\n        .read()\n        .unwrap()\n        .ops\n        .get(id)\n        .cloned()\n        .ok_or_else(|| RegistryError::OperationNotFound(id.to_string()))\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/sample/batch.rs"
+            }
+          ],
+          "content": "use std::time::SystemTime;\n\nuse serde::{Deserialize, Serialize};\n\nuse crate::sample::Sample;\n\n#[derive(Serialize, Deserialize, Debug, Clone)]\npub struct Batch {\n    samples: Vec<Sample>,\n    created: SystemTime,\n}\n\nimpl Batch {\n    pub fn new(samples: Vec<Sample>) -> Self {\n        Self {\n            samples,\n            created: SystemTime::now(),\n        }\n    }\n\n    pub fn transform<F>(self, f: F) -> Self\n    where\n        F: Fn(Sample) -> Option<Sample>,\n    {\n        Self {\n            samples: self.samples.into_iter().filter_map(f).collect::<Vec<_>>(),\n            created: SystemTime::now(),\n        }\n    }\n\n    pub fn into_samples(self) -> Vec<Sample> {\n        self.samples\n    }\n\n    pub fn samples(&self) -> &[Sample] {\n        &self.samples\n    }\n\n    pub fn samples_mut(&mut self) -> &mut Vec<Sample> {\n        &mut self.samples\n    }\n\n    pub fn created(&self) -> &SystemTime {\n        &self.created\n    }\n}\n\nimpl Default for Batch {\n    fn default() -> Self {\n        Self {\n            samples: Default::default(),\n            created: SystemTime::now(),\n        }\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/sample/mod.rs"
+            }
+          ],
+          "content": "pub mod batch;\npub mod sample;\npub mod trace;\n\npub use sample::Sample;\npub use trace::Trace;\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/sample/sample.rs"
+            }
+          ],
+          "content": "use serde::{Deserialize, Serialize};\n\nuse crate::sample::trace::Trace;\n\n#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]\npub struct Sample {\n    traces: Vec<Trace>,\n    content: String,\n}\n\nimpl Sample {\n    pub fn new(trace: Trace, content: String) -> Self {\n        Self {\n            traces: vec![trace],\n            content,\n        }\n    }\n\n    pub fn transform<F>(mut self, f: F) -> Self\n    where\n        F: FnOnce(String) -> (Trace, String),\n    {\n        let (trace, content) = f(self.content);\n        self.traces.push(trace);\n        self.content = content;\n\n        self\n    }\n\n    pub fn traces(&self) -> &[Trace] {\n        &self.traces\n    }\n\n    pub fn content(&self) -> &String {\n        &self.content\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/sample/trace.rs"
+            }
+          ],
+          "content": "use std::collections::HashMap;\n\nuse serde::{Deserialize, Serialize};\n\n#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]\npub struct Trace(HashMap<String, String>);\n\nimpl Trace {\n    pub fn new(values: HashMap<String, String>) -> Self {\n        Self(values)\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/snapshot/diff.rs"
+            }
+          ],
+          "content": "use std::collections::{HashMap, HashSet};\n\nuse crate::{\n    node::id::NodeId,\n    sample::{Sample, batch::Batch},\n    snapshot::Snapshot,\n};\n\n#[derive(Debug, Clone)]\npub struct BatchDiff {\n    before: Option<Batch>,\n    after: Option<Batch>,\n}\n\n#[derive(Debug, PartialEq)]\npub enum SamplePresence {\n    OnlyBefore,\n    OnlyAfter,\n    Both,\n}\n\nimpl BatchDiff {\n    pub fn before(&self) -> &Option<Batch> {\n        &self.before\n    }\n\n    pub fn after(&self) -> &Option<Batch> {\n        &self.after\n    }\n\n    pub fn sample_diffs(self) -> Vec<(Sample, SamplePresence)> {\n        let samples_before = self.before.map_or(Vec::new(), |b| b.into_samples());\n        let samples_after = self.after.map_or(Vec::new(), |b| b.into_samples());\n\n        let mut result = Vec::new();\n\n        for sample in samples_before {\n            let presence = if samples_after.contains(&sample) {\n                SamplePresence::Both\n            } else {\n                SamplePresence::OnlyBefore\n            };\n\n            result.push((sample, presence));\n        }\n\n        for sample in samples_after {\n            if !result.iter().any(|(s, _)| s == &sample) {\n                result.push((sample, SamplePresence::OnlyAfter));\n            }\n        }\n\n        result\n    }\n}\n\nimpl Snapshot {\n    pub fn diff(&self, before: Self) -> HashMap<NodeId, (BatchDiff, Vec<(NodeId, BatchDiff)>)> {\n        let before = before.entries();\n        let after = self.entries();\n\n        let node_ids = HashSet::<NodeId>::from_iter(\n            before\n                .keys()\n                .into_iter()\n                .chain(after.keys().into_iter())\n                .map(|key| key.clone()),\n        );\n\n        HashMap::from_iter(node_ids.into_iter().map(|node_id| {\n            let before = before.get(&node_id);\n            let after = after.get(&node_id);\n\n            let dep_node_ids = HashSet::<NodeId>::from_iter(\n                before\n                    .iter()\n                    .chain(after.iter())\n                    .flat_map(|e| e.dependencies().keys())\n                    .map(|key| key.clone()),\n            );\n\n            (\n                node_id,\n                (\n                    BatchDiff {\n                        before: before.map(|e| e.batch().clone()),\n                        after: after.map(|e| e.batch().clone()),\n                    },\n                    dep_node_ids\n                        .into_iter()\n                        .map(|dep_node_id| {\n                            (\n                                dep_node_id.clone(),\n                                BatchDiff {\n                                    before: before\n                                        .map(|e| e.dependencies().get(&dep_node_id))\n                                        .flatten()\n                                        .cloned(),\n                                    after: after\n                                        .map(|e| e.dependencies().get(&dep_node_id))\n                                        .flatten()\n                                        .cloned(),\n                                },\n                            )\n                        })\n                        .collect::<Vec<_>>(),\n                ),\n            )\n        }))\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/snapshot/entry.rs"
+            }
+          ],
+          "content": "use std::collections::HashMap;\n\nuse serde::{Deserialize, Serialize};\n\nuse crate::{node::id::NodeId, sample::batch::Batch};\n\n#[derive(Serialize, Deserialize, Debug, Clone, Default)]\npub struct SnapshotEntry {\n    batch: Batch,\n    dependencies: HashMap<NodeId, Batch>,\n}\n\nimpl SnapshotEntry {\n    pub fn new(batch: Batch, dependencies: HashMap<NodeId, Batch>) -> Self {\n        Self {\n            batch,\n            dependencies,\n        }\n    }\n\n    pub fn batch(&self) -> &Batch {\n        &self.batch\n    }\n\n    pub fn batch_mut(&mut self) -> &mut Batch {\n        &mut self.batch\n    }\n\n    pub fn dependencies(&self) -> &HashMap<NodeId, Batch> {\n        &self.dependencies\n    }\n\n    pub fn dependencies_mut(&mut self) -> &mut HashMap<NodeId, Batch> {\n        &mut self.dependencies\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/snapshot/mod.rs"
+            }
+          ],
+          "content": "pub mod diff;\nmod entry;\nmod snapshot;\n\npub use entry::SnapshotEntry;\npub use snapshot::Snapshot;\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-core/src/snapshot/snapshot.rs"
+            }
+          ],
+          "content": "use std::collections::HashMap;\n\nuse serde::{Deserialize, Serialize};\n\nuse crate::{node::id::NodeId, snapshot::entry::SnapshotEntry};\n\n#[derive(Serialize, Deserialize, Debug, Clone, Default)]\npub struct Snapshot(HashMap<NodeId, SnapshotEntry>);\n\nimpl Snapshot {\n    pub fn new(entries: HashMap<NodeId, SnapshotEntry>) -> Self {\n        Self(entries)\n    }\n\n    pub fn entries(&self) -> &HashMap<NodeId, SnapshotEntry> {\n        &self.0\n    }\n\n    pub fn entries_mut(&mut self) -> &mut HashMap<NodeId, SnapshotEntry> {\n        &mut self.0\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-ops/src/lib.rs"
+            }
+          ],
+          "content": "mod ops;\n\nuse rnacl_core::registry::{self, error::RegistryError};\n\npub fn register_ops() -> Result<(), RegistryError> {\n    for (id, op) in ops::operations() {\n        registry::register_op(id.to_string(), op)?;\n    }\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-ops/src/ops/head_file_text.rs"
+            }
+          ],
+          "content": "use std::{collections::HashMap, fs};\n\nuse glob::glob;\nuse rnacl_core::{\n    ledger::Ledger,\n    operation::{OperationError, TypedOperation},\n    sample::{Sample, Trace, batch::Batch},\n};\nuse serde::Deserialize;\n\npub(crate) struct HeadFileText;\n\n#[derive(Deserialize)]\npub(crate) struct Options {\n    files: Vec<String>,\n}\n\nimpl TypedOperation for HeadFileText {\n    type Options = Options;\n\n    fn description(&self) -> &'static str {\n        \"Read text content from files. Option 'files' is an array of glob strings that are resolved to files and then read.\"\n    }\n\n    fn eval(\n        &self,\n        ledger: &Ledger,\n        _input: Batch,\n        options: Self::Options,\n    ) -> Result<Batch, OperationError> {\n        let base_path = ledger.container_dir();\n\n        let paths = options\n            .files\n            .iter()\n            .map(|pattern| {\n                glob(\n                    base_path\n                        .join(pattern)\n                        .to_str()\n                        .expect(\"glob pattern does not appear to be UTF-8\"),\n                )\n            })\n            .collect::<Result<Vec<_>, _>>()\n            .map_err(|err| OperationError::EvalError(format!(\"{}\", err)))?\n            .into_iter()\n            .flat_map(|p| p.collect::<Vec<_>>())\n            .collect::<Result<Vec<_>, _>>()\n            .map_err(|err| OperationError::EvalError(format!(\"{}\", err)))?;\n\n        let files = paths\n            .into_iter()\n            .filter_map(|path| {\n                fs::read_to_string(&path)\n                    .map(|text| {\n                        Sample::new(\n                            Trace::new(HashMap::from([(\n                                String::from(\"path\"),\n                                path.strip_prefix(&base_path)\n                                    .expect(\"path is not relative to ledger container\")\n                                    .to_string_lossy()\n                                    .to_string(),\n                            )])),\n                            text,\n                        )\n                    })\n                    .ok()\n            })\n            .collect::<Vec<_>>();\n\n        Ok(Batch::new(files))\n    }\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/commands/audit/mod.rs"
+            }
+          ],
+          "content": "use std::time::Duration;\n\nuse rnacl_core::snapshot::diff::SamplePresence;\n\nuse crate::{\n    args::audit::AuditArgs,\n    helper::{resolve_explicit_or_reused_node_id, resolve_ledger},\n    output, ui,\n};\n\npub(super) fn dispatch(args: AuditArgs) -> anyhow::Result<()> {\n    let ledger = resolve_ledger()?;\n    let show_node_ids = args\n        .node_id\n        .into_iter()\n        .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))\n        .collect::<anyhow::Result<Vec<_>>>()?;\n\n    let audit = match args {\n        AuditArgs { new: true, .. } => ledger.capture_snapshot(None)?,\n        AuditArgs { cache: true, .. } => ledger.load_pending_snapshot().unwrap_or_default(),\n        _ => ledger.capture_snapshot(Some(ledger.load_pending_snapshot().unwrap_or_default()))?,\n    };\n    let baseline = ledger.load_baseline_snapshot().unwrap_or_default();\n    let diffs = audit.diff(baseline);\n\n    if !args.dry_run {\n        ledger.save_pending_snapshot(audit)?;\n    }\n\n    let mut unacked_nodes: usize = 0;\n    let mut oldest_cache_age = Duration::ZERO;\n\n    for (node_id, (diff, dependency_diffs)) in diffs {\n        let cache_age = diff\n            .after()\n            .as_ref()\n            .map(|batch| batch.created().elapsed())\n            .transpose()?;\n        let sample_diffs = diff.sample_diffs();\n        let mut attributes = Vec::<String>::new();\n        let mut needs_resolve = false;\n\n        if sample_diffs.iter().any(|(_, p)| p != &SamplePresence::Both) {\n            needs_resolve = true;\n            attributes.push(format!(\n                \"dirty ({})\",\n                output::display_dirtiness(sample_diffs.iter().map(|(_, p)| p).collect::<Vec<_>>())\n            ));\n        }\n\n        let stale_deps = dependency_diffs\n            .into_iter()\n            .map(|(node_id, diff)| (node_id, diff.sample_diffs()))\n            .filter(|(_, samples)| samples.iter().any(|(_, p)| p != &SamplePresence::Both))\n            .collect::<Vec<_>>();\n\n        if !stale_deps.is_empty() {\n            needs_resolve = true;\n            attributes.push(format!(\n                \"stale ({} across {})\",\n                output::display_dirtiness(\n                    stale_deps\n                        .iter()\n                        .flat_map(|(_, p)| p)\n                        .map(|(_, p)| p)\n                        .collect::<Vec<_>>()\n                ),\n                stale_deps.len()\n            ));\n        }\n\n        if let Some(age) = cache_age\n            && age.as_secs() > 0\n        {\n            oldest_cache_age = oldest_cache_age.max(age);\n            attributes.push(format!(\n                \"cache ({})\",\n                humantime::format_duration(Duration::from_secs(age.as_secs()))\n            ));\n        }\n\n        if needs_resolve {\n            unacked_nodes += 1;\n        }\n\n        if needs_resolve && (show_node_ids.is_empty() || show_node_ids.contains(&node_id)) {\n            println!(\"{}: {}\", node_id, attributes.join(\", \"));\n\n            if args.expand_diff {\n                for sample_diff in sample_diffs\n                    .iter()\n                    .filter(|(_, p)| p != &SamplePresence::Both)\n                {\n                    println!(\"{}\", output::display_sample_diff(sample_diff))\n                }\n            }\n\n            if args.expand_stale {\n                for stale_dep in stale_deps {\n                    println!(\n                        \"    stale over {}: dirty ({})\",\n                        stale_dep.0,\n                        output::display_dirtiness(\n                            stale_dep.1.iter().map(|(_, p)| p).collect::<Vec<_>>()\n                        )\n                    );\n                    if args.expand_diff {\n                        for sample_diff in stale_dep\n                            .1\n                            .iter()\n                            .filter(|(_, p)| p != &SamplePresence::Both)\n                        {\n                            println!(\"{}\", output::display_sample_diff(sample_diff))\n                        }\n                    }\n                }\n            }\n        }\n    }\n\n    if oldest_cache_age.as_secs() > 0 {\n        ui::warn(format!(\n            \"cache is up to {} old\",\n            humantime::format_duration(Duration::from_secs(oldest_cache_age.as_secs()))\n        ));\n    }\n\n    match unacked_nodes {\n        0 => println!(\"ok!\"),\n        amount => println!(\"{amount} not ack'd\"),\n    }\n\n    Ok(())\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-ops/src/ops/head_net_http.rs"
+            }
+          ],
+          "content": ""
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-ops/src/ops/mod.rs"
+            }
+          ],
+          "content": "use rnacl_core::operation::Operation;\n\nmod head_file_text;\nmod head_net_http;\n// mod text_slice_bytes;\n// mod text_slice_lines;\n// mod text_tag;\n// mod xml_attribute;\n// mod xml_find;\n// mod xml_value;\n\npub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {\n    vec![(\"head.file.text\", head_file_text::HeadFileText.into())]\n}\n"
+        },
+        {
+          "traces": [
+            {
+              "path": "crates/rnacl-cli/src/output.rs"
+            }
+          ],
+          "content": "use console::Style;\nuse rnacl_core::{sample::Sample, snapshot::diff::SamplePresence};\n\npub(crate) fn display_sample_diff(sample_diff: &(Sample, SamplePresence)) -> String {\n    let style = match sample_diff.1 {\n        SamplePresence::OnlyBefore => Style::new().red(),\n        SamplePresence::OnlyAfter => Style::new().green(),\n        SamplePresence::Both => Style::new(),\n    };\n    format!(\n        \"{}\\n{}\",\n        style.apply_to(match sample_diff.1 {\n            SamplePresence::OnlyBefore => \"-\",\n            SamplePresence::OnlyAfter => \"+\",\n            SamplePresence::Both => \"=\",\n        }),\n        style.apply_to(\n            sample_diff\n                .0\n                .content()\n                .lines()\n                .map(|line| format!(\"  {}\", line))\n                .collect::<Vec<_>>()\n                .join(\"\\n\")\n        )\n    )\n}\n\npub(crate) fn display_dirtiness(sample_diff_presences: Vec<&SamplePresence>) -> String {\n    format!(\n        \"-{} +{}\",\n        sample_diff_presences\n            .iter()\n            .filter(|p| matches!(p, SamplePresence::OnlyBefore))\n            .count(),\n        sample_diff_presences\n            .iter()\n            .filter(|p| matches!(p, SamplePresence::OnlyAfter))\n            .count(),\n    )\n}\n"
+        }
+      ],
+      "created": {
+        "secs_since_epoch": 1770504761,
+        "nanos_since_epoch": 264427625
+      }
+    },
+    "dependencies": {
+      "971cf737": {
+        "samples": [],
+        "created": {
+          "secs_since_epoch": 1770508998,
+          "nanos_since_epoch": 50810323
+        }
+      },
+      "449006dc": {
+        "samples": [],
+        "created": {
+          "secs_since_epoch": 1770509030,
+          "nanos_since_epoch": 40697582
+        }
+      }
+    }
+  },
+  "449006dc": {
+    "batch": {
+      "samples": [],
+      "created": {
+        "secs_since_epoch": 1770504818,
+        "nanos_since_epoch": 674973554
+      }
+    },
+    "dependencies": {}
+  },
+  "971cf737": {
+    "batch": {
+      "samples": [],
+      "created": {
+        "secs_since_epoch": 1770504816,
+        "nanos_since_epoch": 857771598
+      }
+    },
+    "dependencies": {}
+  }
+}

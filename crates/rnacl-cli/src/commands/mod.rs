@@ -1,3 +1,4 @@
+mod ack;
 mod audit;
 mod dependency;
 mod ledger;
@@ -15,5 +16,6 @@ pub(super) fn dispatch(cli: Cli) -> anyhow::Result<()> {
         Command::Pipeline(cmd) => pipeline::dispatch(cmd),
         Command::Operation(cmd) => operation::dispatch(cmd),
         Command::Audit(args) => audit::dispatch(args),
+        Command::Ack(args) => ack::dispatch(args),
     }
 }

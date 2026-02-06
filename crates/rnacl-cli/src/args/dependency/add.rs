@@ -1,17 +1,22 @@
-use clap::Args;
+use clap::{ArgGroup, Args};
 
-/// Create one or more dependencies.
+/// Create dependencies.
 #[derive(Args)]
+#[command(group(
+    ArgGroup::new("dependency_kind")
+        .args(["dependency", "from", "mirror"])
+        .required(true)
+))]
 pub(crate) struct AddDependencyArgs {
-    /// IDs of nodes to add the dependencies to.
-    #[arg(required = true)]
-    pub(crate) node_ids: Vec<String>,
+    /// ID of node to add dependencies to.
+    #[arg(default_value = "-")]
+    pub(crate) node_id: Vec<String>,
 
-    /// IDs of nodes to add as dependencies.
-    #[arg(short, long)]
+    /// ID of node to add as dependency.
+    #[arg(short, long, required = true)]
     pub(crate) dependency: Vec<String>,
 
-    /// IDs of nodes to copy all dependencies from to add.
+    /// ID of node to copy all dependencies from to add.
     #[arg(long)]
     pub(crate) from: Vec<String>,
 

@@ -10,7 +10,7 @@ use log::{info, warn};
 use crate::{operation::Operation, registry::error::RegistryError};
 
 struct Registry {
-    ops: HashMap<String, Arc<Operation>>,
+    ops: HashMap<String, Arc<dyn Operation>>,
 }
 
 static REGISTRY: OnceLock<RwLock<Registry>> = OnceLock::new();
@@ -23,7 +23,7 @@ fn registry() -> &'static RwLock<Registry> {
     })
 }
 
-pub fn register_op(id: String, op: Operation) -> Result<(), RegistryError> {
+pub fn register_op(id: String, op: Box<dyn Operation>) -> Result<(), RegistryError> {
     let mut registry = registry().write().unwrap();
 
     if registry.ops.contains_key(&id) {
@@ -42,12 +42,12 @@ pub fn register_op(id: String, op: Operation) -> Result<(), RegistryError> {
 
 pub fn with_all_ops<F, R>(f: F) -> R
 where
-    F: FnOnce(&HashMap<String, Arc<Operation>>) -> R,
+    F: FnOnce(&HashMap<String, Arc<dyn Operation>>) -> R,
 {
     f(&registry().read().unwrap().ops)
 }
 
-pub fn resolve_op(id: &str) -> Result<Arc<Operation>, RegistryError> {
+pub fn resolve_op(id: &str) -> Result<Arc<dyn Operation>, RegistryError> {
     registry()
         .read()
         .unwrap()

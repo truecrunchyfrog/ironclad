@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
-pub struct Trace(HashMap<String, Value>);
+pub struct Trace(HashMap<String, String>);
 
 impl Trace {
-    pub fn new(values: HashMap<String, Value>) -> Self {
+    pub fn new(values: HashMap<String, String>) -> Self {
         Self(values)
     }
 }

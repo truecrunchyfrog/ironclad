@@ -1,3 +1,4 @@
+pub(crate) mod ack;
 pub(crate) mod audit;
 pub(crate) mod dependency;
 pub(crate) mod ledger;
@@ -8,8 +9,8 @@ pub(crate) mod pipeline;
 use clap::{Args, Parser, Subcommand};
 
 use crate::args::{
-    audit::AuditArgs, dependency::DependencyCommand, ledger::LedgerCommand, node::NodeCommand,
-    operation::OperationCommand, pipeline::PipelineCommand,
+    ack::AckArgs, audit::AuditArgs, dependency::DependencyCommand, ledger::LedgerCommand,
+    node::NodeCommand, operation::OperationCommand, pipeline::PipelineCommand,
 };
 
 #[derive(Parser)]
@@ -46,6 +47,9 @@ pub(crate) enum Command {
 
     #[command(alias = "a")]
     Audit(AuditArgs),
+
+    #[command(alias = "k")]
+    Ack(AckArgs),
 }
 
 pub(crate) fn parse() -> Cli {

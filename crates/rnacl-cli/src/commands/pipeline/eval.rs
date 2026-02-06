@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use rnacl_core::sample::batch::Batch;
+use rnacl_core::sample::Sample;
 
 use crate::{
     args::pipeline::eval::EvalPipelineArgs,
@@ -30,8 +30,8 @@ pub(super) fn dispatch(args: EvalPipelineArgs) -> anyhow::Result<()> {
     }
 
     eval_stages.into_iter().try_fold(
-        Batch::default(),
-        |input, (stage, index)| -> anyhow::Result<Batch> {
+        Vec::new(),
+        |input, (stage, index)| -> anyhow::Result<Vec<Vec<Sample>>> {
             ui::info(format!(
                 "{}  {}  {}",
                 index,
@@ -39,7 +39,7 @@ pub(super) fn dispatch(args: EvalPipelineArgs) -> anyhow::Result<()> {
                 stage.options()
             ));
 
-            let output = stage.eval(input)?;
+            let output = stage.eval(&ledger, input)?;
 
             if args.show_all
                 || args

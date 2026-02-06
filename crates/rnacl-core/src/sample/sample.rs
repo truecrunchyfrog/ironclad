@@ -16,14 +16,27 @@ impl Sample {
         }
     }
 
-    pub fn transform<F>(mut self, f: F) -> Self
-    where
-        F: FnOnce(String) -> (Trace, String),
-    {
-        let (trace, content) = f(self.content);
-        self.traces.push(trace);
-        self.content = content;
+    pub fn evolve(&self, trace: Trace, content: String) -> Self {
+        Self {
+            traces: self
+                .traces
+                .iter()
+                .cloned()
+                .chain(std::iter::once(trace))
+                .collect(),
+            content,
+        }
+    }
 
-        self
+    pub fn traces(&self) -> &[Trace] {
+        &self.traces
+    }
+
+    pub fn content(&self) -> &String {
+        &self.content
+    }
+
+    pub fn into_content(self) -> String {
+        self.content
     }
 }

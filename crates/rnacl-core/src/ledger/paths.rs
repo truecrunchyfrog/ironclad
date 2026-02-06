@@ -7,6 +7,10 @@ impl Ledger {
         path.join(".rnacl")
     }
 
+    pub fn container_dir(&self) -> PathBuf {
+        self.dir().parent().unwrap_or(self.dir()).to_path_buf()
+    }
+
     pub fn nodes_dir(&self) -> PathBuf {
         self.dir().join("nodes")
     }

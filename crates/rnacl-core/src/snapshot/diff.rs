@@ -6,7 +6,7 @@ use crate::{
     snapshot::Snapshot,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BatchDiff {
     before: Option<Batch>,
     after: Option<Batch>,
@@ -28,9 +28,9 @@ impl BatchDiff {
         &self.after
     }
 
-    pub fn sample_diff(self) -> Vec<(Sample, SamplePresence)> {
-        let samples_before = self.before.map_or(Vec::new(), |b| b.samples());
-        let samples_after = self.after.map_or(Vec::new(), |b| b.samples());
+    pub fn sample_diffs(self) -> Vec<(Sample, SamplePresence)> {
+        let samples_before = self.before.map_or(Vec::new(), |b| b.into_samples());
+        let samples_after = self.after.map_or(Vec::new(), |b| b.into_samples());
 
         let mut result = Vec::new();
 

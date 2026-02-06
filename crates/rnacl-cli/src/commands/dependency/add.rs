@@ -9,7 +9,7 @@ pub(super) fn dispatch(args: AddDependencyArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
 
     let dependents = args
-        .node_ids
+        .node_id
         .into_iter()
         .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))
         .collect::<anyhow::Result<Vec<_>>>()?;

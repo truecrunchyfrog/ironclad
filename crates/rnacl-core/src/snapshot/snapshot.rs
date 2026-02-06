@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{node::id::NodeId, snapshot::entry::SnapshotEntry};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Snapshot(HashMap<NodeId, SnapshotEntry>);
 
 impl Snapshot {
