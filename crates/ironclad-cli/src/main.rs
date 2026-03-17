@@ -8,7 +8,7 @@ pub(crate) mod ui;
 
 use std::process::ExitCode;
 
-use rnacl_ops::register_ops;
+use ironclad_ops::register_ops;
 
 fn main() -> ExitCode {
     match start() {

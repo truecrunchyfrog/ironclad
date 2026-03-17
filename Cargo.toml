@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "crates/rnacl-core",
-    "crates/rnacl-cli", "crates/rnacl-ops",
+    "crates/ironclad-core",
+    "crates/ironclad-cli", "crates/ironclad-ops",
 ]
 resolver = "2"

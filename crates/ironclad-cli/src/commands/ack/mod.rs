@@ -1,7 +1,7 @@
 use std::io::{self, Write, stdin};
 
 use anyhow::anyhow;
-use rnacl_core::{
+use ironclad_core::{
     node::id::NodeId,
     sample::{Sample, batch::Batch},
     snapshot::diff::{BatchDiff, SamplePresence},

@@ -1,4 +1,4 @@
-use rnacl_core::registry;
+use ironclad_core::registry;
 
 use crate::args::operation::list::ListOperationArgs;
 

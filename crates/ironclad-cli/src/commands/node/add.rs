@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use rnacl_core::node::Node;
+use ironclad_core::node::Node;
 
 use crate::{args::node::add::AddNodeArgs, helper::resolve_ledger, reuse_node};
 

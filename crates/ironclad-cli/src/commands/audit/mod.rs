@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use rnacl_core::snapshot::diff::SamplePresence;
+use ironclad_core::snapshot::diff::SamplePresence;
 
 use crate::{
     args::audit::AuditArgs,

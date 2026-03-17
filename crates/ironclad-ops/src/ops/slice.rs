@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use rnacl_core::{ledger::Ledger, operation::TypedOperation, sample::Sample};
+use ironclad_core::{ledger::Ledger, operation::TypedOperation, sample::Sample};
 use serde::Deserialize;
 
 pub(crate) struct Slice;

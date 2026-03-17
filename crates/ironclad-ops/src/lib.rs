@@ -3,7 +3,7 @@ mod ops;
 mod tag;
 mod text_selector;
 
-use rnacl_core::registry::{self, error::RegistryError};
+use ironclad_core::registry::{self, error::RegistryError};
 
 pub fn register_ops() -> Result<(), RegistryError> {
     for (id, op) in ops::operations() {

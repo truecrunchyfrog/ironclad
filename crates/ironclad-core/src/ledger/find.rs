@@ -4,7 +4,7 @@ use crate::ledger::{Ledger, error::LedgerError};
 
 impl Ledger {
     pub(crate) fn is_ledger_dir(path: &Path) -> bool {
-        path.file_name() == Some(OsStr::new(".rnacl")) && path.is_dir()
+        path.file_name() == Some(OsStr::new(".ironclad")) && path.is_dir()
     }
 
     pub fn find_for_working_dir(working_dir: &Path) -> Result<Ledger, LedgerError> {

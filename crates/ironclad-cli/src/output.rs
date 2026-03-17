@@ -1,5 +1,5 @@
 use console::Style;
-use rnacl_core::{sample::Sample, snapshot::diff::SamplePresence};
+use ironclad_core::{sample::Sample, snapshot::diff::SamplePresence};
 
 pub(crate) fn display_sample_diff(sample_diff: &(Sample, SamplePresence)) -> String {
     let style = match sample_diff.1 {

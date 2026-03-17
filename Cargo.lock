@@ -875,6 +875,52 @@ dependencies = [
 ]
 
 [[package]]
+name = "ironclad-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "console",
+ "env_logger",
+ "humantime",
+ "ironclad-core",
+ "ironclad-ops",
+ "log",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "ironclad-core"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "log",
+ "rand",
+ "rayon",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "ironclad-ops"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chumsky",
+ "glob",
+ "ironclad-core",
+ "regex",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+ "serde_regex",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "is_terminal_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1437,52 +1483,6 @@ dependencies = [
  "libc",
  "untrusted",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "rnacl-cli"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "console",
- "env_logger",
- "humantime",
- "log",
- "rnacl-core",
- "rnacl-ops",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "rnacl-core"
-version = "0.1.0"
-dependencies = [
- "hex",
- "log",
- "rand",
- "rayon",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
-]
-
-[[package]]
-name = "rnacl-ops"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chumsky",
- "glob",
- "regex",
- "reqwest",
- "rnacl-core",
- "scraper",
- "serde",
- "serde_json",
- "serde_regex",
- "thiserror 2.0.18",
 ]
 
 [[package]]

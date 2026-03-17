@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use rnacl_core::sample::Sample;
+use ironclad_core::sample::Sample;
 
 use crate::{
     args::pipeline::eval::EvalPipelineArgs,

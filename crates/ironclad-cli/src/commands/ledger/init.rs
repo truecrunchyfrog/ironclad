@@ -1,6 +1,6 @@
 use std::env::current_dir;
 
-use rnacl_core::ledger::Ledger;
+use ironclad_core::ledger::Ledger;
 
 use crate::args::ledger::init::InitLedgerArgs;
 

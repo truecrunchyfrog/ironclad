@@ -7,7 +7,7 @@ use std::{
 
 use anyhow::anyhow;
 use log::info;
-use rnacl_core::{ledger::Ledger, node::id::NodeId};
+use ironclad_core::{ledger::Ledger, node::id::NodeId};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -19,7 +19,7 @@ struct ReuseNode {
 
 fn reuse_node_path() -> anyhow::Result<PathBuf> {
     home_dir()
-        .map(|path| path.join(".rnacl_reuse_node"))
+        .map(|path| path.join(".ironclad_reuse_node"))
         .ok_or_else(|| anyhow!("user has no home directory. cannot get file path for node reuse."))
 }
 

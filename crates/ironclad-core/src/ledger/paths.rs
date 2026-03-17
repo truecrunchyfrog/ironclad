@@ -4,7 +4,7 @@ use crate::{ledger::ledger::Ledger, node::id::NodeId};
 
 impl Ledger {
     pub fn ledger_dir(path: &Path) -> PathBuf {
-        path.join(".rnacl")
+        path.join(".ironclad")
     }
 
     pub fn container_dir(&self) -> PathBuf {
