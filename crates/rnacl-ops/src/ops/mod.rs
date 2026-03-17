@@ -8,13 +8,12 @@ mod text_find;
 mod text_lines;
 mod text_replace;
 mod text_split;
-// mod text_tag;
+mod text_tag;
 // mod text_filter;
-mod html_document_find;
-mod html_fragment_attribute;
-mod html_fragment_find;
-mod html_fragment_inner_html;
-mod html_fragment_inner_text;
+mod html_attribute;
+mod html_find;
+mod html_inner_html;
+mod html_inner_text;
 // TODO Tree-sitter?
 
 pub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {
@@ -26,26 +25,11 @@ pub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {
         ("text.split", text_split::TextSplit.into()),
         ("text.lines", text_lines::TextLines.into()),
         ("text.replace", text_replace::TextReplace.into()),
+        ("text.tag", text_tag::TextTag.into()),
         ("json.find", json_find::JsonFind.into()),
-        (
-            "html.document.find",
-            html_document_find::HtmlDocumentFind.into(),
-        ),
-        (
-            "html.fragment.find",
-            html_fragment_find::HtmlFragmentFind.into(),
-        ),
-        (
-            "html.fragment.inner.html",
-            html_fragment_inner_html::HtmlFragmentInnerHtml.into(),
-        ),
-        (
-            "html.fragment.inner.text",
-            html_fragment_inner_text::HtmlFragmentInnerText.into(),
-        ),
-        (
-            "html.fragment.attribute",
-            html_fragment_attribute::HtmlFragmentAttribute.into(),
-        ),
+        ("html.find", html_find::HtmlFind.into()),
+        ("html.inner.html", html_inner_html::HtmlInnerHtml.into()),
+        ("html.inner.text", html_inner_text::HtmlInnerText.into()),
+        ("html.attribute", html_attribute::HtmlAttribute.into()),
     ]
 }

@@ -6,24 +6,31 @@ use rnacl_core::{
     sample::{Sample, Trace},
 };
 use scraper::Element;
+use serde::Deserialize;
 
 use crate::fragment_error::FragmentError;
 
-pub(crate) struct HtmlFragmentInnerHtml;
+pub(crate) struct HtmlAttribute;
 
-impl TypedOperation for HtmlFragmentInnerHtml {
-    type Options = ();
+#[derive(Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct Options {
+    attribute: String,
+}
+
+impl TypedOperation for HtmlAttribute {
+    type Options = Options;
     type Error = FragmentError;
 
     fn description(&self) -> &'static str {
-        "Select the inner HTML of an HTML element."
+        "Select the value of an HTML element's attribute."
     }
 
     fn eval_sample(
         &self,
         _ledger: &Ledger,
         input: Sample,
-        _options: Self::Options,
+        options: Self::Options,
     ) -> Result<SampleEvolution, Self::Error> {
         let fragment = scraper::Html::parse_fragment(input.content());
 
@@ -34,7 +41,9 @@ impl TypedOperation for HtmlFragmentInnerHtml {
                     .root_element()
                     .first_element_child()
                     .ok_or_else(|| FragmentError::NoElement)?
-                    .inner_html(),
+                    .attr(&options.attribute)
+                    .unwrap_or_default()
+                    .to_string(),
             ),
         ))
     }

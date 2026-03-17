@@ -1,6 +1,6 @@
 mod fragment_error;
-mod html_selector;
 mod ops;
+mod tag;
 mod text_selector;
 
 use rnacl_core::registry::{self, error::RegistryError};

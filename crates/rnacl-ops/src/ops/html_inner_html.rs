@@ -9,14 +9,14 @@ use scraper::Element;
 
 use crate::fragment_error::FragmentError;
 
-pub(crate) struct HtmlFragmentInnerText;
+pub(crate) struct HtmlInnerHtml;
 
-impl TypedOperation for HtmlFragmentInnerText {
+impl TypedOperation for HtmlInnerHtml {
     type Options = ();
     type Error = FragmentError;
 
     fn description(&self) -> &'static str {
-        "Select the inner text of an HTML element."
+        "Select the inner HTML of an HTML element."
     }
 
     fn eval_sample(
@@ -34,9 +34,7 @@ impl TypedOperation for HtmlFragmentInnerText {
                     .root_element()
                     .first_element_child()
                     .ok_or_else(|| FragmentError::NoElement)?
-                    .text()
-                    .collect::<Vec<_>>()
-                    .join(""),
+                    .inner_html(),
             ),
         ))
     }
