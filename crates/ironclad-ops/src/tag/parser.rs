@@ -89,10 +89,9 @@ pub(crate) fn arrow_parser<'src>() -> impl Parser<'src, &'src str, Arrow, Error<
 
 pub(crate) fn tag_rule_parser<'src>() -> impl Parser<'src, &'src str, TagRule, Error<'src>> {
     selection_boundary_parser()
-        .padded()
         .or_not()
         .then(arrow_parser())
-        .then(selection_boundary_parser().padded().or_not())
+        .then(selection_boundary_parser().or_not())
         .map(|((left_boundary, arrow), right_boundary)| match arrow {
             Arrow {
                 direction: ArrowDirection::Left,
@@ -475,7 +474,7 @@ mod tests {
                 },
             ),
             (
-                " \n 1L \n <- \n 0L \n \n \n 0L \n -> \n 1L \n ",
+                " \n 1L<-0L \n \n \n 0L->1L \n ",
                 TagRules {
                     left: Selection {
                         drop: Lines(0),
