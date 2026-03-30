@@ -3,8 +3,8 @@ use clap::Args;
 /// Evaluate a pipeline.
 #[derive(Args)]
 pub(crate) struct EvalPipelineArgs {
-    /// ID of node.
-    pub(crate) node_id: Option<String>,
+    /// ID of cell.
+    pub(crate) cell_id: Option<String>,
 
     /// Show the output of these stages.
     #[arg(short, long)]

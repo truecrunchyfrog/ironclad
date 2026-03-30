@@ -1,12 +1,12 @@
 use crate::{
     args::pipeline::list::ListPipelineArgs,
-    helper::{resolve_explicit_or_reused_node, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell, resolve_ledger},
 };
 
 pub(super) fn dispatch(args: ListPipelineArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
-    let node = resolve_explicit_or_reused_node(&ledger, args.node_id)?;
-    let stages = node.pipeline().stages();
+    let cell = resolve_explicit_or_reused_cell(&ledger, args.cell_id)?;
+    let stages = cell.pipeline().stages();
 
     if !args.raw {
         for stage in stages {

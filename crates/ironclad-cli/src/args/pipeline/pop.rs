@@ -3,8 +3,8 @@ use clap::Args;
 /// Remove a stage from a pipeline.
 #[derive(Args)]
 pub(crate) struct PopPipelineArgs {
-    /// ID of node.
-    pub(crate) node_id: Option<String>,
+    /// ID of cell.
+    pub(crate) cell_id: Option<String>,
 
     /// Remove at a position instead of at the end.
     #[arg(short, long)]

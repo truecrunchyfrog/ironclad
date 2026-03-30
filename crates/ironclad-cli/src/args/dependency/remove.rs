@@ -9,11 +9,11 @@ use clap::{ArgGroup, Args};
         .multiple(false)
 ))]
 pub(crate) struct RemoveDependencyArgs {
-    /// ID of dependent node to remove dependency from.
+    /// ID of dependent cell to remove dependency from.
     #[arg(default_value = "-")]
-    pub(crate) node_id: Vec<String>,
+    pub(crate) cell_id: Vec<String>,
 
-    /// ID of dependency node to remove.
+    /// ID of dependency cell to remove.
     #[arg(short, long)]
     pub(crate) dependency: Vec<String>,
 

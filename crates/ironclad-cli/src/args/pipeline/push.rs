@@ -3,8 +3,8 @@ use clap::Args;
 /// Add a stage to a pipeline.
 #[derive(Args)]
 pub(crate) struct PushPipelineArgs {
-    /// ID of node.
-    pub(crate) node_id: String,
+    /// ID of cell.
+    pub(crate) cell_id: String,
 
     /// ID of operation.
     pub(crate) operation_id: String,

@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
-    node::{error::NodeError, id::NodeId},
+    cell::{error::CellError, id::CellId},
     pipeline::PipelineError,
 };
 
@@ -19,11 +19,11 @@ pub enum LedgerError {
     #[error("an operation does not exist by such ID: {0}")]
     OperationNotFound(String),
 
-    #[error("dependency node could not be found: {0}")]
-    DependencyNodeNotFound(NodeId),
+    #[error("dependency cell could not be found: {0}")]
+    DependencyCellNotFound(CellId),
 
     #[error(transparent)]
-    Node(#[from] NodeError),
+    Cell(#[from] CellError),
 
     #[error(transparent)]
     Pipeline(#[from] PipelineError),

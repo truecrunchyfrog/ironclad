@@ -1,17 +1,17 @@
 use clap::Args;
 
-/// Create a node.
+/// Create a cell.
 #[derive(Args)]
-pub(crate) struct AddNodeArgs {
-    /// Choose the new node's ID instead of generating one.
+pub(crate) struct AddCellArgs {
+    /// Choose the new cell's ID instead of generating one.
     #[arg(long)]
     pub(crate) id: Option<String>,
 
-    /// Describe the node.
+    /// Describe the cell.
     #[arg(long)]
     pub(crate) description: Option<String>,
 
-    /// Skip automatic node reuse (see `node use`).
+    /// Skip automatic cell reuse (see `cell use`).
     #[arg(long)]
     pub(crate) no_use: bool,
 }

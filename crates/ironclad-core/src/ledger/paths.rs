@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::{ledger::ledger::Ledger, node::id::NodeId};
+use crate::{cell::id::CellId, ledger::ledger::Ledger};
 
 impl Ledger {
     pub fn ledger_dir(path: &Path) -> PathBuf {
@@ -11,12 +11,12 @@ impl Ledger {
         self.dir().parent().unwrap_or(self.dir()).to_path_buf()
     }
 
-    pub fn nodes_dir(&self) -> PathBuf {
-        self.dir().join("nodes")
+    pub fn cells_dir(&self) -> PathBuf {
+        self.dir().join("cells")
     }
 
-    pub fn node_path(&self, id: &NodeId) -> PathBuf {
-        self.nodes_dir().join(&id.to_string())
+    pub fn cell_path(&self, id: &CellId) -> PathBuf {
+        self.cells_dir().join(&id.to_string())
     }
 
     pub fn snapshots_dir(&self) -> PathBuf {

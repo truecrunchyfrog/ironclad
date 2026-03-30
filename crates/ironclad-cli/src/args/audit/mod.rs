@@ -2,8 +2,8 @@ use clap::Args;
 
 #[derive(Args)]
 pub(crate) struct AuditArgs {
-    /// ID of node to limit view to.
-    pub(crate) node_id: Vec<String>,
+    /// ID of cell to limit view to.
+    pub(crate) cell_id: Vec<String>,
 
     /// Show confliced samples.
     #[arg(short = 'd', long)]

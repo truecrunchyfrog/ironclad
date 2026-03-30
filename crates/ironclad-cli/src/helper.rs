@@ -1,36 +1,36 @@
 use anyhow::anyhow;
 use ironclad_core::{
+    cell::{Cell, id::CellId},
     ledger::Ledger,
-    node::{Node, id::NodeId},
 };
 
-use crate::reuse_node;
+use crate::reuse_cell;
 
 pub(crate) fn resolve_ledger() -> anyhow::Result<Ledger> {
     Ok(Ledger::find_for_working_dir(&std::env::current_dir()?)?)
 }
 
-fn explicit_or_reused_node_id(
+fn explicit_or_reused_cell_id(
     ledger: &Ledger,
-    specified_node_id: Option<String>,
+    specified_cell_id: Option<String>,
 ) -> anyhow::Result<String> {
-    let reuse_node_id = reuse_node::get(ledger)?.map(|node_id| node_id.to_string());
-    specified_node_id
-        .filter(|node_id| node_id != "-")
-        .or(reuse_node_id)
-        .ok_or(anyhow!("node ID not specified, and not reusing"))
+    let reuse_cell_id = reuse_cell::get(ledger)?.map(|cell_id| cell_id.to_string());
+    specified_cell_id
+        .filter(|cell_id| cell_id != "-")
+        .or(reuse_cell_id)
+        .ok_or(anyhow!("cell ID not specified, and not reusing"))
 }
 
-pub(crate) fn resolve_explicit_or_reused_node_id(
+pub(crate) fn resolve_explicit_or_reused_cell_id(
     ledger: &Ledger,
-    specified_node_id: Option<String>,
-) -> anyhow::Result<NodeId> {
-    Ok(ledger.resolve_node_id(&explicit_or_reused_node_id(ledger, specified_node_id)?)?)
+    specified_cell_id: Option<String>,
+) -> anyhow::Result<CellId> {
+    Ok(ledger.resolve_cell_id(&explicit_or_reused_cell_id(ledger, specified_cell_id)?)?)
 }
 
-pub(crate) fn resolve_explicit_or_reused_node(
+pub(crate) fn resolve_explicit_or_reused_cell(
     ledger: &Ledger,
-    specified_node_id: Option<String>,
-) -> anyhow::Result<Node> {
-    Ok(ledger.resolve_node(&explicit_or_reused_node_id(ledger, specified_node_id)?)?)
+    specified_cell_id: Option<String>,
+) -> anyhow::Result<Cell> {
+    Ok(ledger.resolve_cell(&explicit_or_reused_cell_id(ledger, specified_cell_id)?)?)
 }

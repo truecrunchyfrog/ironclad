@@ -8,15 +8,15 @@ use clap::{ArgGroup, Args};
         .required(true)
 ))]
 pub(crate) struct AddDependencyArgs {
-    /// ID of node to add dependencies to.
+    /// ID of cell to add dependencies to.
     #[arg(default_value = "-")]
-    pub(crate) node_id: Vec<String>,
+    pub(crate) cell_id: Vec<String>,
 
-    /// ID of node to add as dependency.
+    /// ID of cell to add as dependency.
     #[arg(short, long, required = true)]
     pub(crate) dependency: Vec<String>,
 
-    /// ID of node to copy all dependencies from to add.
+    /// ID of cell to copy all dependencies from to add.
     #[arg(long)]
     pub(crate) from: Vec<String>,
 

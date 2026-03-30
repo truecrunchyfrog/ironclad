@@ -1,10 +1,10 @@
 use clap::Args;
 
-/// Edit a node.
+/// Edit a cell.
 #[derive(Args)]
-pub(crate) struct EditNodeArgs {
-    /// ID of node to edit.
-    pub(crate) node_id: Option<String>,
+pub(crate) struct EditCellArgs {
+    /// ID of cell to edit.
+    pub(crate) cell_id: Option<String>,
 
     /// Change the description.
     #[arg(long)]

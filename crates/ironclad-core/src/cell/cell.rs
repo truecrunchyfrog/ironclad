@@ -2,23 +2,23 @@ use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{node::id::NodeId, pipeline::Pipeline};
+use crate::{cell::id::CellId, pipeline::Pipeline};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Node {
+pub struct Cell {
     #[serde(skip)]
-    id: NodeId,
+    id: CellId,
     description: Option<String>,
-    dependencies: Vec<NodeId>,
+    dependencies: Vec<CellId>,
     pipeline: Pipeline,
     cache_lifespan: Duration,
 }
 
-impl Node {
+impl Cell {
     pub fn new(
-        id: NodeId,
+        id: CellId,
         description: Option<String>,
-        dependencies: Vec<NodeId>,
+        dependencies: Vec<CellId>,
         cache_lifespan: Duration,
         pipeline: Pipeline,
     ) -> Self {
@@ -31,11 +31,11 @@ impl Node {
         }
     }
 
-    pub fn id(&self) -> &NodeId {
+    pub fn id(&self) -> &CellId {
         &self.id
     }
 
-    pub fn set_id(&mut self, new_id: NodeId) {
+    pub fn set_id(&mut self, new_id: CellId) {
         self.id = new_id;
     }
 
@@ -47,11 +47,11 @@ impl Node {
         &mut self.description
     }
 
-    pub fn dependencies(&self) -> &Vec<NodeId> {
+    pub fn dependencies(&self) -> &Vec<CellId> {
         &self.dependencies
     }
 
-    pub fn dependencies_mut(&mut self) -> &mut Vec<NodeId> {
+    pub fn dependencies_mut(&mut self) -> &mut Vec<CellId> {
         &mut self.dependencies
     }
 

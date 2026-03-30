@@ -2,12 +2,12 @@ use ironclad_core::{pipeline::Stage, registry};
 
 use crate::{
     args::pipeline::push::PushPipelineArgs,
-    helper::{resolve_explicit_or_reused_node, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell, resolve_ledger},
 };
 
 pub(super) fn dispatch(args: PushPipelineArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
-    let mut node = resolve_explicit_or_reused_node(&ledger, Some(args.node_id))?;
+    let mut cell = resolve_explicit_or_reused_cell(&ledger, Some(args.cell_id))?;
 
     registry::resolve_op(&args.operation_id)?;
 
@@ -18,9 +18,9 @@ pub(super) fn dispatch(args: PushPipelineArgs) -> anyhow::Result<()> {
 
     let stage = Stage::new(args.operation_id, options);
 
-    node.pipeline_mut().add(args.index, stage)?;
+    cell.pipeline_mut().add(args.index, stage)?;
 
-    ledger.save_node(&node)?;
+    ledger.save_cell(&cell)?;
 
     Ok(())
 }

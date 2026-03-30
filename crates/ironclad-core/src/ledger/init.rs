@@ -28,9 +28,9 @@ fn populate_ledger_dir(ledger: &Ledger) -> Result<(), LedgerError> {
         fs::create_dir(&ledger.dir())?;
 
         {
-            let nodes_dir = ledger.nodes_dir();
-            info!("creating {:#?}", nodes_dir);
-            fs::create_dir(nodes_dir)?;
+            let cells_dir = ledger.cells_dir();
+            info!("creating {:#?}", cells_dir);
+            fs::create_dir(cells_dir)?;
         }
 
         {

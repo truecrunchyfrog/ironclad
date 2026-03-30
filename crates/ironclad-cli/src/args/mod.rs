@@ -1,16 +1,16 @@
 pub(crate) mod ack;
 pub(crate) mod audit;
+pub(crate) mod cell;
 pub(crate) mod dependency;
 pub(crate) mod ledger;
-pub(crate) mod node;
 pub(crate) mod operation;
 pub(crate) mod pipeline;
 
 use clap::{Args, Parser, Subcommand};
 
 use crate::args::{
-    ack::AckArgs, audit::AuditArgs, dependency::DependencyCommand, ledger::LedgerCommand,
-    node::NodeCommand, operation::OperationCommand, pipeline::PipelineCommand,
+    ack::AckArgs, audit::AuditArgs, cell::CellCommand, dependency::DependencyCommand,
+    ledger::LedgerCommand, operation::OperationCommand, pipeline::PipelineCommand,
 };
 
 #[derive(Parser)]
@@ -33,8 +33,8 @@ pub(crate) enum Command {
     #[command(subcommand, alias = "l")]
     Ledger(LedgerCommand),
 
-    #[command(subcommand, alias = "n")]
-    Node(NodeCommand),
+    #[command(subcommand, alias = "c")]
+    Cell(CellCommand),
 
     #[command(subcommand, name = "dep", alias = "d")]
     Dependency(DependencyCommand),

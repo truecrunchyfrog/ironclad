@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::{
-    node::id::NodeId,
+    cell::id::CellId,
     sample::{Sample, batch::Batch},
     snapshot::Snapshot,
 };
@@ -55,11 +55,11 @@ impl BatchDiff {
 }
 
 impl Snapshot {
-    pub fn diff(&self, before: Self) -> HashMap<NodeId, (BatchDiff, Vec<(NodeId, BatchDiff)>)> {
+    pub fn diff(&self, before: Self) -> HashMap<CellId, (BatchDiff, Vec<(CellId, BatchDiff)>)> {
         let before = before.entries();
         let after = self.entries();
 
-        let node_ids = HashSet::<NodeId>::from_iter(
+        let cell_ids = HashSet::<CellId>::from_iter(
             before
                 .keys()
                 .into_iter()
@@ -67,11 +67,11 @@ impl Snapshot {
                 .map(|key| key.clone()),
         );
 
-        HashMap::from_iter(node_ids.into_iter().map(|node_id| {
-            let before = before.get(&node_id);
-            let after = after.get(&node_id);
+        HashMap::from_iter(cell_ids.into_iter().map(|cell_id| {
+            let before = before.get(&cell_id);
+            let after = after.get(&cell_id);
 
-            let dep_node_ids = HashSet::<NodeId>::from_iter(
+            let dep_cell_ids = HashSet::<CellId>::from_iter(
                 before
                     .iter()
                     .chain(after.iter())
@@ -80,24 +80,24 @@ impl Snapshot {
             );
 
             (
-                node_id,
+                cell_id,
                 (
                     BatchDiff {
                         before: before.map(|e| e.batch().clone()),
                         after: after.map(|e| e.batch().clone()),
                     },
-                    dep_node_ids
+                    dep_cell_ids
                         .into_iter()
-                        .map(|dep_node_id| {
+                        .map(|dep_cell_id| {
                             (
-                                dep_node_id.clone(),
+                                dep_cell_id.clone(),
                                 BatchDiff {
                                     before: before
-                                        .map(|e| e.dependencies().get(&dep_node_id))
+                                        .map(|e| e.dependencies().get(&dep_cell_id))
                                         .flatten()
                                         .cloned(),
                                     after: after
-                                        .map(|e| e.dependencies().get(&dep_node_id))
+                                        .map(|e| e.dependencies().get(&dep_cell_id))
                                         .flatten()
                                         .cloned(),
                                 },

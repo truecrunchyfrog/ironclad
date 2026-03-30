@@ -2,56 +2,56 @@ use std::io::{self, Write, stdin};
 
 use anyhow::anyhow;
 use ironclad_core::{
-    node::id::NodeId,
+    cell::id::CellId,
     sample::{Sample, batch::Batch},
     snapshot::diff::{BatchDiff, SamplePresence},
 };
 
 use crate::{
     args::ack::AckArgs,
-    helper::{resolve_explicit_or_reused_node_id, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell_id, resolve_ledger},
     output, ui,
 };
 
 pub(super) fn dispatch(args: AckArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
-    let node_ids = args
-        .node_id
+    let cell_ids = args
+        .cell_id
         .into_iter()
-        .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))
+        .map(|cell_id| resolve_explicit_or_reused_cell_id(&ledger, Some(cell_id)))
         .collect::<anyhow::Result<Vec<_>>>()?;
-    let dependency_node_ids = args
+    let dependency_cell_ids = args
         .dependency
         .into_iter()
-        .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))
+        .map(|cell_id| resolve_explicit_or_reused_cell_id(&ledger, Some(cell_id)))
         .collect::<anyhow::Result<Vec<_>>>()?;
 
     let audit = ledger.load_pending_snapshot().unwrap_or_default();
     let mut baseline = ledger.load_baseline_snapshot().unwrap_or_default();
     let mut diffs = audit.diff(baseline.clone());
 
-    let node_ids = if !node_ids.is_empty() {
-        node_ids
+    let cell_ids = if !cell_ids.is_empty() {
+        cell_ids
     } else {
         audit
             .entries()
             .keys()
-            .map(|node_id| node_id.clone())
+            .map(|cell_id| cell_id.clone())
             .collect::<Vec<_>>()
     };
 
-    'nodes: for node_id in node_ids {
+    'cells: for cell_id in cell_ids {
         let (diff, dep_diffs) = diffs
-            .remove(&node_id)
-            .ok_or_else(|| anyhow!("node absent in both pending and baseline snapshot"))?;
+            .remove(&cell_id)
+            .ok_or_else(|| anyhow!("cell absent in both pending and baseline snapshot"))?;
 
-        let baseline_entry = baseline.entries_mut().entry(node_id.clone()).or_default();
+        let baseline_entry = baseline.entries_mut().entry(cell_id.clone()).or_default();
 
         let interactive = !args.all;
 
-        if dependency_node_ids.is_empty() {
+        if dependency_cell_ids.is_empty() {
             let should_quit = !ack_batch_diff(
-                BatchOrigin::DirtyNode(node_id),
+                BatchOrigin::DirtyCell(cell_id),
                 diff,
                 baseline_entry.batch_mut(),
                 interactive,
@@ -60,24 +60,24 @@ pub(super) fn dispatch(args: AckArgs) -> anyhow::Result<()> {
                 break;
             }
         } else {
-            for (dep_node_id, dep_diff) in dep_diffs
+            for (dep_cell_id, dep_diff) in dep_diffs
                 .into_iter()
-                .filter(|(node_id, _)| dependency_node_ids.contains(node_id))
+                .filter(|(cell_id, _)| dependency_cell_ids.contains(cell_id))
             {
                 let should_quit = ack_batch_diff(
-                    BatchOrigin::StaleDependencyNode {
-                        dependent: node_id.clone(),
-                        dependency: dep_node_id.clone(),
+                    BatchOrigin::StaleDependencyCell {
+                        dependent: cell_id.clone(),
+                        dependency: dep_cell_id.clone(),
                     },
                     dep_diff,
                     baseline_entry
                         .dependencies_mut()
-                        .entry(dep_node_id)
+                        .entry(dep_cell_id)
                         .or_default(),
                     interactive,
                 )?;
                 if should_quit {
-                    break 'nodes;
+                    break 'cells;
                 }
             }
         }
@@ -89,10 +89,10 @@ pub(super) fn dispatch(args: AckArgs) -> anyhow::Result<()> {
 }
 
 enum BatchOrigin {
-    DirtyNode(NodeId),
-    StaleDependencyNode {
-        dependent: NodeId,
-        dependency: NodeId,
+    DirtyCell(CellId),
+    StaleDependencyCell {
+        dependent: CellId,
+        dependency: CellId,
     },
 }
 
@@ -110,10 +110,10 @@ fn ack_batch_diff(
 
     if interactive && !sample_diffs.is_empty() {
         match origin {
-            BatchOrigin::DirtyNode(node_id) => {
-                println!("{} is dirty", node_id)
+            BatchOrigin::DirtyCell(cell_id) => {
+                println!("{} is dirty", cell_id)
             }
-            BatchOrigin::StaleDependencyNode {
+            BatchOrigin::StaleDependencyCell {
                 dependent,
                 dependency,
             } => println!("{} is stale due to dependency of {}", dependent, dependency),

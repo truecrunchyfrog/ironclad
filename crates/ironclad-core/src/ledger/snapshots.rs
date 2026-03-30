@@ -3,55 +3,55 @@ use std::{collections::HashMap, fs, path::Path};
 use rayon::iter::{FromParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
 use crate::{
+    cell::id::CellId,
     ledger::{Ledger, error::LedgerError},
-    node::id::NodeId,
     sample::batch::Batch,
     snapshot::{Snapshot, SnapshotEntry},
 };
 
 impl Ledger {
     pub fn capture_snapshot(&self, cache: Option<Snapshot>) -> Result<Snapshot, LedgerError> {
-        let nodes = self.load_nodes()?;
+        let cells = self.load_cells()?;
 
-        let batches = nodes
+        let batches = cells
             .par_iter()
-            .map(|node| {
+            .map(|cell| {
                 Ok((
-                    node.id().clone(),
-                    node.dependencies(),
+                    cell.id().clone(),
+                    cell.dependencies(),
                     match cache
                         .as_ref()
-                        .map(|snapshot| snapshot.entries().get(node.id()))
+                        .map(|snapshot| snapshot.entries().get(cell.id()))
                         .flatten()
                     {
                         Some(entry)
-                            if entry.batch().created().elapsed()? < *node.cache_lifespan() =>
+                            if entry.batch().created().elapsed()? < *cell.cache_lifespan() =>
                         {
                             entry.batch().clone()
                         }
-                        _ => node.pipeline().eval(self)?,
+                        _ => cell.pipeline().eval(self)?,
                     },
                 ))
             })
             .collect::<Result<Vec<_>, LedgerError>>()?;
 
-        let node_dependencies = |deps: &[NodeId]| -> Result<HashMap<NodeId, Batch>, LedgerError> {
+        let cell_dependencies = |deps: &[CellId]| -> Result<HashMap<CellId, Batch>, LedgerError> {
             Ok(HashMap::from_iter(
                 deps.iter()
-                    .map(|dep_node_id| -> Result<(NodeId, Batch), LedgerError> {
+                    .map(|dep_cell_id| -> Result<(CellId, Batch), LedgerError> {
                         Ok((
-                            dep_node_id.clone(),
+                            dep_cell_id.clone(),
                             batches
                                 .iter()
-                                .find_map(|(node_id, _, batch)| {
-                                    if node_id == dep_node_id {
+                                .find_map(|(cell_id, _, batch)| {
+                                    if cell_id == dep_cell_id {
                                         Some(batch.to_owned())
                                     } else {
                                         None
                                     }
                                 })
                                 .ok_or_else(|| {
-                                    LedgerError::DependencyNodeNotFound(dep_node_id.clone())
+                                    LedgerError::DependencyCellNotFound(dep_cell_id.clone())
                                 })?,
                         ))
                     })
@@ -62,10 +62,10 @@ impl Ledger {
         Ok(Snapshot::new(HashMap::from_par_iter(
             batches
                 .par_iter()
-                .map(|(node_id, deps, batch)| {
+                .map(|(cell_id, deps, batch)| {
                     Ok((
-                        node_id.clone(),
-                        SnapshotEntry::new(batch.to_owned(), node_dependencies(deps)?),
+                        cell_id.clone(),
+                        SnapshotEntry::new(batch.to_owned(), cell_dependencies(deps)?),
                     ))
                 })
                 .collect::<Result<Vec<_>, LedgerError>>()?,

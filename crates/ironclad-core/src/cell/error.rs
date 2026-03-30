@@ -1,18 +1,18 @@
 use std::path::PathBuf;
 
 #[derive(thiserror::Error, Debug)]
-pub enum NodeError {
-    #[error("node already exists at {0}")]
+pub enum CellError {
+    #[error("cell already exists at {0}")]
     PathAlreadyExists(PathBuf),
 
-    #[error("node not found at {0}")]
+    #[error("cell not found at {0}")]
     PathNotFound(PathBuf),
 
-    #[error("node not found: {0}")]
-    NoSuchNodeId(String),
+    #[error("cell not found: {0}")]
+    NoSuchCellId(String),
 
-    #[error("ambiguous node ID: {0}")]
-    AmbiguousNodeId(String),
+    #[error("ambiguous cell ID: {0}")]
+    AmbiguousCellId(String),
 
     #[error(transparent)]
     Json(#[from] serde_json::Error),

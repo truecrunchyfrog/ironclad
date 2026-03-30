@@ -4,16 +4,16 @@ use ironclad_core::snapshot::diff::SamplePresence;
 
 use crate::{
     args::audit::AuditArgs,
-    helper::{resolve_explicit_or_reused_node_id, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell_id, resolve_ledger},
     output, ui,
 };
 
 pub(super) fn dispatch(args: AuditArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
-    let show_node_ids = args
-        .node_id
+    let show_cell_ids = args
+        .cell_id
         .into_iter()
-        .map(|node_id| resolve_explicit_or_reused_node_id(&ledger, Some(node_id)))
+        .map(|cell_id| resolve_explicit_or_reused_cell_id(&ledger, Some(cell_id)))
         .collect::<anyhow::Result<Vec<_>>>()?;
 
     let audit = match args {
@@ -28,10 +28,10 @@ pub(super) fn dispatch(args: AuditArgs) -> anyhow::Result<()> {
         ledger.save_pending_snapshot(audit)?;
     }
 
-    let mut unacked_nodes: usize = 0;
+    let mut unacked_cells: usize = 0;
     let mut oldest_cache_age = Duration::ZERO;
 
-    for (node_id, (diff, dependency_diffs)) in diffs {
+    for (cell_id, (diff, dependency_diffs)) in diffs {
         let cache_age = diff
             .after()
             .as_ref()
@@ -51,7 +51,7 @@ pub(super) fn dispatch(args: AuditArgs) -> anyhow::Result<()> {
 
         let stale_deps = dependency_diffs
             .into_iter()
-            .map(|(node_id, diff)| (node_id, diff.sample_diffs()))
+            .map(|(cell_id, diff)| (cell_id, diff.sample_diffs()))
             .filter(|(_, samples)| samples.iter().any(|(_, p)| p != &SamplePresence::Both))
             .collect::<Vec<_>>();
 
@@ -81,11 +81,11 @@ pub(super) fn dispatch(args: AuditArgs) -> anyhow::Result<()> {
         }
 
         if needs_resolve {
-            unacked_nodes += 1;
+            unacked_cells += 1;
         }
 
-        if needs_resolve && (show_node_ids.is_empty() || show_node_ids.contains(&node_id)) {
-            println!("{}: {}", node_id, attributes.join(", "));
+        if needs_resolve && (show_cell_ids.is_empty() || show_cell_ids.contains(&cell_id)) {
+            println!("{}: {}", cell_id, attributes.join(", "));
 
             if args.expand_diff {
                 for sample_diff in sample_diffs
@@ -126,7 +126,7 @@ pub(super) fn dispatch(args: AuditArgs) -> anyhow::Result<()> {
         ));
     }
 
-    match unacked_nodes {
+    match unacked_cells {
         0 => println!("ok!"),
         amount => println!("{amount} not ack'd"),
     }

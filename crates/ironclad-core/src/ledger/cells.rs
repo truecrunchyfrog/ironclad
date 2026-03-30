@@ -1,0 +1,138 @@
+use std::{
+    fs::{self, DirEntry},
+    path::Path,
+};
+
+use log::{info, warn};
+
+use crate::{
+    cell::{Cell, error::CellError, id::CellId},
+    ledger::{error::LedgerError, ledger::Ledger},
+};
+
+impl Ledger {
+    fn cell_files(&self) -> Vec<DirEntry> {
+        let cells_dir = self.cells_dir();
+        let entries = cells_dir
+            .read_dir()
+            .expect(&format!("cannot read {:#?} as directory", cells_dir));
+
+        entries
+            .flat_map(|entry| {
+                entry
+                    .inspect_err(|err| warn!("strange entry: {}", err))
+                    .ok()
+                    .filter(|entry| {
+                        entry
+                            .file_type()
+                            .inspect_err(|err| warn!("cannot check file type: {}", err))
+                            .is_ok_and(|filetype| {
+                                if filetype.is_file() {
+                                    true
+                                } else {
+                                    warn!("non-file cell entry ignored: {:#?}", entry.path());
+                                    false
+                                }
+                            })
+                    })
+            })
+            .collect::<Vec<_>>()
+    }
+
+    pub fn cell_ids(&self) -> Vec<CellId> {
+        self.cell_files()
+            .iter()
+            .map(|file| CellId::for_path(&file.path()))
+            .collect()
+    }
+
+    pub fn resolve_cell_id(&self, id: &str) -> Result<CellId, CellError> {
+        let cell_ids = self.cell_ids();
+
+        if let Some(cell_id) = cell_ids.iter().find(|cell_id| cell_id.to_string() == id) {
+            return Ok(cell_id.clone());
+        }
+
+        let mut possible_ids = cell_ids
+            .iter()
+            .filter(|cell_id| cell_id.to_string().starts_with(id));
+
+        match (possible_ids.next(), possible_ids.next()) {
+            (Some(cell_id), None) => Ok(cell_id.clone()),
+            (None, _) => Err(CellError::NoSuchCellId(id.to_string()).into()),
+            _ => Err(CellError::AmbiguousCellId(id.to_string()).into()),
+        }
+    }
+
+    pub fn resolve_cell(&self, id: &str) -> Result<Cell, CellError> {
+        self.load_cell_for_id(&self.resolve_cell_id(id)?)
+    }
+
+    pub fn load_cells(&self) -> Result<Vec<Cell>, LedgerError> {
+        Ok(self
+            .cell_files()
+            .iter()
+            .flat_map(|entry| {
+                self.load_cell_for_path(&entry.path())
+                    .inspect_err(|err| warn!("failed to load cell {:#?}: {}", entry.path(), err))
+            })
+            .collect::<Vec<_>>())
+    }
+
+    pub fn load_cell_for_path(&self, path: &Path) -> Result<Cell, CellError> {
+        if !path.try_exists()? {
+            return Err(CellError::PathNotFound(path.to_path_buf()));
+        }
+
+        let mut cell: Cell = serde_json::from_str(&fs::read_to_string(path)?)?;
+        cell.set_id(CellId::for_path(path));
+
+        Ok(cell)
+    }
+
+    pub fn load_cell_for_id(&self, id: &CellId) -> Result<Cell, CellError> {
+        self.load_cell_for_path(&self.cell_path(id))
+    }
+
+    pub fn save_cell(&self, cell: &Cell) -> Result<(), CellError> {
+        let path = self.cell_path(&cell.id());
+
+        if !path.try_exists()? {
+            return Err(CellError::PathNotFound(path));
+        }
+
+        write_cell(&path, cell)?;
+
+        Ok(())
+    }
+
+    pub fn add_cell(&self, cell: &Cell) -> Result<(), CellError> {
+        let path = self.cell_path(&cell.id());
+
+        if path.try_exists()? {
+            return Err(CellError::PathAlreadyExists(path));
+        }
+
+        write_cell(&path, cell)?;
+
+        self.save_cell(cell)
+    }
+
+    pub fn remove_cell(&self, id: &CellId) -> Result<(), CellError> {
+        let path = self.cell_path(&id);
+
+        if !path.try_exists()? {
+            return Err(CellError::PathNotFound(path));
+        }
+
+        fs::remove_file(path)?;
+
+        Ok(())
+    }
+}
+
+fn write_cell(path: &Path, cell: &Cell) -> Result<(), CellError> {
+    info!("writing cell at {:?}", path);
+    fs::write(path, serde_json::to_vec_pretty(cell)?)?;
+    Ok(())
+}

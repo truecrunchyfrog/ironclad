@@ -3,17 +3,17 @@ use ironclad_core::sample::Sample;
 
 use crate::{
     args::pipeline::eval::EvalPipelineArgs,
-    helper::{resolve_explicit_or_reused_node, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell, resolve_ledger},
     ui,
 };
 
 pub(super) fn dispatch(args: EvalPipelineArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
-    let node = resolve_explicit_or_reused_node(&ledger, args.node_id)?;
+    let cell = resolve_explicit_or_reused_cell(&ledger, args.cell_id)?;
 
-    let stage_len = node.pipeline().stages().len();
+    let stage_len = cell.pipeline().stages().len();
 
-    let eval_stages = node
+    let eval_stages = cell
         .pipeline()
         .stages()
         .into_iter()

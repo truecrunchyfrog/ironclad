@@ -3,7 +3,7 @@ mod commands;
 pub(crate) mod helper;
 mod logging;
 pub(crate) mod output;
-pub(crate) mod reuse_node;
+pub(crate) mod reuse_cell;
 pub(crate) mod ui;
 
 use std::process::ExitCode;
