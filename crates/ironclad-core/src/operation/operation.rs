@@ -13,6 +13,7 @@ pub trait Operation: Send + Sync {
     ) -> Result<Vec<Vec<Sample>>, OperationError>;
 }
 
+// TODO Consider only 'Split'-ting into a new batch each time instead of transforming, unless necessary.
 pub enum SampleEvolution {
     Drop,
     Transform(Sample),
