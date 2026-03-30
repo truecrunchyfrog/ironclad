@@ -20,19 +20,39 @@ impl SelectionBoundary {
     ) -> (&'a str, &'a str, &'a str) {
         match self {
             Self::Lines(lines) => {
-                let split_on = match direction {
-                    SelectionDirection::Ltr => {
-                        text.match_indices('\n').take(lines).last().map(|m| m.0)
+                let split_from = if lines > 0 {
+                    min(
+                        match direction {
+                            SelectionDirection::Ltr => text
+                                .match_indices('\n')
+                                .take(lines)
+                                .last()
+                                .map(|(index, _)| index)
+                                .unwrap_or(text.len()),
+                            SelectionDirection::Rtl => text
+                                .rmatch_indices('\n')
+                                .take(lines)
+                                .last()
+                                .map(|(index, _)| index)
+                                .unwrap_or(0),
+                        },
+                        text.len(),
+                    )
+                } else {
+                    match direction {
+                        SelectionDirection::Ltr => 0,
+                        SelectionDirection::Rtl => text.len(),
                     }
-                    SelectionDirection::Rtl => {
-                        text.rmatch_indices('\n').take(lines).last().map(|m| m.0)
-                    }
-                }
-                .unwrap_or(0);
+                };
+                let split_to = if lines > 0 {
+                    min(split_from + 1, text.len())
+                } else {
+                    split_from
+                };
 
-                let left = &text[..split_on];
-                let middle = &text[split_on..=split_on];
-                let right = &text[split_on + 1..];
+                let left = &text[..split_from];
+                let middle = &text[split_from..split_to];
+                let right = &text[split_to..];
 
                 match direction {
                     SelectionDirection::Ltr => (left, middle, right),
@@ -40,14 +60,19 @@ impl SelectionBoundary {
                 }
             }
             Self::Bytes(bytes) => {
-                let split_on = match direction {
-                    SelectionDirection::Ltr => bytes,
-                    SelectionDirection::Rtl => text.len() - bytes,
-                };
+                let split_on = min(
+                    match direction {
+                        SelectionDirection::Ltr => bytes,
+                        SelectionDirection::Rtl => {
+                            text.len().checked_sub(bytes).unwrap_or(text.len())
+                        }
+                    },
+                    text.len(),
+                );
 
-                let left = &text[..min(split_on, text.len())];
-                let middle = &text[min(split_on, text.len())..min(split_on + 1, text.len())];
-                let right = &text[min(split_on + 1, text.len())..];
+                let left = &text[..split_on];
+                let middle = &text[split_on..split_on];
+                let right = &text[split_on..];
 
                 match direction {
                     SelectionDirection::Ltr => (left, middle, right),
@@ -55,15 +80,16 @@ impl SelectionBoundary {
                 }
             }
             Self::Text(boundary) => {
-                let first_char = match direction {
+                let split_from = match direction {
                     SelectionDirection::Ltr => text.find(&boundary),
                     SelectionDirection::Rtl => text.rfind(&boundary),
                 }
-                .unwrap_or(text.len() - boundary.len());
+                .unwrap_or(text.len().checked_sub(boundary.len()).unwrap_or(0));
+                let split_to = min(split_from + boundary.len(), text.len());
 
-                let left = &text[..first_char];
-                let middle = &text[first_char..first_char + boundary.len()];
-                let right = &text[first_char + boundary.len()..];
+                let left = &text[..split_from];
+                let middle = &text[split_from..split_to];
+                let right = &text[split_to..];
 
                 match direction {
                     SelectionDirection::Ltr => (left, middle, right),
