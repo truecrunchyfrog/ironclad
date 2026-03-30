@@ -118,43 +118,35 @@ impl TypedOperation for TextTag {
 
         */
 
-        let parser = crate::tag::parser::tag_parser();
-        let parse = parser.parse(input.content());
-        dbg!(parse.output());
-        dbg!(parse.errors().collect::<Vec<_>>());
-        todo!()
+        let content = input.content();
 
-        // let content = input.content();
-        // let mut tags = Vec::new();
+        let parser = crate::tag::parser::tags_in_arbitrary_text_parser();
+        let parse = parser.parse(content);
 
-        // let mut pos = 0;
-        // while pos < content.len() {
-        //     let slice = &content[pos..];
-        //     match parser.parse(slice).into_result() {
-        //         Ok(tag) => {
-        //             if tag.id == options.tag {
-        //                 let rules = tag.inner.rules;
+        if let Some(tags) = parse.into_output() {
+            Ok(SampleEvolution::Split(
+                tags.into_iter()
+                    .filter(|tag| tag.id == options.tag)
+                    .map(|tag| {
+                        let rules = tag.inner.rules;
 
-        //                 dbg!(&rules);
+                        let left_text =
+                            TagRule::Left(rules.left).select(&content[..tag.span.start]);
+                        let right_text =
+                            TagRule::Right(rules.right).select(&content[tag.span.end..]);
 
-        //                 let left_text = SelectionKind::Left(rules.left).select(&content[..pos]);
-        //                 let right_text = SelectionKind::Right(rules.right)
-        //                     .select(&content[pos + tag.span.end..]);
-
-        //                 tags.push(input.evolve(
-        //                     Trace::new(HashMap::from([
-        //                         ("start".to_string(), (pos + tag.span.start).to_string()),
-        //                         ("end".to_string(), (pos + tag.span.end).to_string()),
-        //                     ])),
-        //                     format!("{}{}", left_text, right_text),
-        //                 ))
-        //             }
-        //             pos += tag.span.end;
-        //         }
-        //         Err(_) => pos += slice.chars().next().unwrap().len_utf8(),
-        //     };
-        // }
-
-        // Ok(SampleEvolution::Split(tags))
+                        input.evolve(
+                            Trace::new(HashMap::from([
+                                ("start".to_string(), (tag.span.start).to_string()),
+                                ("end".to_string(), (tag.span.end).to_string()),
+                            ])),
+                            format!("{}{}", left_text, right_text),
+                        )
+                    })
+                    .collect(),
+            ))
+        } else {
+            Ok(SampleEvolution::Drop)
+        }
     }
 }
