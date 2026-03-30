@@ -118,8 +118,10 @@ mod tests {
             (Lines(3).split(text, &Ltr), ("1\n2\n", "\n", "\r\n5\r\n6")),
             (Lines(2).split(text, &Ltr), ("1\n2", "\n", "\n\r\n5\r\n6")),
             (Lines(1).split(text, &Ltr), ("1", "\n", "2\n\n\r\n5\r\n6")),
-            (Lines(0).split(text, &Ltr), ("", "1", "\n2\n\n\r\n5\r\n6")),
-            (Lines(0).split(text, &Rtl), ("\n2\n\n\r\n5\r\n6", "1", "")),
+            (Lines(0).split(text, &Ltr), ("", "", "1\n2\n\n\r\n5\r\n6")),
+            (Lines(0).split(text, &Rtl), ("", "", "1\n2\n\n\r\n5\r\n6")),
+            (Lines(1).split("", &Ltr), ("", "", "")),
+            (Lines(1).split("", &Rtl), ("", "", "")),
             (Lines(100).split(text, &Ltr), ("1\n2\n\n\r\n5\r", "\n", "6")),
         ];
 
@@ -142,24 +144,26 @@ mod tests {
             ),
             (
                 Bytes(0).split(text, &Ltr),
-                ("", "1", "23\n4\n\n\r\n5678\r\nöe"),
+                ("", "", "123\n4\n\n\r\n5678\r\nöe"),
             ),
             (
                 Bytes(1).split(text, &Rtl),
-                ("", "e", "123\n4\n\n\r\n5678\r\nö"),
+                ("e", "", "123\n4\n\n\r\n5678\r\nö"),
             ),
             (
                 Bytes(4).split(text, &Rtl),
-                ("öe", "\n", "123\n4\n\n\r\n5678\r"),
+                ("\nöe", "", "123\n4\n\n\r\n5678\r"),
             ),
             (
                 Bytes(5).split(text, &Ltr),
-                ("123\n4", "\n", "\n\r\n5678\r\nöe"),
+                ("123\n4", "", "\n\n\r\n5678\r\nöe"),
             ),
             (
                 Bytes(100).split(text, &Ltr),
                 ("123\n4\n\n\r\n5678\r\nöe", "", ""),
             ),
+            (Bytes(1).split("", &Ltr), ("", "", "")),
+            (Bytes(1).split("", &Rtl), ("", "", "")),
         ];
 
         for (actual, expected) in cases {
@@ -194,6 +198,10 @@ mod tests {
             (
                 Text("'67'8\r\nöe".to_string()).split(text, &Ltr),
                 ("123\n4\n\n\r\n5", "'67'8\r\nöe", ""),
+            ),
+            (
+                Text("'67'8\r\nöe".to_string()).split("", &Ltr),
+                ("", "", ""),
             ),
         ];
 
