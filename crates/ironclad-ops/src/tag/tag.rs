@@ -30,7 +30,10 @@ impl TagRule {
         let (take, boundary, _) = selection.take.split(after_drop, &direction);
 
         if selection.inclusive {
-            format!("{}{}", take, boundary)
+            match direction {
+                SelectionDirection::Ltr => format!("{}{}", take, boundary),
+                SelectionDirection::Rtl => format!("{}{}", boundary, take),
+            }
         } else {
             take.to_string()
         }
