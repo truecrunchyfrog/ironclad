@@ -101,4 +101,19 @@ Once again, run an audit:
 $ ic audit
 ok!
 ```
+
+Change the file:
+```bash
+$ echo -n 'this file may\nbe touched' > do-not-touch.txt
+$ ic audit
+my-fragile-file: dirty (-1 +0)
+1 not ack'd
+$ ic audit --expand-diff
+my-fragile-file: dirty (-1 +0)
+-
+  NOT
+1 not ack'd
+```
 If the cell was recently audited, the samples may be cached. Pass `--new` to enforce fresh samples.
+Pass `--expand-diff` to show the cells' diffs.
+Provide positional arguments of cell IDs to filter.
