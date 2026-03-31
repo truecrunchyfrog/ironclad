@@ -1,6 +1,6 @@
 use crate::{args::cell::list::ListCellArgs, helper::resolve_ledger};
 
-pub(super) fn dispatch(_args: ListCellArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(args: ListCellArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
     let cells = ledger.load_cells()?;
 
@@ -9,15 +9,20 @@ pub(super) fn dispatch(_args: ListCellArgs) -> anyhow::Result<()> {
         .map(|cell| cell.id().to_string().len())
         .max()
         .unwrap_or(0);
+
     for cell in cells {
-        println!(
-            "{:width$}  {}",
-            cell.id().to_string(),
-            cell.description()
-                .clone()
-                .unwrap_or_else(|| String::from("-")),
-            width = cell_id_width
-        );
+        if !args.verbose {
+            println!("{}", cell.id());
+        } else {
+            println!(
+                "{:width$}  {}",
+                cell.id(),
+                cell.description()
+                    .clone()
+                    .unwrap_or_else(|| String::from("-")),
+                width = cell_id_width
+            );
+        }
     }
 
     Ok(())

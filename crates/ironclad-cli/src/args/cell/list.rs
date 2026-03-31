@@ -2,4 +2,7 @@ use clap::Args;
 
 /// List cells.
 #[derive(Args)]
-pub(crate) struct ListCellArgs {}
+pub(crate) struct ListCellArgs {
+    #[arg(short, long)]
+    pub(crate) verbose: bool,
+}
