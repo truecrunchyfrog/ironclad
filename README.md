@@ -16,11 +16,10 @@ Stage by stage the pipeline refines the seed to eventually point at the exact da
 
 ## Usage
 
-Create an instance (`.ironclad/`) in the current directory:
+Set up an `.ironclad/` instance in the current directory:
 ```bash
 ic ledger init
 ```
-It may be tracked by a VCS.
 
 Create a cell:
 ```bash
@@ -31,6 +30,7 @@ Add a stage to the pipeline of the cell `my-fragile-file`:
 ```bash
 ic pipeline push my-fragile-file head.file.text --options '{"files": ["do-not-touch.txt"]}'
 ```
+`head.file.text` is an operation that reads the content of the `files` specified.
 
 You can try it out right away:
 ```bash
