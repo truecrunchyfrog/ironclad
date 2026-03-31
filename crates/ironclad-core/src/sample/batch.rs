@@ -18,18 +18,6 @@ impl Batch {
         }
     }
 
-    // pub fn evolve<F>(self, f: F) -> Self
-    // where
-    //     F: Fn(Sample) -> Vec<(Trace, String)>,
-    // {
-    //     Self::new(
-    //         self.samples
-    //             .into_iter()
-    //             .flat_map(|sample| sample.evolve(&f))
-    //             .collect(),
-    //     )
-    // }
-
     pub fn into_samples(self) -> Vec<Sample> {
         self.samples
     }

@@ -45,7 +45,7 @@ ic pipeline eval my-fragile-file
 ```
 
 - `head.*` operations take no input (apart from options) and produce an output.
-- non-`head.*` operations take input and produce an output.
+- Non-`head.*` operations take input and produce an output.
 
 A pipeline should always start with a `head.*` operation to seed the pipeline,
 and the rest of the stages should consist of non-`head.*` operations to transform the batch.
