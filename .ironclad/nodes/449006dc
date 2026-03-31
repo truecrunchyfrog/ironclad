@@ -1,9 +1,0 @@
-{
-  "description": null,
-  "dependencies": [],
-  "pipeline": [],
-  "cache_lifespan": {
-    "secs": 10,
-    "nanos": 0
-  }
-}
