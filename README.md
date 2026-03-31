@@ -24,29 +24,40 @@ It may be tracked by a VCS.
 
 Create a cell:
 ```bash
-ic cell add my-tracker
+ic cell add my-fragile-file
 ```
 
-Add a stage to the pipeline of the cell `my-tracker`:
+Add a stage to the pipeline of the cell `my-fragile-file`:
 ```bash
-ic pipeline push my-tracker head.file.text --options '{"files": ["do-not-touch.txt"]}'
-```
-
-- `head.*` operations take no input (apart from options) and produce an output.
-- non-`head.*` operations take input and produce an output.
-A pipeline should always start with a `head.*` operation to seed the pipeline,
-and the rest of the stages should consist of non-`head.*` operations to transform the batch.
-
-Split the file's lines into separate samples:
-```bash
-ic pipeline push my-tracker text.lines
+ic pipeline push my-fragile-file head.file.text --options '{"files": ["do-not-touch.txt"]}'
 ```
 
 You can try it out right away:
 ```bash
-echo 'this file may\nNOT\nbe touched' > do-not-touch.txt
-ic pipeline eval my-tracker
+echo -n 'this file may\nNOT\nbe touched' > do-not-touch.txt
+ic pipeline eval my-fragile-file
+# [
+#   {
+#     "content": "this file may\nNOT\nbe touched"
+#   }
+# ]
 # (truncated)
+```
+
+- `head.*` operations take no input (apart from options) and produce an output.
+- non-`head.*` operations take input and produce an output.
+
+A pipeline should always start with a `head.*` operation to seed the pipeline,
+and the rest of the stages should consist of non-`head.*` operations to transform the batch.
+
+Add another stage:
+```bash
+ic pipeline push my-fragile-file text.lines
+```
+This will split the file's lines into separate samples.
+
+```bash
+ic pipeline eval my-fragile-file
 # [
 #   {
 #     "content": "this file may"
@@ -58,23 +69,22 @@ ic pipeline eval my-tracker
 #     "content": "be touched"
 #   }
 # ]
+# (truncated)
 ```
-Evaluating pipelines directly does not modify any Ironclad state.
-
-Currently, no state is on the record.
+Testing pipelines directly does not modify any Ironclad state.
 
 Run an audit to evaluate all cells and push their state into the pending snapshot:
 ```bash
 ic audit
-# my-tracker: dirty (-0 +3)
+# my-fragile-file: dirty (-0 +3)
 # 1 not ack'd
 ```
-The cell is marked as dirty as the baseline is empty, but the file has evaluated to three samples:
+The `my-fragile-file` cell is marked as dirty because the baseline is empty and the file has evaluated to three samples.
 
 Acknowledge the changes to promote them to the baseline:
 ```bash
 ic ack
-# my-tracker is dirty
+# my-fragile-file is dirty
 # +
 #   this file may
 # y/n/N/q/s/t/? = y
@@ -86,7 +96,7 @@ ic ack
 # y/n/N/q/s/t/? = y
 ```
 
-Once again run an audit:
+Once again, run an audit:
 ```bash
 ic audit
 # ok!
