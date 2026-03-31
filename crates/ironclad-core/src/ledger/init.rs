@@ -4,6 +4,8 @@ use log::info;
 
 use crate::ledger::{error::LedgerError, ledger::Ledger};
 
+const GITIGNORE_CONTENT: &'static str = "snapshots/pending.json";
+
 impl Ledger {
     pub fn create_ledger(working_dir: &Path) -> Result<Ledger, LedgerError> {
         let ledger = Ledger::new(Ledger::ledger_dir(working_dir));
@@ -26,6 +28,10 @@ fn populate_ledger_dir(ledger: &Ledger) -> Result<(), LedgerError> {
     {
         info!("creating {:#?}", ledger.dir());
         fs::create_dir(&ledger.dir())?;
+
+        let gitignore_path = ledger.dir().join(".gitignore");
+        info!("creating {:#?}", gitignore_path);
+        fs::write(gitignore_path, GITIGNORE_CONTENT)?;
 
         {
             let cells_dir = ledger.cells_dir();
