@@ -41,13 +41,13 @@ fn populate_ledger_dir(ledger: &Ledger) -> Result<(), LedgerError> {
             {
                 let snapshot_baseline_path = ledger.snapshot_baseline_path();
                 info!("creating {:#?}", snapshot_baseline_path);
-                fs::write(snapshot_baseline_path, "{}")?; // TODO
+                fs::write(snapshot_baseline_path, "{}")?;
             }
 
             {
                 let snapshot_pending_path = ledger.snapshot_pending_path();
                 info!("creating {:#?}", snapshot_pending_path);
-                fs::write(snapshot_pending_path, "{}")?; // TODO
+                fs::write(snapshot_pending_path, "{}")?;
             }
         }
     }
