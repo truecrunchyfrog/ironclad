@@ -4,8 +4,7 @@ use clap::Args;
 #[derive(Args)]
 pub(crate) struct AddCellArgs {
     /// Choose the new cell's ID instead of generating one.
-    #[arg(long)]
-    pub(crate) id: Option<String>,
+    pub(crate) cell_id: Option<String>,
 
     /// Describe the cell.
     #[arg(long)]
