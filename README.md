@@ -18,30 +18,30 @@ Stage by stage the pipeline refines the seed to eventually point at the exact da
 
 Set up an `.ironclad/` instance in the current directory:
 ```bash
-ic ledger init
+$ ic ledger init
 ```
 
 Create a cell:
 ```bash
-ic cell add my-fragile-file
+$ ic cell add my-fragile-file
 ```
 
 Add a stage to the pipeline of the cell `my-fragile-file`:
 ```bash
-ic pipeline push my-fragile-file head.file.text --options '{"files": ["do-not-touch.txt"]}'
+$ ic pipeline push my-fragile-file head.file.text --options '{"files": ["do-not-touch.txt"]}'
 ```
 `head.file.text` is an operation that reads the content of the `files` specified.
 
 You can try it out right away:
 ```bash
-echo -n 'this file may\nNOT\nbe touched' > do-not-touch.txt
-ic pipeline eval my-fragile-file
-# [
-#   {
-#     "content": "this file may\nNOT\nbe touched"
-#   }
-# ]
-# (truncated)
+$ echo -n 'this file may\nNOT\nbe touched' > do-not-touch.txt
+$ ic pipeline eval my-fragile-file
+[
+  {
+    "content": "this file may\nNOT\nbe touched"
+  }
+]
+(truncated)
 ```
 
 - `head.*` operations take no input (apart from options) and produce an output.
@@ -52,53 +52,53 @@ and the rest of the stages should consist of non-`head.*` operations to transfor
 
 Add another stage:
 ```bash
-ic pipeline push my-fragile-file text.lines
+$ ic pipeline push my-fragile-file text.lines
 ```
 This will split the file's lines into separate samples.
 
 ```bash
-ic pipeline eval my-fragile-file
-# [
-#   {
-#     "content": "this file may"
-#   },
-#   {
-#     "content": "NOT"
-#   },
-#   {
-#     "content": "be touched"
-#   }
-# ]
-# (truncated)
+$ ic pipeline eval my-fragile-file
+[
+  {
+    "content": "this file may"
+  },
+  {
+    "content": "NOT"
+  },
+  {
+    "content": "be touched"
+  }
+]
+(truncated)
 ```
 Testing pipelines directly does not modify any Ironclad state.
 
 Run an audit to evaluate all cells and push their state into the pending snapshot:
 ```bash
-ic audit
-# my-fragile-file: dirty (-0 +3)
-# 1 not ack'd
+$ ic audit
+my-fragile-file: dirty (-0 +3)
+1 not ack'd
 ```
 The `my-fragile-file` cell is marked as dirty because the baseline is empty and the file has evaluated to three samples.
 
 Acknowledge the changes to promote them to the baseline:
 ```bash
-ic ack
-# my-fragile-file is dirty
-# +
-#   this file may
-# y/n/N/q/s/t/? = y
-# +
-#   NOT
-# y/n/N/q/s/t/? = y
-# +
-#   be touched
-# y/n/N/q/s/t/? = y
+$ ic ack
+my-fragile-file is dirty
++
+  this file may
+y/n/N/q/s/t/? = y
++
+  NOT
+y/n/N/q/s/t/? = y
++
+  be touched
+y/n/N/q/s/t/? = y
 ```
 
 Once again, run an audit:
 ```bash
-ic audit
-# ok!
+$ ic audit
+ok!
 ```
 If the cell was recently audited, the samples may be cached. Pass `--new` to enforce fresh samples.
