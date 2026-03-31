@@ -46,36 +46,17 @@ You can try it out right away:
 ```bash
 echo 'this file may\nNOT\nbe touched' > do-not-touch.txt
 ic pipeline eval my-tracker
+# (truncated)
 # [
-#   [
-#     {
-#       "traces": [
-#         {
-#           "path": "do-not-touch.txt"
-#         },
-#         {}
-#       ],
-#       "content": "this file may"
-#     },
-#     {
-#       "traces": [
-#         {
-#           "path": "do-not-touch.txt"
-#         },
-#         {}
-#       ],
-#       "content": "NOT"
-#     },
-#     {
-#       "traces": [
-#         {
-#           "path": "do-not-touch.txt"
-#         },
-#         {}
-#       ],
-#       "content": "be touched"
-#     }
-#   ]
+#   {
+#     "content": "this file may"
+#   },
+#   {
+#     "content": "NOT"
+#   },
+#   {
+#     "content": "be touched"
+#   }
 # ]
 ```
 Evaluating pipelines directly does not modify any Ironclad state.
