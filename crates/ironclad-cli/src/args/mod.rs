@@ -22,6 +22,10 @@ pub(crate) struct Cli {
     pub(crate) command: Command,
 }
 
+pub(crate) fn parse() -> Cli {
+    Cli::parse()
+}
+
 #[derive(Args)]
 pub(crate) struct GlobalArgs {
     #[arg(short, long, action = clap::ArgAction::Count)]
@@ -30,28 +34,22 @@ pub(crate) struct GlobalArgs {
 
 #[derive(Subcommand)]
 pub(crate) enum Command {
-    #[command(subcommand, alias = "l")]
+    #[command(subcommand)]
     Ledger(LedgerCommand),
 
-    #[command(subcommand, alias = "c")]
+    #[command(subcommand)]
     Cell(CellCommand),
 
-    #[command(subcommand, name = "dep", alias = "d")]
+    #[command(subcommand, name = "dep")]
     Dependency(DependencyCommand),
 
-    #[command(subcommand, alias = "p")]
+    #[command(subcommand, name = "plan")]
     Pipeline(PipelineCommand),
 
-    #[command(subcommand, alias = "o")]
+    #[command(subcommand, name = "op")]
     Operation(OperationCommand),
 
-    #[command(alias = "a")]
     Audit(AuditArgs),
 
-    #[command(alias = "k")]
     Ack(AckArgs),
-}
-
-pub(crate) fn parse() -> Cli {
-    Cli::parse()
 }
