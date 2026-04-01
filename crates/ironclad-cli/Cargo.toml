@@ -18,3 +18,4 @@ serde_json = "1.0.149"
 humantime = "2.3.0"
 console = "0.16.2"
 ironclad-ops = { version = "0.1.0", path = "../ironclad-ops" }
+figment = { version = "0.10.19", features = ["env", "json"] }
