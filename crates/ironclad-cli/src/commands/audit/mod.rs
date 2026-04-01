@@ -4,11 +4,12 @@ use ironclad_core::snapshot::diff::SamplePresence;
 
 use crate::{
     args::audit::AuditArgs,
+    config::Config,
     helper::{resolve_explicit_or_reused_cell_id, resolve_ledger},
     output, ui,
 };
 
-pub(super) fn dispatch(args: AuditArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
     let show_cell_ids = args
         .cell_id

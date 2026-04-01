@@ -1,8 +1,10 @@
 use std::time::SystemTime;
 
-use crate::{args::cell::reuse::ReuseCellArgs, helper::resolve_ledger, reuse_cell, ui};
+use crate::{
+    args::cell::reuse::ReuseCellArgs, config::Config, helper::resolve_ledger, reuse_cell, ui,
+};
 
-pub(super) fn dispatch(args: ReuseCellArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: ReuseCellArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
 
     match args {

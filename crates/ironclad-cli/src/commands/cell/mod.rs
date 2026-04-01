@@ -5,15 +5,15 @@ mod remove;
 mod reuse;
 mod show;
 
-use crate::args::cell::CellCommand;
+use crate::{args::cell::CellCommand, config::Config};
 
-pub(super) fn dispatch(command: CellCommand) -> anyhow::Result<()> {
+pub(super) fn dispatch(config: &Config, command: CellCommand) -> anyhow::Result<()> {
     match command {
-        CellCommand::Reuse(args) => reuse::dispatch(args),
-        CellCommand::Add(args) => add::dispatch(args),
-        CellCommand::Edit(args) => edit::dispatch(args),
-        CellCommand::Remove(args) => remove::dispatch(args),
-        CellCommand::List(args) => list::dispatch(args),
-        CellCommand::Show(args) => show::dispatch(args),
+        CellCommand::Reuse(args) => reuse::dispatch(config, args),
+        CellCommand::Add(args) => add::dispatch(config, args),
+        CellCommand::Edit(args) => edit::dispatch(config, args),
+        CellCommand::Remove(args) => remove::dispatch(config, args),
+        CellCommand::List(args) => list::dispatch(config, args),
+        CellCommand::Show(args) => show::dispatch(config, args),
     }
 }

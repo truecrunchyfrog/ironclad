@@ -2,9 +2,9 @@ use std::io::{Read, stdin};
 
 use ironclad_core::{registry, sample::Sample};
 
-use crate::{args::operation::eval::EvalOperationArgs, helper::resolve_ledger};
+use crate::{args::operation::eval::EvalOperationArgs, config::Config, helper::resolve_ledger};
 
-pub(super) fn dispatch(args: EvalOperationArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: EvalOperationArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
 
     let options = match args.options {

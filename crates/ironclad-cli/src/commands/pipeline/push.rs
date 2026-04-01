@@ -2,10 +2,11 @@ use ironclad_core::{pipeline::Stage, registry};
 
 use crate::{
     args::pipeline::push::PushPipelineArgs,
+    config::Config,
     helper::{resolve_explicit_or_reused_cell, resolve_ledger},
 };
 
-pub(super) fn dispatch(args: PushPipelineArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: PushPipelineArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
     let mut cell = resolve_explicit_or_reused_cell(&ledger, Some(args.cell_id))?;
 

@@ -1,9 +1,10 @@
 use crate::{
     args::cell::edit::EditCellArgs,
+    config::Config,
     helper::{resolve_explicit_or_reused_cell, resolve_ledger},
 };
 
-pub(super) fn dispatch(args: EditCellArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: EditCellArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
     let mut cell = resolve_explicit_or_reused_cell(&ledger, args.cell_id)?;
 

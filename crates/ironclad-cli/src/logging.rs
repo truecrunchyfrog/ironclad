@@ -3,7 +3,7 @@ use log::LevelFilter;
 use crate::args::Cli;
 
 pub(crate) fn init(cli: &Cli) {
-    let level = match cli.global.verbose {
+    let level = match cli.config.verbose {
         0 => LevelFilter::Warn,
         1 => LevelFilter::Info,
         2 => LevelFilter::Debug,

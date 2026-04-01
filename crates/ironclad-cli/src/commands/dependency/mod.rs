@@ -1,11 +1,11 @@
 mod add;
 mod remove;
 
-use crate::args::dependency::DependencyCommand;
+use crate::{args::dependency::DependencyCommand, config::Config};
 
-pub(super) fn dispatch(command: DependencyCommand) -> anyhow::Result<()> {
+pub(super) fn dispatch(config: &Config, command: DependencyCommand) -> anyhow::Result<()> {
     match command {
-        DependencyCommand::Add(args) => add::dispatch(args),
-        DependencyCommand::Remove(args) => remove::dispatch(args),
+        DependencyCommand::Add(args) => add::dispatch(config, args),
+        DependencyCommand::Remove(args) => remove::dispatch(config, args),
     }
 }

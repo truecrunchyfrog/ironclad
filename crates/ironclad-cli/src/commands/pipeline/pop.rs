@@ -2,11 +2,12 @@ use anyhow::anyhow;
 
 use crate::{
     args::pipeline::pop::PopPipelineArgs,
+    config::Config,
     helper::{resolve_explicit_or_reused_cell, resolve_ledger},
     ui,
 };
 
-pub(super) fn dispatch(args: PopPipelineArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: PopPipelineArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
     let mut cell = resolve_explicit_or_reused_cell(&ledger, args.cell_id)?;
 

@@ -1,6 +1,6 @@
-use crate::{args::cell::list::ListCellArgs, helper::resolve_ledger};
+use crate::{args::cell::list::ListCellArgs, config::Config, helper::resolve_ledger};
 
-pub(super) fn dispatch(args: ListCellArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: ListCellArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
     let cells = ledger.load_cells()?;
 

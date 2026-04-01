@@ -2,10 +2,11 @@ use log::info;
 
 use crate::{
     args::dependency::remove::RemoveDependencyArgs,
+    config::Config,
     helper::{resolve_explicit_or_reused_cell_id, resolve_ledger},
 };
 
-pub(super) fn dispatch(args: RemoveDependencyArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: RemoveDependencyArgs) -> anyhow::Result<()> {
     let ledger = resolve_ledger()?;
 
     let dependents = args

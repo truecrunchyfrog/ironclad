@@ -2,9 +2,9 @@ use std::time::Duration;
 
 use ironclad_core::cell::Cell;
 
-use crate::{args::cell::add::AddCellArgs, helper::resolve_ledger, reuse_cell};
+use crate::{args::cell::add::AddCellArgs, config::Config, helper::resolve_ledger, reuse_cell};
 
-pub(super) fn dispatch(args: AddCellArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: AddCellArgs) -> anyhow::Result<()> {
     let cell = Cell::new(
         args.cell_id.map_or(Default::default(), |id| id.into()),
         args.description,

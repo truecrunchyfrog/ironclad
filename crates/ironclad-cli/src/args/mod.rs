@@ -6,17 +6,20 @@ pub(crate) mod ledger;
 pub(crate) mod operation;
 pub(crate) mod pipeline;
 
-use clap::{Args, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 
-use crate::args::{
-    ack::AckArgs, audit::AuditArgs, cell::CellCommand, dependency::DependencyCommand,
-    ledger::LedgerCommand, operation::OperationCommand, pipeline::PipelineCommand,
+use crate::{
+    args::{
+        ack::AckArgs, audit::AuditArgs, cell::CellCommand, dependency::DependencyCommand,
+        ledger::LedgerCommand, operation::OperationCommand, pipeline::PipelineCommand,
+    },
+    config::Config,
 };
 
 #[derive(Parser)]
 pub(crate) struct Cli {
     #[command(flatten)]
-    pub(crate) global: GlobalArgs,
+    pub(crate) config: Config,
 
     #[command(subcommand)]
     pub(crate) command: Command,
@@ -24,12 +27,6 @@ pub(crate) struct Cli {
 
 pub(crate) fn parse() -> Cli {
     Cli::parse()
-}
-
-#[derive(Args)]
-pub(crate) struct GlobalArgs {
-    #[arg(short, long, action = clap::ArgAction::Count)]
-    pub(crate) verbose: u8,
 }
 
 #[derive(Subcommand)]
