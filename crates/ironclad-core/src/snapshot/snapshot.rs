@@ -8,12 +8,12 @@ use crate::{cell::id::CellId, snapshot::entry::SnapshotEntry};
 pub struct Snapshot(HashMap<CellId, SnapshotEntry>);
 
 impl Snapshot {
-    #[must_use] 
+    #[must_use]
     pub fn new(entries: HashMap<CellId, SnapshotEntry>) -> Self {
         Self(entries)
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn entries(&self) -> &HashMap<CellId, SnapshotEntry> {
         &self.0
     }

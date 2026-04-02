@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use ironclad_core::{
     cluster::Cluster,
     operation::TypedOperation,
     sample::{Sample, Trace},
 };
+use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use serde::Deserialize;
 
 pub(crate) struct HeadNetHttp;

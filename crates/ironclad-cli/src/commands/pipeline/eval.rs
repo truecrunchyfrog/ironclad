@@ -4,7 +4,7 @@ use ironclad_core::sample::Sample;
 use crate::{
     args::pipeline::eval::EvalPipelineArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell, resolve_cluster},
+    helper::{resolve_cluster, resolve_explicit_or_reused_cell},
     ui,
 };
 

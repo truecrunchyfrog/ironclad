@@ -1,8 +1,8 @@
 pub(crate) mod ack;
 pub(crate) mod audit;
 pub(crate) mod cell;
-pub(crate) mod dependency;
 pub(crate) mod cluster;
+pub(crate) mod dependency;
 pub(crate) mod operation;
 pub(crate) mod pipeline;
 
@@ -10,8 +10,8 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     args::{
-        ack::AckArgs, audit::AuditArgs, cell::CellCommand, dependency::DependencyCommand,
-        cluster::ClusterCommand, operation::OperationCommand, pipeline::PipelineCommand,
+        ack::AckArgs, audit::AuditArgs, cell::CellCommand, cluster::ClusterCommand,
+        dependency::DependencyCommand, operation::OperationCommand, pipeline::PipelineCommand,
     },
     config::Config,
 };

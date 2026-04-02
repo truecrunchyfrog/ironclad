@@ -5,12 +5,12 @@ pub struct Cluster {
 }
 
 impl Cluster {
-    #[must_use] 
+    #[must_use]
     pub fn new(dir: PathBuf) -> Self {
         Self { dir }
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn dir(&self) -> &Path {
         &self.dir
     }

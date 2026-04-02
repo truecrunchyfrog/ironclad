@@ -14,16 +14,14 @@ pub struct Registry {
 }
 
 impl Registry {
-    #[must_use] 
+    #[must_use]
     pub fn ops(&self) -> &HashMap<String, Arc<dyn Operation>> {
         &self.ops
     }
 
     pub fn register_op(&mut self, id: String, op: Box<dyn Operation>) -> Result<(), RegistryError> {
         if self.ops.contains_key(&id) {
-            warn!(
-                "an operation with ID '{id}' is already registered, skipping registration"
-            );
+            warn!("an operation with ID '{id}' is already registered, skipping registration");
             return Err(RegistryError::OperationAlreadyExists(id));
         }
 

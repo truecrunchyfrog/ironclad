@@ -1,7 +1,7 @@
 use crate::{
     args::pipeline::list::ListPipelineArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell, resolve_cluster},
+    helper::{resolve_cluster, resolve_explicit_or_reused_cell},
 };
 
 pub(super) fn dispatch(_config: &Config, args: ListPipelineArgs) -> anyhow::Result<()> {

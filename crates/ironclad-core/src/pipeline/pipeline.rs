@@ -10,12 +10,12 @@ use crate::{
 pub struct Pipeline(Vec<Stage>);
 
 impl Pipeline {
-    #[must_use] 
+    #[must_use]
     pub fn new(stages: Vec<Stage>) -> Self {
         Self(stages)
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn stages(&self) -> &[Stage] {
         &self.0
     }
@@ -29,11 +29,11 @@ impl Pipeline {
             Some(index) => {
                 self.0.insert(index, stage);
                 Ok(())
-            },
+            }
             None => {
                 self.0.push(stage);
                 Ok(())
-            },
+            }
         }
     }
 

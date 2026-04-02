@@ -1,7 +1,7 @@
 use crate::{
     args::cell::edit::EditCellArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell, resolve_cluster},
+    helper::{resolve_cluster, resolve_explicit_or_reused_cell},
 };
 
 pub(super) fn dispatch(_config: &Config, args: EditCellArgs) -> anyhow::Result<()> {

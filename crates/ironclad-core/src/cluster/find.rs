@@ -11,16 +11,13 @@ impl Cluster {
         working_dir
             .ancestors()
             .find_map(|ancestor| {
-                ancestor
-                    .read_dir()
-                    .ok()
-                    .and_then(|read_dir| {
-                        read_dir
-                            .flatten()
-                            .map(|child| child.path())
-                            .find(|child| Cluster::is_cluster_dir(child))
-                            .map(Cluster::new)
-                    })
+                ancestor.read_dir().ok().and_then(|read_dir| {
+                    read_dir
+                        .flatten()
+                        .map(|child| child.path())
+                        .find(|child| Cluster::is_cluster_dir(child))
+                        .map(Cluster::new)
+                })
             })
             .ok_or_else(|| ClusterError::PathNotFound(working_dir.to_path_buf()))
     }

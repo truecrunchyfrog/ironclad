@@ -15,7 +15,7 @@ pub struct Cell {
 }
 
 impl Cell {
-    #[must_use] 
+    #[must_use]
     pub fn new(
         id: CellId,
         description: Option<String>,
@@ -32,7 +32,7 @@ impl Cell {
         }
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn id(&self) -> &CellId {
         &self.id
     }
@@ -41,7 +41,7 @@ impl Cell {
         self.id = new_id;
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn description(&self) -> &Option<String> {
         &self.description
     }
@@ -50,7 +50,7 @@ impl Cell {
         &mut self.description
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn dependencies(&self) -> &Vec<CellId> {
         &self.dependencies
     }
@@ -59,7 +59,7 @@ impl Cell {
         &mut self.dependencies
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn pipeline(&self) -> &Pipeline {
         &self.pipeline
     }
@@ -68,7 +68,7 @@ impl Cell {
         &mut self.pipeline
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn cache_lifespan(&self) -> &Duration {
         &self.cache_lifespan
     }

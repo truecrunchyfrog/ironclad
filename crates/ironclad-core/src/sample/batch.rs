@@ -11,7 +11,7 @@ pub struct Batch {
 }
 
 impl Batch {
-    #[must_use] 
+    #[must_use]
     pub fn new(samples: Vec<Sample>) -> Self {
         Self {
             samples,
@@ -19,12 +19,12 @@ impl Batch {
         }
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn into_samples(self) -> Vec<Sample> {
         self.samples
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn samples(&self) -> &[Sample] {
         &self.samples
     }
@@ -33,7 +33,7 @@ impl Batch {
         &mut self.samples
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn created(&self) -> &SystemTime {
         &self.created
     }

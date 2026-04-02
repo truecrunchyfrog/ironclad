@@ -3,7 +3,7 @@ use anyhow::anyhow;
 use crate::{
     args::pipeline::pop::PopPipelineArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell, resolve_cluster},
+    helper::{resolve_cluster, resolve_explicit_or_reused_cell},
     ui,
 };
 

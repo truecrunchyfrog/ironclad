@@ -3,7 +3,9 @@ use log::info;
 use crate::{
     args::dependency::add::AddDependencyArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell, resolve_explicit_or_reused_cell_id, resolve_cluster},
+    helper::{
+        resolve_cluster, resolve_explicit_or_reused_cell, resolve_explicit_or_reused_cell_id,
+    },
 };
 
 pub(super) fn dispatch(_config: &Config, args: AddDependencyArgs) -> anyhow::Result<()> {

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct CellId(String);
 
 impl CellId {
-    #[must_use] 
+    #[must_use]
     pub fn for_path(path: &Path) -> Self {
         Self(
             path.file_name()

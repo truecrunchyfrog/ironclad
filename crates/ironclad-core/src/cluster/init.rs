@@ -2,7 +2,7 @@ use std::{fs, path::Path};
 
 use log::info;
 
-use crate::cluster::{error::ClusterError, cluster::Cluster};
+use crate::cluster::{cluster::Cluster, error::ClusterError};
 
 const GITIGNORE_CONTENT: &str = "snapshots/pending.json";
 

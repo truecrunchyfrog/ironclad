@@ -5,7 +5,7 @@ use ironclad_core::snapshot::diff::SamplePresence;
 use crate::{
     args::audit::AuditArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell_id, resolve_cluster},
+    helper::{resolve_cluster, resolve_explicit_or_reused_cell_id},
     output, ui,
 };
 

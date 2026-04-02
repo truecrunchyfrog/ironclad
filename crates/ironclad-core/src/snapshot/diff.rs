@@ -20,20 +20,24 @@ pub enum SamplePresence {
 }
 
 impl BatchDiff {
-    #[must_use] 
+    #[must_use]
     pub fn before(&self) -> &Option<Batch> {
         &self.before
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn after(&self) -> &Option<Batch> {
         &self.after
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn sample_diffs(self) -> Vec<(Sample, SamplePresence)> {
-        let samples_before = self.before.map_or(Vec::new(), super::super::sample::batch::Batch::into_samples);
-        let samples_after = self.after.map_or(Vec::new(), super::super::sample::batch::Batch::into_samples);
+        let samples_before = self
+            .before
+            .map_or(Vec::new(), super::super::sample::batch::Batch::into_samples);
+        let samples_after = self
+            .after
+            .map_or(Vec::new(), super::super::sample::batch::Batch::into_samples);
 
         let mut result = Vec::new();
 
@@ -58,16 +62,12 @@ impl BatchDiff {
 }
 
 impl Snapshot {
-    #[must_use] 
+    #[must_use]
     pub fn diff(&self, before: Self) -> HashMap<CellId, (BatchDiff, Vec<(CellId, BatchDiff)>)> {
         let before = before.entries();
         let after = self.entries();
 
-        let cell_ids = HashSet::<CellId>::from_iter(
-            before
-                .keys()
-                .chain(after.keys()).cloned(),
-        );
+        let cell_ids = HashSet::<CellId>::from_iter(before.keys().chain(after.keys()).cloned());
 
         HashMap::from_iter(cell_ids.into_iter().map(|cell_id| {
             let before = before.get(&cell_id);
@@ -77,7 +77,8 @@ impl Snapshot {
                 before
                     .iter()
                     .chain(after.iter())
-                    .flat_map(|e| e.dependencies().keys()).cloned(),
+                    .flat_map(|e| e.dependencies().keys())
+                    .cloned(),
             );
 
             (

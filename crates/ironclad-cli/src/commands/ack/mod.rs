@@ -10,7 +10,7 @@ use ironclad_core::{
 use crate::{
     args::ack::AckArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell_id, resolve_cluster},
+    helper::{resolve_cluster, resolve_explicit_or_reused_cell_id},
     output, ui,
 };
 
@@ -32,10 +32,7 @@ pub(super) fn dispatch(_config: &Config, args: AckArgs) -> anyhow::Result<()> {
     let mut diffs = audit.diff(baseline.clone());
 
     let cell_ids = if cell_ids.is_empty() {
-        audit
-            .entries()
-            .keys().cloned()
-            .collect::<Vec<_>>()
+        audit.entries().keys().cloned().collect::<Vec<_>>()
     } else {
         cell_ids
     };
