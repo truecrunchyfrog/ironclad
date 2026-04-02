@@ -1,2 +1,5 @@
 - user settings; enforce verification for new untrusted ops, manually or through signing.
 - commands for generating inline tags
+- context struct instead of passing config directly to command dispatchers
+- registry as variable instead of global static
+- configuring secrets and using env vars for operations
