@@ -9,35 +9,39 @@ use log::{info, warn};
 
 use crate::{operation::Operation, registry::error::RegistryError};
 
-struct Registry {
+pub struct Registry {
     ops: HashMap<String, Arc<dyn Operation>>,
+}
+
+impl Registry {
+    pub fn ops(&self) -> &HashMap<String, Arc<dyn Operation>> {
+        &self.ops
+    }
+
+    pub fn register_op(&mut self, id: String, op: Box<dyn Operation>) -> Result<(), RegistryError> {
+        if self.ops.contains_key(&id) {
+            warn!(
+                "an operation with ID '{}' is already registered, skipping registration",
+                id
+            );
+            return Err(RegistryError::OperationAlreadyExists(id));
+        }
+
+        info!("registering operation '{}'", id);
+        self.ops.insert(id, op.into());
+
+        Ok(())
+    }
 }
 
 static REGISTRY: OnceLock<RwLock<Registry>> = OnceLock::new();
 
-fn registry() -> &'static RwLock<Registry> {
+pub fn registry() -> &'static RwLock<Registry> {
     REGISTRY.get_or_init(|| {
         RwLock::new(Registry {
             ops: HashMap::new(),
         })
     })
-}
-
-pub fn register_op(id: String, op: Box<dyn Operation>) -> Result<(), RegistryError> {
-    let mut registry = registry().write().unwrap();
-
-    if registry.ops.contains_key(&id) {
-        warn!(
-            "an operation with ID '{}' is already registered, ignoring registration",
-            id
-        );
-        return Err(RegistryError::OperationAlreadyExists(id));
-    }
-
-    info!("registering operation '{}'", id);
-    registry.ops.insert(id, op.into());
-
-    Ok(())
 }
 
 pub fn with_all_ops<F, R>(f: F) -> R
