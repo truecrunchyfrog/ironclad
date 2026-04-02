@@ -10,10 +10,12 @@ use crate::{
 pub struct Pipeline(Vec<Stage>);
 
 impl Pipeline {
+    #[must_use] 
     pub fn new(stages: Vec<Stage>) -> Self {
         Self(stages)
     }
 
+    #[must_use] 
     pub fn stages(&self) -> &[Stage] {
         &self.0
     }

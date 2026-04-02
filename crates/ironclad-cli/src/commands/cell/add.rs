@@ -6,7 +6,7 @@ use crate::{args::cell::add::AddCellArgs, config::Config, helper::resolve_ledger
 
 pub(super) fn dispatch(_config: &Config, args: AddCellArgs) -> anyhow::Result<()> {
     let cell = Cell::new(
-        args.cell_id.map_or(Default::default(), |id| id.into()),
+        args.cell_id.map_or(Default::default(), std::convert::Into::into),
         args.description,
         Default::default(),
         Duration::from_hours(1),

@@ -31,13 +31,13 @@ pub(super) fn dispatch(_config: &Config, args: AckArgs) -> anyhow::Result<()> {
     let mut baseline = ledger.load_baseline_snapshot().unwrap_or_default();
     let mut diffs = audit.diff(baseline.clone());
 
-    let cell_ids = if !cell_ids.is_empty() {
-        cell_ids
-    } else {
+    let cell_ids = if cell_ids.is_empty() {
         audit
             .entries()
             .keys().cloned()
             .collect::<Vec<_>>()
+    } else {
+        cell_ids
     };
 
     'cells: for cell_id in cell_ids {
@@ -111,12 +111,12 @@ fn ack_batch_diff(
     if interactive && !sample_diffs.is_empty() {
         match origin {
             BatchOrigin::DirtyCell(cell_id) => {
-                println!("{} is dirty", cell_id)
+                println!("{cell_id} is dirty");
             }
             BatchOrigin::StaleDependencyCell {
                 dependent,
                 dependency,
-            } => println!("{} is stale due to dependency of {}", dependent, dependency),
+            } => println!("{dependent} is stale due to dependency of {dependency}"),
         }
     }
 
@@ -132,7 +132,7 @@ fn ack_batch_diff(
 
         match sample_diff {
             (sample, SamplePresence::OnlyBefore) => {
-                working_batch.samples_mut().retain(|s| s != &sample)
+                working_batch.samples_mut().retain(|s| s != &sample);
             }
             (sample, SamplePresence::OnlyAfter) => working_batch.samples_mut().push(sample),
             _ => (),

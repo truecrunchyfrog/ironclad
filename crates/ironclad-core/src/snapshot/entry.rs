@@ -11,6 +11,7 @@ pub struct SnapshotEntry {
 }
 
 impl SnapshotEntry {
+    #[must_use] 
     pub fn new(batch: Batch, dependencies: HashMap<CellId, Batch>) -> Self {
         Self {
             batch,
@@ -18,6 +19,7 @@ impl SnapshotEntry {
         }
     }
 
+    #[must_use] 
     pub fn batch(&self) -> &Batch {
         &self.batch
     }
@@ -26,6 +28,7 @@ impl SnapshotEntry {
         &mut self.batch
     }
 
+    #[must_use] 
     pub fn dependencies(&self) -> &HashMap<CellId, Batch> {
         &self.dependencies
     }

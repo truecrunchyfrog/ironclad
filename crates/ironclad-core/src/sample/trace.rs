@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct Trace(HashMap<String, String>);
 
 impl Trace {
+    #[must_use] 
     pub fn new(values: HashMap<String, String>) -> Self {
         Self(values)
     }

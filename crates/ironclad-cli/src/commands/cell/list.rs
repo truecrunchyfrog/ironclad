@@ -11,9 +11,7 @@ pub(super) fn dispatch(_config: &Config, args: ListCellArgs) -> anyhow::Result<(
         .unwrap_or(0);
 
     for cell in cells {
-        if !args.verbose {
-            println!("{}", cell.id());
-        } else {
+        if args.verbose {
             println!(
                 "{:width$}  {}",
                 cell.id(),
@@ -22,6 +20,8 @@ pub(super) fn dispatch(_config: &Config, args: ListCellArgs) -> anyhow::Result<(
                     .unwrap_or_else(|| String::from("-")),
                 width = cell_id_width
             );
+        } else {
+            println!("{}", cell.id());
         }
     }
 

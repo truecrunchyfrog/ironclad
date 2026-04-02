@@ -15,6 +15,7 @@ pub struct Stage {
 }
 
 impl Stage {
+    #[must_use] 
     pub fn new(operation_id: String, options: Value) -> Self {
         Self {
             operation_id,
@@ -22,10 +23,12 @@ impl Stage {
         }
     }
 
+    #[must_use] 
     pub fn operation_id(&self) -> &str {
         &self.operation_id
     }
 
+    #[must_use] 
     pub fn options(&self) -> &Value {
         &self.options
     }

@@ -9,7 +9,7 @@ pub(super) fn dispatch(_config: &Config, args: RemoveCellArgs) -> anyhow::Result
     let cell_id = resolve_explicit_or_reused_cell_id(&ledger, args.cell_id)?;
     ledger.remove_cell(&cell_id)?;
 
-    println!("{}", cell_id);
+    println!("{cell_id}");
 
     Ok(())
 }

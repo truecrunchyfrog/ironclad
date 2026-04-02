@@ -19,9 +19,9 @@ use crate::config::Config;
 
 fn main() -> ExitCode {
     match start() {
-        Ok(_) => ExitCode::SUCCESS,
+        Ok(()) => ExitCode::SUCCESS,
         Err(err) => {
-            ui::error(format!("{}", err));
+            ui::error(format!("{err}"));
             ExitCode::FAILURE
         }
     }

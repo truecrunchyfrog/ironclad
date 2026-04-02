@@ -93,7 +93,7 @@ pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> 
                     .iter()
                     .filter(|(_, p)| p != &SamplePresence::Both)
                 {
-                    println!("{}", output::display_sample_diff(sample_diff))
+                    println!("{}", output::display_sample_diff(sample_diff));
                 }
             }
 
@@ -112,7 +112,7 @@ pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> 
                             .iter()
                             .filter(|(_, p)| p != &SamplePresence::Both)
                         {
-                            println!("{}", output::display_sample_diff(sample_diff))
+                            println!("{}", output::display_sample_diff(sample_diff));
                         }
                     }
                 }

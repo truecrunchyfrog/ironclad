@@ -140,7 +140,7 @@ impl TypedOperation for TextTag {
                                 ("start".to_string(), (tag.span.start).to_string()),
                                 ("end".to_string(), (tag.span.end).to_string()),
                             ])),
-                            format!("{}{}", left_text, right_text),
+                            format!("{left_text}{right_text}"),
                         )
                     })
                     .collect(),

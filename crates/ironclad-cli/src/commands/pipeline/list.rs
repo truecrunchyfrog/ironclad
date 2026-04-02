@@ -9,12 +9,12 @@ pub(super) fn dispatch(_config: &Config, args: ListPipelineArgs) -> anyhow::Resu
     let cell = resolve_explicit_or_reused_cell(&ledger, args.cell_id)?;
     let stages = cell.pipeline().stages();
 
-    if !args.raw {
+    if args.raw {
+        println!("{}", serde_json::to_string_pretty(stages)?);
+    } else {
         for stage in stages {
             println!("{}  {}", stage.operation_id(), stage.options());
         }
-    } else {
-        println!("{}", serde_json::to_string_pretty(stages)?);
     }
 
     Ok(())

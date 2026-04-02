@@ -27,7 +27,7 @@ pub(super) fn dispatch(_config: &Config, args: RemoveDependencyArgs) -> anyhow::
 
         deps.retain(|dep| {
             if args.all || remove_deps.contains(dep) {
-                info!("removing dependency from {}: {}", cell_id, dep);
+                info!("removing dependency from {cell_id}: {dep}");
                 false
             } else {
                 true

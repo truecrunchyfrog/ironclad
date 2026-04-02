@@ -27,14 +27,12 @@ impl SelectionBoundary {
                                 .match_indices('\n')
                                 .take(lines)
                                 .last()
-                                .map(|(index, _)| index)
-                                .unwrap_or(text.len()),
+                                .map_or(text.len(), |(index, _)| index),
                             SelectionDirection::Rtl => text
                                 .rmatch_indices('\n')
                                 .take(lines)
                                 .last()
-                                .map(|(index, _)| index)
-                                .unwrap_or(0),
+                                .map_or(0, |(index, _)| index),
                         },
                         text.len(),
                     )

@@ -14,12 +14,12 @@ pub(super) fn dispatch(_config: &Config, args: EvalOperationArgs) -> anyhow::Res
 
     let operation = registry::resolve_op(&args.operation_id)?;
 
-    let input = if !args.head {
+    let input = if args.head {
+        Vec::new()
+    } else {
         let mut buf = Vec::new();
         stdin().read_to_end(&mut buf)?;
         serde_json::from_slice::<Vec<Vec<Sample>>>(buf.as_slice())?
-    } else {
-        Vec::new()
     };
 
     let output = operation.eval(&ledger, input, options)?;

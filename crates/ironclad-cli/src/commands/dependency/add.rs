@@ -28,7 +28,7 @@ pub(super) fn dispatch(_config: &Config, args: AddDependencyArgs) -> anyhow::Res
         }
 
         if args.mirror {
-            result.extend(dependents.to_owned());
+            result.extend(dependents.clone());
         }
 
         result
@@ -40,7 +40,7 @@ pub(super) fn dispatch(_config: &Config, args: AddDependencyArgs) -> anyhow::Res
 
         for new_dependency in &new_dependencies {
             if new_dependency != &cell_id && !deps.contains(new_dependency) {
-                info!("adding dependency to {}: {}", cell_id, new_dependency);
+                info!("adding dependency to {cell_id}: {new_dependency}");
                 deps.push(new_dependency.clone());
             }
         }

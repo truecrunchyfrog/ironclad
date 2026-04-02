@@ -15,17 +15,17 @@ impl Ledger {
         let cells_dir = self.cells_dir();
         let entries = cells_dir
             .read_dir()
-            .unwrap_or_else(|_| panic!("cannot read {:#?} as directory", cells_dir));
+            .unwrap_or_else(|_| panic!("cannot read {cells_dir:#?} as directory"));
 
         entries
-            .flat_map(|entry| {
+            .filter_map(|entry| {
                 entry
-                    .inspect_err(|err| warn!("strange entry: {}", err))
+                    .inspect_err(|err| warn!("strange entry: {err}"))
                     .ok()
                     .filter(|entry| {
                         entry
                             .file_type()
-                            .inspect_err(|err| warn!("cannot check file type: {}", err))
+                            .inspect_err(|err| warn!("cannot check file type: {err}"))
                             .is_ok_and(|filetype| {
                                 if filetype.is_file() {
                                     true
@@ -39,6 +39,7 @@ impl Ledger {
             .collect::<Vec<_>>()
     }
 
+    #[must_use] 
     pub fn cell_ids(&self) -> Vec<CellId> {
         self.cell_files()
             .iter()
@@ -132,7 +133,7 @@ impl Ledger {
 }
 
 fn write_cell(path: &Path, cell: &Cell) -> Result<(), CellError> {
-    info!("writing cell at {:?}", path);
+    info!("writing cell at {path:?}");
     fs::write(path, serde_json::to_vec_pretty(cell)?)?;
     Ok(())
 }

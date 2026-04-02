@@ -78,7 +78,7 @@ impl TypedOperation for JsonFind {
                                 vec![(path, array.swap_remove(*index))]
                             }
                             (PathSegment::Key(key), Value::Object(mut object)) => {
-                                path.push(key.to_string());
+                                path.push(key.clone());
                                 object.remove(key).map(|v| (path, v)).into_iter().collect()
                             }
                             _ => Vec::new(),

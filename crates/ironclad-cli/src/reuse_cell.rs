@@ -70,7 +70,7 @@ pub(crate) fn set(
 pub(crate) fn remove() -> anyhow::Result<()> {
     let default_cell_path = reuse_cell_path()?;
 
-    info!("removing reuse cell at {:#?}", default_cell_path);
+    info!("removing reuse cell at {default_cell_path:#?}");
     fs::remove_file(default_cell_path)?;
 
     Ok(())

@@ -30,29 +30,29 @@ fn populate_ledger_dir(ledger: &Ledger) -> Result<(), LedgerError> {
         fs::create_dir(ledger.dir())?;
 
         let gitignore_path = ledger.dir().join(".gitignore");
-        info!("creating {:#?}", gitignore_path);
+        info!("creating {gitignore_path:#?}");
         fs::write(gitignore_path, GITIGNORE_CONTENT)?;
 
         {
             let cells_dir = ledger.cells_dir();
-            info!("creating {:#?}", cells_dir);
+            info!("creating {cells_dir:#?}");
             fs::create_dir(cells_dir)?;
         }
 
         {
             let snapshots_dir = ledger.snapshots_dir();
-            info!("creating {:#?}", snapshots_dir);
+            info!("creating {snapshots_dir:#?}");
             fs::create_dir(snapshots_dir)?;
 
             {
                 let snapshot_baseline_path = ledger.snapshot_baseline_path();
-                info!("creating {:#?}", snapshot_baseline_path);
+                info!("creating {snapshot_baseline_path:#?}");
                 fs::write(snapshot_baseline_path, "{}")?;
             }
 
             {
                 let snapshot_pending_path = ledger.snapshot_pending_path();
-                info!("creating {:#?}", snapshot_pending_path);
+                info!("creating {snapshot_pending_path:#?}");
                 fs::write(snapshot_pending_path, "{}")?;
             }
         }

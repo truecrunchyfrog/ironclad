@@ -19,7 +19,7 @@ pub(crate) fn display_sample_diff(sample_diff: &(Sample, SamplePresence)) -> Str
                 .0
                 .content()
                 .lines()
-                .map(|line| format!("  {}", line))
+                .map(|line| format!("  {line}"))
                 .collect::<Vec<_>>()
                 .join("\n")
         )

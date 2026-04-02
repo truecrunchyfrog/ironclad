@@ -9,6 +9,7 @@ pub struct Sample {
 }
 
 impl Sample {
+    #[must_use] 
     pub fn new(trace: Trace, content: String) -> Self {
         Self {
             traces: vec![trace],
@@ -16,6 +17,7 @@ impl Sample {
         }
     }
 
+    #[must_use] 
     pub fn evolve(&self, trace: Trace, content: String) -> Self {
         Self {
             traces: self
@@ -28,14 +30,17 @@ impl Sample {
         }
     }
 
+    #[must_use] 
     pub fn traces(&self) -> &[Trace] {
         &self.traces
     }
 
+    #[must_use] 
     pub fn content(&self) -> &String {
         &self.content
     }
 
+    #[must_use] 
     pub fn into_content(self) -> String {
         self.content
     }

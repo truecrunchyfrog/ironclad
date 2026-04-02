@@ -54,7 +54,7 @@ impl TypedOperation for HeadFileText {
             })
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
-            .flat_map(|p| p.collect::<Vec<_>>())
+            .flat_map(std::iter::Iterator::collect::<Vec<_>>)
             .collect::<Result<Vec<_>, _>>()?;
 
         let files = paths

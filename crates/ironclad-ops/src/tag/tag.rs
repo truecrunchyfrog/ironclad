@@ -31,8 +31,8 @@ impl TagRule {
 
         if selection.inclusive {
             match direction {
-                SelectionDirection::Ltr => format!("{}{}", take, boundary),
-                SelectionDirection::Rtl => format!("{}{}", boundary, take),
+                SelectionDirection::Ltr => format!("{take}{boundary}"),
+                SelectionDirection::Rtl => format!("{boundary}{take}"),
             }
         } else {
             take.to_string()
