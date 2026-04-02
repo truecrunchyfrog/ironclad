@@ -7,7 +7,7 @@ use log::{info, warn};
 
 use crate::{
     cell::{Cell, error::CellError, id::CellId},
-    cluster::{error::ClusterError, cluster::Cluster},
+    cluster::{cluster::Cluster, error::ClusterError},
 };
 
 impl Cluster {
@@ -39,7 +39,7 @@ impl Cluster {
             .collect::<Vec<_>>()
     }
 
-    #[must_use] 
+    #[must_use]
     pub fn cell_ids(&self) -> Vec<CellId> {
         self.cell_files()
             .iter()
@@ -119,14 +119,24 @@ impl Cluster {
         self.save_cell(cell)
     }
 
-    pub fn remove_cell(&self, id: &CellId) -> Result<(), CellError> {
+    pub fn remove_cell(&self, id: &CellId) -> Result<(), ClusterError> {
         let path = self.cell_path(id);
 
         if !path.try_exists()? {
-            return Err(CellError::PathNotFound(path));
+            return Err(CellError::PathNotFound(path).into());
         }
 
         fs::remove_file(path)?;
+
+        let cells = self.load_cells()?;
+
+        for mut cell in cells {
+            let deps = cell.dependencies_mut();
+            if deps.contains(id) {
+                *deps = deps.iter().filter(|dep| dep == &id).cloned().collect();
+                self.save_cell(&cell)?;
+            }
+        }
 
         Ok(())
     }
