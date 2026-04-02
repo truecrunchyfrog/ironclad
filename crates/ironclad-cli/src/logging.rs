@@ -1,9 +1,9 @@
 use log::LevelFilter;
 
-use crate::args::Cli;
+use crate::config::Config;
 
-pub(crate) fn init(cli: &Cli) {
-    let level = match cli.config.verbose {
+pub(crate) fn init(config: &Config) {
+    let level = match config.verbose {
         0 => LevelFilter::Warn,
         1 => LevelFilter::Info,
         2 => LevelFilter::Debug,

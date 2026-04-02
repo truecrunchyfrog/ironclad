@@ -9,7 +9,6 @@ pub(crate) mod ui;
 
 use std::{env::home_dir, process::ExitCode};
 
-use clap::Parser;
 use figment::{
     Figment,
     providers::{Env, Format, Json, Serialized},
@@ -47,7 +46,7 @@ fn start() -> anyhow::Result<()> {
 
     let config: Config = figment_builder.extract()?;
 
-    logging::init(&cli);
+    logging::init(&config);
 
     register_ops()?;
 
