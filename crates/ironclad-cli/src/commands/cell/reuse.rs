@@ -1,11 +1,11 @@
 use std::time::SystemTime;
 
 use crate::{
-    args::cell::reuse::ReuseCellArgs, config::Config, helper::resolve_ledger, reuse_cell, ui,
+    args::cell::reuse::ReuseCellArgs, config::Config, helper::resolve_cluster, reuse_cell, ui,
 };
 
 pub(super) fn dispatch(_config: &Config, args: ReuseCellArgs) -> anyhow::Result<()> {
-    let ledger = resolve_ledger()?;
+    let cluster = resolve_cluster()?;
 
     match args {
         ReuseCellArgs {
@@ -13,18 +13,18 @@ pub(super) fn dispatch(_config: &Config, args: ReuseCellArgs) -> anyhow::Result<
             duration,
             ..
         } => {
-            let cell_id = ledger.resolve_cell_id(&cell_id)?;
+            let cell_id = cluster.resolve_cell_id(&cell_id)?;
 
             println!("{cell_id}");
 
             reuse_cell::set(
-                &ledger,
+                &cluster,
                 cell_id,
                 duration.map(|d| SystemTime::now() + d.into()),
             )?;
         }
 
-        ReuseCellArgs { unset: true, .. } => match reuse_cell::get(&ledger)? {
+        ReuseCellArgs { unset: true, .. } => match reuse_cell::get(&cluster)? {
             Some(cell_id) => {
                 println!("{cell_id}");
                 reuse_cell::remove()?;
@@ -35,7 +35,7 @@ pub(super) fn dispatch(_config: &Config, args: ReuseCellArgs) -> anyhow::Result<
             }
         },
 
-        ReuseCellArgs { .. } => match reuse_cell::get(&ledger)? {
+        ReuseCellArgs { .. } => match reuse_cell::get(&cluster)? {
             Some(cell_id) => println!("{cell_id}"),
             None => eprintln!("no reuse cell set"),
         },

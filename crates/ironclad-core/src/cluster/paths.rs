@@ -1,10 +1,10 @@
 use std::path::{Path, PathBuf};
 
-use crate::{cell::id::CellId, ledger::ledger::Ledger};
+use crate::{cell::id::CellId, cluster::cluster::Cluster};
 
-impl Ledger {
+impl Cluster {
     #[must_use] 
-    pub fn ledger_dir(path: &Path) -> PathBuf {
+    pub fn cluster_dir(path: &Path) -> PathBuf {
         path.join(".ironclad")
     }
 

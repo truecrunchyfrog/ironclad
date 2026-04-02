@@ -1,13 +1,13 @@
 use std::{ffi::OsStr, path::Path};
 
-use crate::ledger::{Ledger, error::LedgerError};
+use crate::cluster::{Cluster, error::ClusterError};
 
-impl Ledger {
-    pub(crate) fn is_ledger_dir(path: &Path) -> bool {
+impl Cluster {
+    pub(crate) fn is_cluster_dir(path: &Path) -> bool {
         path.file_name() == Some(OsStr::new(".ironclad")) && path.is_dir()
     }
 
-    pub fn find_for_working_dir(working_dir: &Path) -> Result<Ledger, LedgerError> {
+    pub fn find_for_working_dir(working_dir: &Path) -> Result<Cluster, ClusterError> {
         working_dir
             .ancestors()
             .find_map(|ancestor| {
@@ -18,10 +18,10 @@ impl Ledger {
                         read_dir
                             .flatten()
                             .map(|child| child.path())
-                            .find(|child| Ledger::is_ledger_dir(child))
-                            .map(Ledger::new)
+                            .find(|child| Cluster::is_cluster_dir(child))
+                            .map(Cluster::new)
                     })
             })
-            .ok_or_else(|| LedgerError::PathNotFound(working_dir.to_path_buf()))
+            .ok_or_else(|| ClusterError::PathNotFound(working_dir.to_path_buf()))
     }
 }

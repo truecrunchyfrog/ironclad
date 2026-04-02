@@ -2,7 +2,7 @@ mod ack;
 mod audit;
 mod cell;
 mod dependency;
-mod ledger;
+mod cluster;
 mod operation;
 mod pipeline;
 
@@ -10,7 +10,7 @@ use crate::{args::Command, config::Config};
 
 pub(super) fn dispatch(config: &Config, command: Command) -> anyhow::Result<()> {
     match command {
-        Command::Ledger(cmd) => ledger::dispatch(config, cmd),
+        Command::Cluster(cmd) => cluster::dispatch(config, cmd),
         Command::Cell(cmd) => cell::dispatch(config, cmd),
         Command::Dependency(cmd) => dependency::dispatch(config, cmd),
         Command::Pipeline(cmd) => pipeline::dispatch(config, cmd),

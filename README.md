@@ -18,7 +18,7 @@ Stage by stage the pipeline refines the seed to eventually point at the exact da
 
 Set up an `.ironclad/` instance in the current directory:
 ```bash
-$ ic ledger init
+$ ic cluster init
 ```
 
 Create a cell:

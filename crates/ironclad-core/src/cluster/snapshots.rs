@@ -4,13 +4,13 @@ use rayon::iter::{FromParallelIterator, IntoParallelRefIterator, ParallelIterato
 
 use crate::{
     cell::id::CellId,
-    ledger::{Ledger, error::LedgerError},
+    cluster::{Cluster, error::ClusterError},
     sample::batch::Batch,
     snapshot::{Snapshot, SnapshotEntry},
 };
 
-impl Ledger {
-    pub fn capture_snapshot(&self, cache: Option<Snapshot>) -> Result<Snapshot, LedgerError> {
+impl Cluster {
+    pub fn capture_snapshot(&self, cache: Option<Snapshot>) -> Result<Snapshot, ClusterError> {
         let cells = self.load_cells()?;
 
         let batches = cells
@@ -32,12 +32,12 @@ impl Ledger {
                     },
                 ))
             })
-            .collect::<Result<Vec<_>, LedgerError>>()?;
+            .collect::<Result<Vec<_>, ClusterError>>()?;
 
-        let cell_dependencies = |deps: &[CellId]| -> Result<HashMap<CellId, Batch>, LedgerError> {
+        let cell_dependencies = |deps: &[CellId]| -> Result<HashMap<CellId, Batch>, ClusterError> {
             Ok(HashMap::from_iter(
                 deps.iter()
-                    .map(|dep_cell_id| -> Result<(CellId, Batch), LedgerError> {
+                    .map(|dep_cell_id| -> Result<(CellId, Batch), ClusterError> {
                         Ok((
                             dep_cell_id.clone(),
                             batches
@@ -50,11 +50,11 @@ impl Ledger {
                                     }
                                 })
                                 .ok_or_else(|| {
-                                    LedgerError::DependencyCellNotFound(dep_cell_id.clone())
+                                    ClusterError::DependencyCellNotFound(dep_cell_id.clone())
                                 })?,
                         ))
                     })
-                    .collect::<Result<Vec<_>, LedgerError>>()?,
+                    .collect::<Result<Vec<_>, ClusterError>>()?,
             ))
         };
 
@@ -67,32 +67,32 @@ impl Ledger {
                         SnapshotEntry::new(batch.to_owned(), cell_dependencies(deps)?),
                     ))
                 })
-                .collect::<Result<Vec<_>, LedgerError>>()?,
+                .collect::<Result<Vec<_>, ClusterError>>()?,
         )))
     }
 
-    fn load_snapshot(&self, path: &Path) -> Result<Snapshot, LedgerError> {
+    fn load_snapshot(&self, path: &Path) -> Result<Snapshot, ClusterError> {
         Ok(serde_json::from_str(&fs::read_to_string(path)?)?)
     }
 
-    fn save_snapshot(&self, path: &Path, snapshot: Snapshot) -> Result<(), LedgerError> {
+    fn save_snapshot(&self, path: &Path, snapshot: Snapshot) -> Result<(), ClusterError> {
         fs::write(path, serde_json::to_string_pretty(&snapshot)?)?;
         Ok(())
     }
 
-    pub fn load_pending_snapshot(&self) -> Result<Snapshot, LedgerError> {
+    pub fn load_pending_snapshot(&self) -> Result<Snapshot, ClusterError> {
         self.load_snapshot(&self.snapshot_pending_path())
     }
 
-    pub fn save_pending_snapshot(&self, snapshot: Snapshot) -> Result<(), LedgerError> {
+    pub fn save_pending_snapshot(&self, snapshot: Snapshot) -> Result<(), ClusterError> {
         self.save_snapshot(&self.snapshot_pending_path(), snapshot)
     }
 
-    pub fn load_baseline_snapshot(&self) -> Result<Snapshot, LedgerError> {
+    pub fn load_baseline_snapshot(&self) -> Result<Snapshot, ClusterError> {
         self.load_snapshot(&self.snapshot_baseline_path())
     }
 
-    pub fn save_baseline_snapshot(&self, snapshot: Snapshot) -> Result<(), LedgerError> {
+    pub fn save_baseline_snapshot(&self, snapshot: Snapshot) -> Result<(), ClusterError> {
         self.save_snapshot(&self.snapshot_baseline_path(), snapshot)
     }
 }

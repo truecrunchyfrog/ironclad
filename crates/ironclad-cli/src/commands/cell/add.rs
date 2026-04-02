@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use ironclad_core::cell::Cell;
 
-use crate::{args::cell::add::AddCellArgs, config::Config, helper::resolve_ledger, reuse_cell};
+use crate::{args::cell::add::AddCellArgs, config::Config, helper::resolve_cluster, reuse_cell};
 
 pub(super) fn dispatch(_config: &Config, args: AddCellArgs) -> anyhow::Result<()> {
     let cell = Cell::new(
@@ -13,13 +13,13 @@ pub(super) fn dispatch(_config: &Config, args: AddCellArgs) -> anyhow::Result<()
         Default::default(),
     );
 
-    let ledger = resolve_ledger()?;
-    ledger.add_cell(&cell)?;
+    let cluster = resolve_cluster()?;
+    cluster.add_cell(&cell)?;
 
     println!("{}", cell.id());
 
     if !args.no_use {
-        reuse_cell::set(&ledger, cell.id().clone(), None)?;
+        reuse_cell::set(&cluster, cell.id().clone(), None)?;
     }
 
     Ok(())

@@ -1,12 +1,12 @@
 use crate::{
     args::cell::edit::EditCellArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell, resolve_cluster},
 };
 
 pub(super) fn dispatch(_config: &Config, args: EditCellArgs) -> anyhow::Result<()> {
-    let ledger = resolve_ledger()?;
-    let mut cell = resolve_explicit_or_reused_cell(&ledger, args.cell_id)?;
+    let cluster = resolve_cluster()?;
+    let mut cell = resolve_explicit_or_reused_cell(&cluster, args.cell_id)?;
 
     if let Some(description) = args.description {
         *cell.description_mut() = Some(description);
@@ -16,7 +16,7 @@ pub(super) fn dispatch(_config: &Config, args: EditCellArgs) -> anyhow::Result<(
         *cell.description_mut() = None;
     }
 
-    ledger.save_cell(&cell)?;
+    cluster.save_cell(&cell)?;
 
     println!("{}", cell.id());
 

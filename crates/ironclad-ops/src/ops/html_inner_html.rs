@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use ironclad_core::{
-    ledger::Ledger,
+    cluster::Cluster,
     operation::{SampleEvolution, TypedOperation},
     sample::{Sample, Trace},
 };
@@ -21,7 +21,7 @@ impl TypedOperation for HtmlInnerHtml {
 
     fn eval_sample(
         &self,
-        _ledger: &Ledger,
+        _cluster: &Cluster,
         input: Sample,
         _options: Self::Options,
     ) -> Result<SampleEvolution, Self::Error> {

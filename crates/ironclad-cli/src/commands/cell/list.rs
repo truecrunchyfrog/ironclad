@@ -1,8 +1,8 @@
-use crate::{args::cell::list::ListCellArgs, config::Config, helper::resolve_ledger};
+use crate::{args::cell::list::ListCellArgs, config::Config, helper::resolve_cluster};
 
 pub(super) fn dispatch(_config: &Config, args: ListCellArgs) -> anyhow::Result<()> {
-    let ledger = resolve_ledger()?;
-    let cells = ledger.load_cells()?;
+    let cluster = resolve_cluster()?;
+    let cells = cluster.load_cells()?;
 
     let cell_id_width = cells
         .iter()

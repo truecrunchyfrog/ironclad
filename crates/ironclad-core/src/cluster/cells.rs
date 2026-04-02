@@ -7,10 +7,10 @@ use log::{info, warn};
 
 use crate::{
     cell::{Cell, error::CellError, id::CellId},
-    ledger::{error::LedgerError, ledger::Ledger},
+    cluster::{error::ClusterError, cluster::Cluster},
 };
 
-impl Ledger {
+impl Cluster {
     fn cell_files(&self) -> Vec<DirEntry> {
         let cells_dir = self.cells_dir();
         let entries = cells_dir
@@ -69,7 +69,7 @@ impl Ledger {
         self.load_cell_for_id(&self.resolve_cell_id(id)?)
     }
 
-    pub fn load_cells(&self) -> Result<Vec<Cell>, LedgerError> {
+    pub fn load_cells(&self) -> Result<Vec<Cell>, ClusterError> {
         Ok(self
             .cell_files()
             .iter()

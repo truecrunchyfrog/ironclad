@@ -10,25 +10,25 @@ use ironclad_core::{
 use crate::{
     args::ack::AckArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell_id, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell_id, resolve_cluster},
     output, ui,
 };
 
 pub(super) fn dispatch(_config: &Config, args: AckArgs) -> anyhow::Result<()> {
-    let ledger = resolve_ledger()?;
+    let cluster = resolve_cluster()?;
     let cell_ids = args
         .cell_id
         .into_iter()
-        .map(|cell_id| resolve_explicit_or_reused_cell_id(&ledger, Some(cell_id)))
+        .map(|cell_id| resolve_explicit_or_reused_cell_id(&cluster, Some(cell_id)))
         .collect::<anyhow::Result<Vec<_>>>()?;
     let dependency_cell_ids = args
         .dependency
         .into_iter()
-        .map(|cell_id| resolve_explicit_or_reused_cell_id(&ledger, Some(cell_id)))
+        .map(|cell_id| resolve_explicit_or_reused_cell_id(&cluster, Some(cell_id)))
         .collect::<anyhow::Result<Vec<_>>>()?;
 
-    let audit = ledger.load_pending_snapshot().unwrap_or_default();
-    let mut baseline = ledger.load_baseline_snapshot().unwrap_or_default();
+    let audit = cluster.load_pending_snapshot().unwrap_or_default();
+    let mut baseline = cluster.load_baseline_snapshot().unwrap_or_default();
     let mut diffs = audit.diff(baseline.clone());
 
     let cell_ids = if cell_ids.is_empty() {
@@ -83,7 +83,7 @@ pub(super) fn dispatch(_config: &Config, args: AckArgs) -> anyhow::Result<()> {
         }
     }
 
-    ledger.save_baseline_snapshot(baseline)?;
+    cluster.save_baseline_snapshot(baseline)?;
 
     Ok(())
 }

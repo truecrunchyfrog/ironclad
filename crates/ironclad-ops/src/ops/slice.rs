@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use ironclad_core::{ledger::Ledger, operation::TypedOperation, sample::Sample};
+use ironclad_core::{cluster::Cluster, operation::TypedOperation, sample::Sample};
 use serde::Deserialize;
 
 pub(crate) struct Slice;
@@ -25,7 +25,7 @@ impl TypedOperation for Slice {
 
     fn eval_sample_set(
         &self,
-        _ledger: &Ledger,
+        _cluster: &Cluster,
         input: Vec<Sample>,
         options: Self::Options,
     ) -> Result<Vec<Vec<Sample>>, Self::Error> {

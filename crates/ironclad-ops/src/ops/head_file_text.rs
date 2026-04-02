@@ -2,7 +2,7 @@ use std::{collections::HashMap, fs};
 
 use glob::glob;
 use ironclad_core::{
-    ledger::Ledger,
+    cluster::Cluster,
     operation::TypedOperation,
     sample::{Sample, Trace},
 };
@@ -35,11 +35,11 @@ impl TypedOperation for HeadFileText {
 
     fn eval(
         &self,
-        ledger: &Ledger,
+        cluster: &Cluster,
         _input: Vec<Vec<Sample>>,
         options: Self::Options,
     ) -> Result<Vec<Vec<Sample>>, Self::Error> {
-        let base_path = ledger.container_dir();
+        let base_path = cluster.container_dir();
 
         let paths = options
             .files
@@ -66,7 +66,7 @@ impl TypedOperation for HeadFileText {
                             Trace::new(HashMap::from([(
                                 String::from("path"),
                                 path.strip_prefix(&base_path)
-                                    .expect("path is not relative to ledger container")
+                                    .expect("path is not relative to cluster container")
                                     .to_string_lossy()
                                     .to_string(),
                             )])),

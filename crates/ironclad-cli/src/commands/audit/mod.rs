@@ -5,28 +5,28 @@ use ironclad_core::snapshot::diff::SamplePresence;
 use crate::{
     args::audit::AuditArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell_id, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell_id, resolve_cluster},
     output, ui,
 };
 
 pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> {
-    let ledger = resolve_ledger()?;
+    let cluster = resolve_cluster()?;
     let show_cell_ids = args
         .cell_id
         .into_iter()
-        .map(|cell_id| resolve_explicit_or_reused_cell_id(&ledger, Some(cell_id)))
+        .map(|cell_id| resolve_explicit_or_reused_cell_id(&cluster, Some(cell_id)))
         .collect::<anyhow::Result<Vec<_>>>()?;
 
     let audit = match args {
-        AuditArgs { new: true, .. } => ledger.capture_snapshot(None)?,
-        AuditArgs { cache: true, .. } => ledger.load_pending_snapshot().unwrap_or_default(),
-        _ => ledger.capture_snapshot(Some(ledger.load_pending_snapshot().unwrap_or_default()))?,
+        AuditArgs { new: true, .. } => cluster.capture_snapshot(None)?,
+        AuditArgs { cache: true, .. } => cluster.load_pending_snapshot().unwrap_or_default(),
+        _ => cluster.capture_snapshot(Some(cluster.load_pending_snapshot().unwrap_or_default()))?,
     };
-    let baseline = ledger.load_baseline_snapshot().unwrap_or_default();
+    let baseline = cluster.load_baseline_snapshot().unwrap_or_default();
     let diffs = audit.diff(baseline);
 
     if !args.dry_run {
-        ledger.save_pending_snapshot(audit)?;
+        cluster.save_pending_snapshot(audit)?;
     }
 
     let mut unacked_cells: usize = 0;

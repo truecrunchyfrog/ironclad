@@ -6,11 +6,11 @@ use crate::{
 };
 
 #[derive(thiserror::Error, Debug)]
-pub enum LedgerError {
-    #[error("no ledger found at {0}")]
+pub enum ClusterError {
+    #[error("no cluster found at {0}")]
     PathNotFound(PathBuf),
 
-    #[error("ledger already initialized at {0}")]
+    #[error("cluster already initialized at {0}")]
     PathAlreadyExists(PathBuf),
 
     #[error("path already exists, but is not a directory: {0}")]

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use ironclad_core::{
-    ledger::Ledger,
+    cluster::Cluster,
     operation::{SampleEvolution, TypedOperation},
     sample::{Sample, Trace},
 };
@@ -33,7 +33,7 @@ impl TypedOperation for HtmlFind {
 
     fn eval_sample(
         &self,
-        _ledger: &Ledger,
+        _cluster: &Cluster,
         input: Sample,
         options: Self::Options,
     ) -> Result<SampleEvolution, Self::Error> {

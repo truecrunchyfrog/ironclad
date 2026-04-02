@@ -1,12 +1,12 @@
 use crate::{
     args::cell::show::ShowCellArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell, resolve_cluster},
 };
 
 pub(super) fn dispatch(_config: &Config, args: ShowCellArgs) -> anyhow::Result<()> {
-    let ledger = resolve_ledger()?;
-    let cell = resolve_explicit_or_reused_cell(&ledger, args.cell_id)?;
+    let cluster = resolve_cluster()?;
+    let cell = resolve_explicit_or_reused_cell(&cluster, args.cell_id)?;
 
     match args {
         ShowCellArgs { raw: true, .. } => {
@@ -14,7 +14,7 @@ pub(super) fn dispatch(_config: &Config, args: ShowCellArgs) -> anyhow::Result<(
         }
 
         ShowCellArgs { path: true, .. } => {
-            println!("{}", ledger.cell_path(cell.id()).to_string_lossy());
+            println!("{}", cluster.cell_path(cell.id()).to_string_lossy());
         }
 
         _ => {

@@ -2,7 +2,7 @@ pub(crate) mod ack;
 pub(crate) mod audit;
 pub(crate) mod cell;
 pub(crate) mod dependency;
-pub(crate) mod ledger;
+pub(crate) mod cluster;
 pub(crate) mod operation;
 pub(crate) mod pipeline;
 
@@ -11,7 +11,7 @@ use clap::{Parser, Subcommand};
 use crate::{
     args::{
         ack::AckArgs, audit::AuditArgs, cell::CellCommand, dependency::DependencyCommand,
-        ledger::LedgerCommand, operation::OperationCommand, pipeline::PipelineCommand,
+        cluster::ClusterCommand, operation::OperationCommand, pipeline::PipelineCommand,
     },
     config::Config,
 };
@@ -32,7 +32,7 @@ pub(crate) fn parse() -> Cli {
 #[derive(Subcommand)]
 pub(crate) enum Command {
     #[command(subcommand)]
-    Ledger(LedgerCommand),
+    Cluster(ClusterCommand),
 
     #[command(subcommand)]
     Cell(CellCommand),

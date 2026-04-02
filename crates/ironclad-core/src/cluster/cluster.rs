@@ -1,10 +1,10 @@
 use std::path::{Path, PathBuf};
 
-pub struct Ledger {
+pub struct Cluster {
     dir: PathBuf,
 }
 
-impl Ledger {
+impl Cluster {
     #[must_use] 
     pub fn new(dir: PathBuf) -> Self {
         Self { dir }

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ledger::Ledger,
+    cluster::Cluster,
     pipeline::{PipelineError, stage::Stage},
     sample::batch::Batch,
 };
@@ -51,11 +51,11 @@ impl Pipeline {
         }
     }
 
-    pub fn eval(&self, ledger: &Ledger) -> Result<Batch, PipelineError> {
+    pub fn eval(&self, cluster: &Cluster) -> Result<Batch, PipelineError> {
         Ok(Batch::new(
             self.0
                 .iter()
-                .try_fold(Vec::new(), |input, stage| stage.eval(ledger, input))?
+                .try_fold(Vec::new(), |input, stage| stage.eval(cluster, input))?
                 .into_iter()
                 .flatten()
                 .collect::<Vec<_>>(),

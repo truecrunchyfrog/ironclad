@@ -6,13 +6,13 @@ use std::{
 };
 
 use anyhow::anyhow;
-use ironclad_core::{cell::id::CellId, ledger::Ledger};
+use ironclad_core::{cell::id::CellId, cluster::Cluster};
 use log::info;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ReuseCell {
-    ledger_dir: PathBuf,
+    cluster_dir: PathBuf,
     cell_id: CellId,
     expire: SystemTime,
 }
@@ -23,7 +23,7 @@ fn reuse_cell_path() -> anyhow::Result<PathBuf> {
         .ok_or_else(|| anyhow!("user has no home directory. cannot get file path for cell reuse."))
 }
 
-pub(crate) fn get(ledger: &Ledger) -> anyhow::Result<Option<CellId>> {
+pub(crate) fn get(cluster: &Cluster) -> anyhow::Result<Option<CellId>> {
     let read_file = fs::read_to_string(reuse_cell_path()?);
 
     let default_cell = match read_file {
@@ -38,7 +38,7 @@ pub(crate) fn get(ledger: &Ledger) -> anyhow::Result<Option<CellId>> {
         return Ok(None);
     }
 
-    if default_cell.ledger_dir != ledger.dir() {
+    if default_cell.cluster_dir != cluster.dir() {
         return Ok(None);
     }
 
@@ -46,13 +46,13 @@ pub(crate) fn get(ledger: &Ledger) -> anyhow::Result<Option<CellId>> {
 }
 
 pub(crate) fn set(
-    ledger: &Ledger,
+    cluster: &Cluster,
     cell_id: CellId,
     expire: Option<SystemTime>,
 ) -> anyhow::Result<()> {
     let default_cell_path = reuse_cell_path()?;
     let default_cell = ReuseCell {
-        ledger_dir: ledger.dir().to_path_buf(),
+        cluster_dir: cluster.dir().to_path_buf(),
         cell_id,
         expire: expire.unwrap_or_else(|| SystemTime::now() + Duration::from_mins(30)),
     };

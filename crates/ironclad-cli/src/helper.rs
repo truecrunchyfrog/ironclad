@@ -1,20 +1,20 @@
 use anyhow::anyhow;
 use ironclad_core::{
     cell::{Cell, id::CellId},
-    ledger::Ledger,
+    cluster::Cluster,
 };
 
 use crate::reuse_cell;
 
-pub(crate) fn resolve_ledger() -> anyhow::Result<Ledger> {
-    Ok(Ledger::find_for_working_dir(&std::env::current_dir()?)?)
+pub(crate) fn resolve_cluster() -> anyhow::Result<Cluster> {
+    Ok(Cluster::find_for_working_dir(&std::env::current_dir()?)?)
 }
 
 fn explicit_or_reused_cell_id(
-    ledger: &Ledger,
+    cluster: &Cluster,
     specified_cell_id: Option<String>,
 ) -> anyhow::Result<String> {
-    let reuse_cell_id = reuse_cell::get(ledger)?.map(|cell_id| cell_id.to_string());
+    let reuse_cell_id = reuse_cell::get(cluster)?.map(|cell_id| cell_id.to_string());
     specified_cell_id
         .filter(|cell_id| cell_id != "-")
         .or(reuse_cell_id)
@@ -22,15 +22,15 @@ fn explicit_or_reused_cell_id(
 }
 
 pub(crate) fn resolve_explicit_or_reused_cell_id(
-    ledger: &Ledger,
+    cluster: &Cluster,
     specified_cell_id: Option<String>,
 ) -> anyhow::Result<CellId> {
-    Ok(ledger.resolve_cell_id(&explicit_or_reused_cell_id(ledger, specified_cell_id)?)?)
+    Ok(cluster.resolve_cell_id(&explicit_or_reused_cell_id(cluster, specified_cell_id)?)?)
 }
 
 pub(crate) fn resolve_explicit_or_reused_cell(
-    ledger: &Ledger,
+    cluster: &Cluster,
     specified_cell_id: Option<String>,
 ) -> anyhow::Result<Cell> {
-    Ok(ledger.resolve_cell(&explicit_or_reused_cell_id(ledger, specified_cell_id)?)?)
+    Ok(cluster.resolve_cell(&explicit_or_reused_cell_id(cluster, specified_cell_id)?)?)
 }

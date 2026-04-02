@@ -4,13 +4,13 @@ use ironclad_core::sample::Sample;
 use crate::{
     args::pipeline::eval::EvalPipelineArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell, resolve_cluster},
     ui,
 };
 
 pub(super) fn dispatch(_config: &Config, args: EvalPipelineArgs) -> anyhow::Result<()> {
-    let ledger = resolve_ledger()?;
-    let cell = resolve_explicit_or_reused_cell(&ledger, args.cell_id)?;
+    let cluster = resolve_cluster()?;
+    let cell = resolve_explicit_or_reused_cell(&cluster, args.cell_id)?;
 
     let stage_len = cell.pipeline().stages().len();
 
@@ -40,7 +40,7 @@ pub(super) fn dispatch(_config: &Config, args: EvalPipelineArgs) -> anyhow::Resu
                 stage.options()
             ));
 
-            let output = stage.eval(&ledger, input)?;
+            let output = stage.eval(&cluster, input)?;
 
             if args.show_all
                 || args

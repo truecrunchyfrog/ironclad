@@ -1,13 +1,13 @@
 use serde::de::DeserializeOwned;
 
-use crate::{ledger::Ledger, operation::OperationError, sample::Sample};
+use crate::{cluster::Cluster, operation::OperationError, sample::Sample};
 
 pub trait Operation: Send + Sync {
     fn description(&self) -> &'static str;
 
     fn eval(
         &self,
-        ledger: &Ledger,
+        cluster: &Cluster,
         input: Vec<Vec<Sample>>,
         options: serde_json::Value,
     ) -> Result<Vec<Vec<Sample>>, OperationError>;
@@ -28,26 +28,26 @@ pub trait TypedOperation: Send + Sync + 'static {
 
     fn eval(
         &self,
-        ledger: &Ledger,
+        cluster: &Cluster,
         input: Vec<Vec<Sample>>,
         options: Self::Options,
     ) -> Result<Vec<Vec<Sample>>, Self::Error> {
         input.into_iter().try_fold(Vec::new(), |mut result, batch| {
-            result.extend(self.eval_sample_set(ledger, batch, options.clone())?);
+            result.extend(self.eval_sample_set(cluster, batch, options.clone())?);
             Ok(result)
         })
     }
 
     fn eval_sample_set(
         &self,
-        ledger: &Ledger,
+        cluster: &Cluster,
         input: Vec<Sample>,
         options: Self::Options,
     ) -> Result<Vec<Vec<Sample>>, Self::Error> {
         let (old_set, new_sets) = input.into_iter().try_fold(
             (vec![], vec![]),
             |(mut old_set, mut new_sets), sample| {
-                match self.eval_sample(ledger, sample, options.clone())? {
+                match self.eval_sample(cluster, sample, options.clone())? {
                     SampleEvolution::Drop => (),
                     SampleEvolution::Transform(sample) => old_set.push(sample),
                     SampleEvolution::Split(samples) => new_sets.push(samples),
@@ -68,7 +68,7 @@ pub trait TypedOperation: Send + Sync + 'static {
 
     fn eval_sample(
         &self,
-        #[allow(unused)] ledger: &Ledger,
+        #[allow(unused)] cluster: &Cluster,
         input: Sample,
         #[allow(unused)] options: Self::Options,
     ) -> Result<SampleEvolution, Self::Error> {
@@ -85,13 +85,13 @@ impl<T: TypedOperation> Operation for TypedOperationAdapter<T> {
 
     fn eval(
         &self,
-        ledger: &Ledger,
+        cluster: &Cluster,
         input: Vec<Vec<Sample>>,
         options: serde_json::Value,
     ) -> Result<Vec<Vec<Sample>>, OperationError> {
         self.0
             .eval(
-                ledger,
+                cluster,
                 input,
                 serde_json::from_value::<T::Options>(options)?,
             )

@@ -2,8 +2,8 @@ mod cells;
 pub(crate) mod error;
 pub mod find;
 mod init;
-mod ledger;
+mod cluster;
 mod paths;
 mod snapshots;
 
-pub use ledger::Ledger;
+pub use cluster::Cluster;

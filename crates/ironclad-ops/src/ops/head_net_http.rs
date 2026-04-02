@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use ironclad_core::{
-    ledger::Ledger,
+    cluster::Cluster,
     operation::TypedOperation,
     sample::{Sample, Trace},
 };
@@ -41,7 +41,7 @@ impl TypedOperation for HeadNetHttp {
 
     fn eval(
         &self,
-        _ledger: &Ledger,
+        _cluster: &Cluster,
         _input: Vec<Vec<Sample>>,
         options: Self::Options,
     ) -> Result<Vec<Vec<Sample>>, Self::Error> {

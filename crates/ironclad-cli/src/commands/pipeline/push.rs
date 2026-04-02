@@ -3,12 +3,12 @@ use ironclad_core::{pipeline::Stage, registry};
 use crate::{
     args::pipeline::push::PushPipelineArgs,
     config::Config,
-    helper::{resolve_explicit_or_reused_cell, resolve_ledger},
+    helper::{resolve_explicit_or_reused_cell, resolve_cluster},
 };
 
 pub(super) fn dispatch(_config: &Config, args: PushPipelineArgs) -> anyhow::Result<()> {
-    let ledger = resolve_ledger()?;
-    let mut cell = resolve_explicit_or_reused_cell(&ledger, Some(args.cell_id))?;
+    let cluster = resolve_cluster()?;
+    let mut cell = resolve_explicit_or_reused_cell(&cluster, Some(args.cell_id))?;
 
     registry::resolve_op(&args.operation_id)?;
 
@@ -21,7 +21,7 @@ pub(super) fn dispatch(_config: &Config, args: PushPipelineArgs) -> anyhow::Resu
 
     cell.pipeline_mut().add(args.index, stage)?;
 
-    ledger.save_cell(&cell)?;
+    cluster.save_cell(&cell)?;
 
     Ok(())
 }
