@@ -21,8 +21,7 @@ impl Ledger {
                     cell.dependencies(),
                     match cache
                         .as_ref()
-                        .map(|snapshot| snapshot.entries().get(cell.id()))
-                        .flatten()
+                        .and_then(|snapshot| snapshot.entries().get(cell.id()))
                     {
                         Some(entry)
                             if entry.batch().created().elapsed()? < *cell.cache_lifespan() =>

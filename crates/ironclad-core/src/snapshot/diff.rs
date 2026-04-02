@@ -62,9 +62,7 @@ impl Snapshot {
         let cell_ids = HashSet::<CellId>::from_iter(
             before
                 .keys()
-                .into_iter()
-                .chain(after.keys().into_iter())
-                .map(|key| key.clone()),
+                .chain(after.keys()).cloned(),
         );
 
         HashMap::from_iter(cell_ids.into_iter().map(|cell_id| {
@@ -75,8 +73,7 @@ impl Snapshot {
                 before
                     .iter()
                     .chain(after.iter())
-                    .flat_map(|e| e.dependencies().keys())
-                    .map(|key| key.clone()),
+                    .flat_map(|e| e.dependencies().keys()).cloned(),
             );
 
             (
@@ -93,12 +90,10 @@ impl Snapshot {
                                 dep_cell_id.clone(),
                                 BatchDiff {
                                     before: before
-                                        .map(|e| e.dependencies().get(&dep_cell_id))
-                                        .flatten()
+                                        .and_then(|e| e.dependencies().get(&dep_cell_id))
                                         .cloned(),
                                     after: after
-                                        .map(|e| e.dependencies().get(&dep_cell_id))
-                                        .flatten()
+                                        .and_then(|e| e.dependencies().get(&dep_cell_id))
                                         .cloned(),
                                 },
                             )

@@ -40,7 +40,7 @@ impl TypedOperation for HtmlAttribute {
                 fragment
                     .root_element()
                     .first_element_child()
-                    .ok_or_else(|| FragmentError::NoElement)?
+                    .ok_or(FragmentError::NoElement)?
                     .attr(&options.attribute)
                     .unwrap_or_default()
                     .to_string(),

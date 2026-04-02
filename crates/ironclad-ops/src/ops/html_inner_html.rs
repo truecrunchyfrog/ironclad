@@ -33,7 +33,7 @@ impl TypedOperation for HtmlInnerHtml {
                 fragment
                     .root_element()
                     .first_element_child()
-                    .ok_or_else(|| FragmentError::NoElement)?
+                    .ok_or(FragmentError::NoElement)?
                     .inner_html(),
             ),
         ))

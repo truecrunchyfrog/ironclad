@@ -17,7 +17,7 @@ pub(super) fn dispatch(_config: &Config, args: EvalPipelineArgs) -> anyhow::Resu
     let eval_stages = cell
         .pipeline()
         .stages()
-        .into_iter()
+        .iter()
         .zip(0..)
         .filter(|(_, index)| {
             args.indices

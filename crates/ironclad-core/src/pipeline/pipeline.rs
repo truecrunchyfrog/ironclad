@@ -24,8 +24,14 @@ impl Pipeline {
                 index,
                 length: self.0.len(),
             }),
-            Some(index) => Ok(self.0.insert(index, stage)),
-            None => Ok(self.0.push(stage)),
+            Some(index) => {
+                self.0.insert(index, stage);
+                Ok(())
+            },
+            None => {
+                self.0.push(stage);
+                Ok(())
+            },
         }
     }
 

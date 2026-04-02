@@ -41,7 +41,7 @@ impl TypedOperation for TextSplit {
             Self::Options::AtIndex(mid) => input
                 .content()
                 .split_at_checked(mid)
-                .map_or_else(|| Vec::new(), |(fst, snd)| vec![fst, snd]),
+                .map_or_else(Vec::new, |(fst, snd)| vec![fst, snd]),
             Options::OnText { text, max: None } => input.content().split(&text).collect(),
             Options::OnText {
                 text,

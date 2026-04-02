@@ -36,8 +36,7 @@ pub(super) fn dispatch(_config: &Config, args: AckArgs) -> anyhow::Result<()> {
     } else {
         audit
             .entries()
-            .keys()
-            .map(|cell_id| cell_id.clone())
+            .keys().cloned()
             .collect::<Vec<_>>()
     };
 
@@ -153,7 +152,7 @@ enum SamplePromptResponse {
 fn prompt_ack_sample_diff(
     sample_diff: &(Sample, SamplePresence),
 ) -> anyhow::Result<SamplePromptResponse> {
-    println!("{}", output::display_sample_diff(&sample_diff));
+    println!("{}", output::display_sample_diff(sample_diff));
     loop {
         print!("y/n/N/q/s/t/? = ");
         io::stdout().flush()?;
@@ -166,7 +165,7 @@ fn prompt_ack_sample_diff(
             "n" | "no" => return Ok(SamplePromptResponse::SkipSample),
             "N" | "NO" => return Ok(SamplePromptResponse::SkipBatch),
             "q" | "quit" => return Ok(SamplePromptResponse::SkipAll),
-            "s" | "sample" => println!("{}", output::display_sample_diff(&sample_diff)),
+            "s" | "sample" => println!("{}", output::display_sample_diff(sample_diff)),
             "t" | "trace" => println!("{}", serde_json::to_string_pretty(sample_diff.0.traces())?),
             "?" | "h" | "help" => println!(
                 "\

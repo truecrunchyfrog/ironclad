@@ -14,14 +14,13 @@ impl Ledger {
                 ancestor
                     .read_dir()
                     .ok()
-                    .map(|read_dir| {
+                    .and_then(|read_dir| {
                         read_dir
                             .flatten()
                             .map(|child| child.path())
                             .find(|child| Ledger::is_ledger_dir(child))
-                            .map(|ledger_dir| Ledger::new(ledger_dir))
+                            .map(Ledger::new)
                     })
-                    .flatten()
             })
             .ok_or_else(|| LedgerError::PathNotFound(working_dir.to_path_buf()))
     }

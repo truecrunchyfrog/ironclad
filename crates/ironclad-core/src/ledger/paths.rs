@@ -16,7 +16,7 @@ impl Ledger {
     }
 
     pub fn cell_path(&self, id: &CellId) -> PathBuf {
-        self.cells_dir().join(&id.to_string())
+        self.cells_dir().join(id.to_string())
     }
 
     pub fn snapshots_dir(&self) -> PathBuf {

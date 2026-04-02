@@ -84,7 +84,7 @@ impl SelectionBoundary {
                     SelectionDirection::Ltr => text.find(&boundary),
                     SelectionDirection::Rtl => text.rfind(&boundary),
                 }
-                .unwrap_or(text.len().checked_sub(boundary.len()).unwrap_or(0));
+                .unwrap_or(text.len().saturating_sub(boundary.len()));
                 let split_to = min(split_from + boundary.len(), text.len());
 
                 let left = &text[..split_from];

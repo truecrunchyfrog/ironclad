@@ -15,7 +15,7 @@ impl Ledger {
         let cells_dir = self.cells_dir();
         let entries = cells_dir
             .read_dir()
-            .expect(&format!("cannot read {:#?} as directory", cells_dir));
+            .unwrap_or_else(|_| panic!("cannot read {:#?} as directory", cells_dir));
 
         entries
             .flat_map(|entry| {
@@ -59,8 +59,8 @@ impl Ledger {
 
         match (possible_ids.next(), possible_ids.next()) {
             (Some(cell_id), None) => Ok(cell_id.clone()),
-            (None, _) => Err(CellError::NoSuchCellId(id.to_string()).into()),
-            _ => Err(CellError::AmbiguousCellId(id.to_string()).into()),
+            (None, _) => Err(CellError::NoSuchCellId(id.to_string())),
+            _ => Err(CellError::AmbiguousCellId(id.to_string())),
         }
     }
 
@@ -95,7 +95,7 @@ impl Ledger {
     }
 
     pub fn save_cell(&self, cell: &Cell) -> Result<(), CellError> {
-        let path = self.cell_path(&cell.id());
+        let path = self.cell_path(cell.id());
 
         if !path.try_exists()? {
             return Err(CellError::PathNotFound(path));
@@ -107,7 +107,7 @@ impl Ledger {
     }
 
     pub fn add_cell(&self, cell: &Cell) -> Result<(), CellError> {
-        let path = self.cell_path(&cell.id());
+        let path = self.cell_path(cell.id());
 
         if path.try_exists()? {
             return Err(CellError::PathAlreadyExists(path));
@@ -119,7 +119,7 @@ impl Ledger {
     }
 
     pub fn remove_cell(&self, id: &CellId) -> Result<(), CellError> {
-        let path = self.cell_path(&id);
+        let path = self.cell_path(id);
 
         if !path.try_exists()? {
             return Err(CellError::PathNotFound(path));
