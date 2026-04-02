@@ -44,13 +44,6 @@ pub fn registry() -> &'static RwLock<Registry> {
     })
 }
 
-pub fn with_all_ops<F, R>(f: F) -> R
-where
-    F: FnOnce(&HashMap<String, Arc<dyn Operation>>) -> R,
-{
-    f(&registry().read().unwrap().ops)
-}
-
 pub fn resolve_op(id: &str) -> Result<Arc<dyn Operation>, RegistryError> {
     registry()
         .read()
