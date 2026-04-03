@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use ironclad_core::cell::id::CellId;
+
 use crate::{
     args::cell::edit::EditCellArgs,
     config::Config,
@@ -26,7 +28,29 @@ pub(super) fn dispatch(_config: &Config, args: EditCellArgs) -> anyhow::Result<(
         *cell.cache_lifespan_mut() = Duration::ZERO;
     }
 
-    cluster.save_cell(&cell)?;
+    if let Some(new_id) = args.id {
+        let old_id = cell.id();
+        let new_id: CellId = new_id.into();
+
+        cluster.remove_cell(old_id)?;
+        *cell.id_mut() = new_id.clone();
+        cluster.add_cell(&cell)?;
+
+        for mut dependent_cell in cluster.load_cells()? {
+            let dependencies = dependent_cell.dependencies_mut();
+            if dependencies.contains(cell.id()) {
+                *dependencies = dependencies
+                    .iter()
+                    .cloned()
+                    .filter(|dependent_cell_id| dependent_cell_id != cell.id())
+                    .collect();
+                dependencies.push(new_id.clone());
+                cluster.save_cell(&dependent_cell)?;
+            }
+        }
+    } else {
+        cluster.save_cell(&cell)?;
+    }
 
     println!("{}", cell.id());
 

@@ -116,7 +116,7 @@ impl Cluster {
 
         write_cell(&path, cell)?;
 
-        self.save_cell(cell)
+        Ok(())
     }
 
     pub fn remove_cell(&self, id: &CellId) -> Result<(), ClusterError> {

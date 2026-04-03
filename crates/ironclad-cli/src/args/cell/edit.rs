@@ -6,6 +6,10 @@ pub(crate) struct EditCellArgs {
     /// ID of cell to edit.
     pub(crate) cell_id: Option<String>,
 
+    /// Change the cell's ID.
+    #[arg(long)]
+    pub(crate) id: Option<String>,
+
     /// Change the description.
     #[arg(long)]
     pub(crate) description: Option<String>,
