@@ -1,5 +1,6 @@
 use clap::Args;
 
+/// Capture snapshot of current state and compare against baseline.
 #[derive(Args)]
 pub(crate) struct AuditArgs {
     /// ID of cell to limit view to.

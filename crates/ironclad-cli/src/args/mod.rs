@@ -40,7 +40,7 @@ pub(crate) enum Command {
     #[command(subcommand, name = "dep")]
     Dependency(DependencyCommand),
 
-    #[command(subcommand, name = "schema")]
+    #[command(subcommand)]
     Schema(SchemaCommand),
 
     #[command(subcommand, name = "op")]

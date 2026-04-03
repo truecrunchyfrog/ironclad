@@ -12,6 +12,7 @@ use crate::args::cell::{
     reuse::ReuseCellArgs, show::ShowCellArgs,
 };
 
+/// Manage cells of the cluster.
 #[derive(Subcommand)]
 pub(crate) enum CellCommand {
     #[command(name = "use")]
