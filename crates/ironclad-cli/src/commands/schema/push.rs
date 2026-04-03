@@ -1,4 +1,4 @@
-use ironclad_core::{schema::Stage, registry};
+use ironclad_core::{registry, schema::Stage};
 
 use crate::{
     args::schema::push::PushSchemaArgs,

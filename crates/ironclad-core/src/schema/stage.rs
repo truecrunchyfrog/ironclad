@@ -3,9 +3,9 @@ use serde_json::Value;
 
 use crate::{
     cluster::Cluster,
-    schema::SchemaError,
     registry::{self},
     sample::Sample,
+    schema::SchemaError,
 };
 
 #[derive(Serialize, Deserialize, Debug)]

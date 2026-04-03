@@ -39,7 +39,7 @@ pub(super) fn dispatch(_config: &Config, args: ListDependencyArgs) -> anyhow::Re
                 if args.invert { "needed by" } else { "needs" },
                 related_cell_ids
                     .iter()
-                    .map(|cell_id| cell_id.to_string())
+                    .map(std::string::ToString::to_string)
                     .collect::<Vec<_>>()
                     .join(", ")
             );

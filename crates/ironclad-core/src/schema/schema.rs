@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     cluster::Cluster,
-    schema::{SchemaError, stage::Stage},
     sample::batch::Batch,
+    schema::{SchemaError, stage::Stage},
 };
 
 #[derive(Serialize, Deserialize, Default, Debug)]

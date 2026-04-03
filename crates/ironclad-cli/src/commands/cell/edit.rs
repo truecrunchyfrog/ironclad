@@ -41,8 +41,8 @@ pub(super) fn dispatch(_config: &Config, args: EditCellArgs) -> anyhow::Result<(
             if dependencies.contains(cell.id()) {
                 *dependencies = dependencies
                     .iter()
+                    .filter(|&dependent_cell_id| dependent_cell_id != cell.id())
                     .cloned()
-                    .filter(|dependent_cell_id| dependent_cell_id != cell.id())
                     .collect();
                 dependencies.push(new_id.clone());
                 cluster.save_cell(&dependent_cell)?;
