@@ -86,7 +86,7 @@ impl Cluster {
         }
 
         let mut cell: Cell = serde_json::from_str(&fs::read_to_string(path)?)?;
-        cell.set_id(CellId::for_path(path));
+        *cell.id_mut() = CellId::for_path(path);
 
         Ok(cell)
     }

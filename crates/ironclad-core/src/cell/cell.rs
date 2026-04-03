@@ -37,8 +37,8 @@ impl Cell {
         &self.id
     }
 
-    pub fn set_id(&mut self, new_id: CellId) {
-        self.id = new_id;
+    pub fn id_mut(&mut self) -> &mut CellId {
+        &mut self.id
     }
 
     #[must_use]
