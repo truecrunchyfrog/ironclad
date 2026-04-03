@@ -2,14 +2,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     cluster::Cluster,
-    pipeline::{PipelineError, stage::Stage},
+    schema::{SchemaError, stage::Stage},
     sample::batch::Batch,
 };
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct Pipeline(Vec<Stage>);
+pub struct Schema(Vec<Stage>);
 
-impl Pipeline {
+impl Schema {
     #[must_use]
     pub fn new(stages: Vec<Stage>) -> Self {
         Self(stages)
@@ -20,9 +20,9 @@ impl Pipeline {
         &self.0
     }
 
-    pub fn add(&mut self, index: Option<usize>, stage: Stage) -> Result<(), PipelineError> {
+    pub fn add(&mut self, index: Option<usize>, stage: Stage) -> Result<(), SchemaError> {
         match index {
-            Some(index) if index > self.0.len() => Err(PipelineError::OutOfRange {
+            Some(index) if index > self.0.len() => Err(SchemaError::OutOfRange {
                 index,
                 length: self.0.len(),
             }),
@@ -37,21 +37,21 @@ impl Pipeline {
         }
     }
 
-    pub fn remove(&mut self, index: Option<usize>) -> Result<Stage, PipelineError> {
+    pub fn remove(&mut self, index: Option<usize>) -> Result<Stage, SchemaError> {
         match index {
-            Some(index) if index > self.0.len() => Err(PipelineError::OutOfRange {
+            Some(index) if index > self.0.len() => Err(SchemaError::OutOfRange {
                 index,
                 length: self.0.len(),
             }),
             Some(index) => Ok(self.0.remove(index)),
-            None => self.0.pop().ok_or(PipelineError::OutOfRange {
+            None => self.0.pop().ok_or(SchemaError::OutOfRange {
                 index: 0,
                 length: self.0.len(),
             }),
         }
     }
 
-    pub fn eval(&self, cluster: &Cluster) -> Result<Batch, PipelineError> {
+    pub fn eval(&self, cluster: &Cluster) -> Result<Batch, SchemaError> {
         Ok(Batch::new(
             self.0
                 .iter()

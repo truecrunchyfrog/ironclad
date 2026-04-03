@@ -1,12 +1,12 @@
-use ironclad_core::{pipeline::Stage, registry};
+use ironclad_core::{schema::Stage, registry};
 
 use crate::{
-    args::pipeline::push::PushPipelineArgs,
+    args::schema::push::PushSchemaArgs,
     config::Config,
     helper::{resolve_cluster, resolve_explicit_or_reused_cell},
 };
 
-pub(super) fn dispatch(_config: &Config, args: PushPipelineArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: PushSchemaArgs) -> anyhow::Result<()> {
     let cluster = resolve_cluster()?;
     let mut cell = resolve_explicit_or_reused_cell(&cluster, Some(args.cell_id))?;
 
@@ -19,7 +19,7 @@ pub(super) fn dispatch(_config: &Config, args: PushPipelineArgs) -> anyhow::Resu
 
     let stage = Stage::new(args.operation_id, options);
 
-    cell.pipeline_mut().add(args.index, stage)?;
+    cell.schema_mut().add(args.index, stage)?;
 
     cluster.save_cell(&cell)?;
 

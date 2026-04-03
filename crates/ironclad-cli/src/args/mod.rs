@@ -4,14 +4,14 @@ pub(crate) mod cell;
 pub(crate) mod cluster;
 pub(crate) mod dependency;
 pub(crate) mod operation;
-pub(crate) mod pipeline;
+pub(crate) mod schema;
 
 use clap::{Parser, Subcommand};
 
 use crate::{
     args::{
         ack::AckArgs, audit::AuditArgs, cell::CellCommand, cluster::ClusterCommand,
-        dependency::DependencyCommand, operation::OperationCommand, pipeline::PipelineCommand,
+        dependency::DependencyCommand, operation::OperationCommand, schema::SchemaCommand,
     },
     config::Config,
 };
@@ -40,8 +40,8 @@ pub(crate) enum Command {
     #[command(subcommand, name = "dep")]
     Dependency(DependencyCommand),
 
-    #[command(subcommand, name = "plan")]
-    Pipeline(PipelineCommand),
+    #[command(subcommand, name = "schema")]
+    Schema(SchemaCommand),
 
     #[command(subcommand, name = "op")]
     Operation(OperationCommand),

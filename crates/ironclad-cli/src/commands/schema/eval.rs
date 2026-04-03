@@ -2,20 +2,20 @@ use anyhow::anyhow;
 use ironclad_core::sample::Sample;
 
 use crate::{
-    args::pipeline::eval::EvalPipelineArgs,
+    args::schema::eval::EvalSchemaArgs,
     config::Config,
     helper::{resolve_cluster, resolve_explicit_or_reused_cell},
     ui,
 };
 
-pub(super) fn dispatch(_config: &Config, args: EvalPipelineArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: EvalSchemaArgs) -> anyhow::Result<()> {
     let cluster = resolve_cluster()?;
     let cell = resolve_explicit_or_reused_cell(&cluster, args.cell_id)?;
 
-    let stage_len = cell.pipeline().stages().len();
+    let stage_len = cell.schema().stages().len();
 
     let eval_stages = cell
-        .pipeline()
+        .schema()
         .stages()
         .iter()
         .zip(0..)
@@ -27,7 +27,7 @@ pub(super) fn dispatch(_config: &Config, args: EvalPipelineArgs) -> anyhow::Resu
         .collect::<Vec<_>>();
 
     if eval_stages.is_empty() {
-        return Err(anyhow!("empty pipeline"));
+        return Err(anyhow!("empty schema"));
     }
 
     eval_stages.into_iter().try_fold(

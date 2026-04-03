@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{cell::id::CellId, pipeline::Pipeline};
+use crate::{cell::id::CellId, schema::Schema};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Cell {
@@ -10,7 +10,7 @@ pub struct Cell {
     id: CellId,
     description: Option<String>,
     dependencies: Vec<CellId>,
-    pipeline: Pipeline,
+    schema: Schema,
     cache_lifespan: Duration,
 }
 
@@ -21,13 +21,13 @@ impl Cell {
         description: Option<String>,
         dependencies: Vec<CellId>,
         cache_lifespan: Duration,
-        pipeline: Pipeline,
+        schema: Schema,
     ) -> Self {
         Self {
             id,
             description,
             dependencies,
-            pipeline,
+            schema,
             cache_lifespan,
         }
     }
@@ -60,12 +60,12 @@ impl Cell {
     }
 
     #[must_use]
-    pub fn pipeline(&self) -> &Pipeline {
-        &self.pipeline
+    pub fn schema(&self) -> &Schema {
+        &self.schema
     }
 
-    pub fn pipeline_mut(&mut self) -> &mut Pipeline {
-        &mut self.pipeline
+    pub fn schema_mut(&mut self) -> &mut Schema {
+        &mut self.schema
     }
 
     #[must_use]

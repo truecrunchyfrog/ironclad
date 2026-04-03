@@ -3,7 +3,7 @@ use serde_json::Value;
 
 use crate::{
     cluster::Cluster,
-    pipeline::PipelineError,
+    schema::SchemaError,
     registry::{self},
     sample::Sample,
 };
@@ -37,7 +37,7 @@ impl Stage {
         &self,
         cluster: &Cluster,
         input: Vec<Vec<Sample>>,
-    ) -> Result<Vec<Vec<Sample>>, PipelineError> {
+    ) -> Result<Vec<Vec<Sample>>, SchemaError> {
         let operation = registry::resolve_op(&self.operation_id)?;
         Ok(operation.eval(cluster, input, self.options.clone())?)
     }

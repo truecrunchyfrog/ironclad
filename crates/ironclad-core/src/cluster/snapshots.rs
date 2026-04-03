@@ -28,7 +28,7 @@ impl Cluster {
                         {
                             entry.batch().clone()
                         }
-                        _ => cell.pipeline().eval(self)?,
+                        _ => cell.schema().eval(self)?,
                     },
                 ))
             })

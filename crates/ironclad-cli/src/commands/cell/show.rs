@@ -29,7 +29,7 @@ pub(super) fn dispatch(_config: &Config, args: ShowCellArgs) -> anyhow::Result<(
                     .map(ToString::to_string)
                     .collect::<Vec<_>>()
                     .join(" "),
-                cell.pipeline().stages().len()
+                cell.schema().stages().len()
             );
         }
     }

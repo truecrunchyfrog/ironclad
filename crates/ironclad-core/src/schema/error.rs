@@ -1,11 +1,11 @@
 use crate::{operation::OperationError, registry::error::RegistryError};
 
 #[derive(thiserror::Error, Debug)]
-pub enum PipelineError {
-    #[error("pipeline is empty")]
+pub enum SchemaError {
+    #[error("schema is empty")]
     Empty,
 
-    #[error("index {index} is larger than pipeline's length {length}")]
+    #[error("index {index} is larger than schema's length {length}")]
     OutOfRange { index: usize, length: usize },
 
     #[error(transparent)]

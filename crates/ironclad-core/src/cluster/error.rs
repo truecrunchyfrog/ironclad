@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::{
     cell::{error::CellError, id::CellId},
-    pipeline::PipelineError,
+    schema::SchemaError,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -26,7 +26,7 @@ pub enum ClusterError {
     Cell(#[from] CellError),
 
     #[error(transparent)]
-    Pipeline(#[from] PipelineError),
+    Schema(#[from] SchemaError),
 
     #[error(transparent)]
     SystemTime(#[from] std::time::SystemTimeError),

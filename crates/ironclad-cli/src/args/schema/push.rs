@@ -1,8 +1,8 @@
 use clap::Args;
 
-/// Add a stage to a pipeline.
+/// Add a stage to a schema.
 #[derive(Args)]
-pub(crate) struct PushPipelineArgs {
+pub(crate) struct PushSchemaArgs {
     /// ID of cell.
     pub(crate) cell_id: String,
 

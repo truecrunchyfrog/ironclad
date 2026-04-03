@@ -1,8 +1,8 @@
 use clap::Args;
 
-/// Remove a stage from a pipeline.
+/// Remove a stage from a schema.
 #[derive(Args)]
-pub(crate) struct PopPipelineArgs {
+pub(crate) struct PopSchemaArgs {
     /// ID of cell.
     pub(crate) cell_id: Option<String>,
 

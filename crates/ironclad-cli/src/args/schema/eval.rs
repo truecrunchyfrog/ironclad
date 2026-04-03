@@ -1,8 +1,8 @@
 use clap::Args;
 
-/// Evaluate a pipeline.
+/// Evaluate a schema.
 #[derive(Args)]
-pub(crate) struct EvalPipelineArgs {
+pub(crate) struct EvalSchemaArgs {
     /// ID of cell.
     pub(crate) cell_id: Option<String>,
 

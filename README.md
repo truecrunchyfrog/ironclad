@@ -10,9 +10,9 @@ If the change is unwanted, well, then you may deal with that.
 
 A cell is any source point obtained anywhere, internal or external to your system, that you wish to react upon when changed.
 
-The state of cells are derived from pipelines.
-A pipeline starts off with a seed operation, that retrieves some source, such as a local file or a web resource.
-Stage by stage the pipeline refines the seed to eventually point at the exact data relevant to the cell.
+The state of cells are derived from schemas.
+A schema starts off with a seed operation, that retrieves some source, such as a local file or a web resource.
+Stage by stage the schema refines the seed to eventually point at the exact data relevant to the cell.
 
 ## Usage
 
@@ -26,16 +26,16 @@ Create a cell:
 $ ic cell add my-fragile-file
 ```
 
-Add a stage to the pipeline of the cell `my-fragile-file`:
+Add a stage to the schema of the cell `my-fragile-file`:
 ```bash
-$ ic pipeline push my-fragile-file head.file.text --options '{"files": ["do-not-touch.txt"]}'
+$ ic schema push my-fragile-file head.file.text --options '{"files": ["do-not-touch.txt"]}'
 ```
 `head.file.text` is an operation that reads the content of the `files` specified.
 
 You can try it out right away:
 ```bash
 $ echo -n 'this file may\nNOT\nbe touched' > do-not-touch.txt
-$ ic pipeline eval my-fragile-file
+$ ic schema eval my-fragile-file
 [
   {
     "content": "this file may\nNOT\nbe touched"
@@ -47,17 +47,17 @@ $ ic pipeline eval my-fragile-file
 - `head.*` operations take no input (apart from options) and produce an output.
 - Non-`head.*` operations take input and produce an output.
 
-A pipeline should always start with a `head.*` operation to seed the pipeline,
+A schema should always start with a `head.*` operation to seed the schema,
 and the rest of the stages should consist of non-`head.*` operations to transform the batch.
 
 Add another stage:
 ```bash
-$ ic pipeline push my-fragile-file text.lines
+$ ic schema push my-fragile-file text.lines
 ```
 This will split the file's lines into separate samples.
 
 ```bash
-$ ic pipeline eval my-fragile-file
+$ ic schema eval my-fragile-file
 [
   {
     "content": "this file may"
@@ -71,7 +71,7 @@ $ ic pipeline eval my-fragile-file
 ]
 (truncated)
 ```
-Testing pipelines directly does not modify any Ironclad state.
+Testing schemas directly does not modify any Ironclad state.
 
 Run an audit to evaluate all cells and push their state into the pending snapshot:
 ```bash
