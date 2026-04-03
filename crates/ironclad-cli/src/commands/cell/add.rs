@@ -1,13 +1,26 @@
 use std::time::Duration;
 
-use ironclad_core::cell::Cell;
+use ironclad_core::cell::{Cell, id::CellId};
 
 use crate::{args::cell::add::AddCellArgs, config::Config, helper::resolve_cluster, reuse_cell};
 
 pub(super) fn dispatch(_config: &Config, args: AddCellArgs) -> anyhow::Result<()> {
+    let cell_id: CellId = match args {
+        AddCellArgs {
+            cell_id: Some(cell_id),
+            generate_id: false,
+            ..
+        } => cell_id.into(),
+        AddCellArgs {
+            cell_id: None,
+            generate_id: true,
+            ..
+        } => Default::default(),
+        _ => unreachable!(),
+    };
+
     let cell = Cell::new(
-        args.cell_id
-            .map_or(Default::default(), std::convert::Into::into),
+        cell_id,
         args.description,
         Default::default(),
         Duration::from_hours(1),
