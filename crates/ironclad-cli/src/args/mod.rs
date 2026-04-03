@@ -1,17 +1,18 @@
-pub(crate) mod ack;
 pub(crate) mod audit;
 pub(crate) mod cell;
 pub(crate) mod cluster;
 pub(crate) mod dependency;
 pub(crate) mod operation;
+pub(crate) mod review;
 pub(crate) mod schema;
 
 use clap::{Parser, Subcommand};
 
 use crate::{
     args::{
-        ack::AckArgs, audit::AuditArgs, cell::CellCommand, cluster::ClusterCommand,
-        dependency::DependencyCommand, operation::OperationCommand, schema::SchemaCommand,
+        audit::AuditArgs, cell::CellCommand, cluster::ClusterCommand,
+        dependency::DependencyCommand, operation::OperationCommand, review::ReviewArgs,
+        schema::SchemaCommand,
     },
     config::Config,
 };
@@ -48,5 +49,5 @@ pub(crate) enum Command {
 
     Audit(AuditArgs),
 
-    Ack(AckArgs),
+    Review(ReviewArgs),
 }

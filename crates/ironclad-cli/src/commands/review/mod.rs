@@ -8,13 +8,13 @@ use ironclad_core::{
 };
 
 use crate::{
-    args::ack::AckArgs,
+    args::review::ReviewArgs,
     config::Config,
     helper::{resolve_cluster, resolve_explicit_or_reused_cell_id},
     output, ui,
 };
 
-pub(super) fn dispatch(_config: &Config, args: AckArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: ReviewArgs) -> anyhow::Result<()> {
     let cluster = resolve_cluster()?;
     let cell_ids = args
         .cell_id

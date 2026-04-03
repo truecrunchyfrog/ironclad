@@ -1,8 +1,8 @@
 use clap::Args;
 
-/// Add samples to the baseline.
+/// Review the audit and promote samples to baseline.
 #[derive(Args)]
-pub(crate) struct AckArgs {
+pub(crate) struct ReviewArgs {
     /// ID of cell to ack.
     pub(crate) cell_id: Vec<String>,
 
