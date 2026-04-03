@@ -14,11 +14,12 @@ fn explicit_or_reused_cell_id(
     cluster: &Cluster,
     specified_cell_id: Option<String>,
 ) -> anyhow::Result<String> {
-    let reuse_cell_id = reuse_cell::get(cluster)?.map(|cell_id| cell_id.to_string());
-    specified_cell_id
-        .filter(|cell_id| cell_id != "-")
-        .or(reuse_cell_id)
-        .ok_or(anyhow!("cell ID not specified, and not reusing"))
+    match specified_cell_id {
+        Some(cell_id) if cell_id != "-" => Ok(cell_id),
+        _ => reuse_cell::get(cluster)?
+            .map(|cell_id| cell_id.to_string())
+            .ok_or(anyhow!("cell ID not specified, and not reusing")),
+    }
 }
 
 pub(crate) fn resolve_explicit_or_reused_cell_id(
