@@ -1,4 +1,7 @@
-use std::io::{self, Write, stdin};
+use std::{
+    collections::HashSet,
+    io::{self, Write, stdin},
+};
 
 use anyhow::anyhow;
 use ironclad_core::{
@@ -32,9 +35,14 @@ pub(super) fn dispatch(_config: &Config, args: ReviewArgs) -> anyhow::Result<()>
     let mut diffs = audit.diff(baseline.clone());
 
     let cell_ids = if cell_ids.is_empty() {
-        audit.entries().keys().cloned().collect::<Vec<_>>()
+        audit
+            .entries()
+            .keys()
+            .chain(baseline.entries().keys())
+            .cloned()
+            .collect::<HashSet<_>>()
     } else {
-        cell_ids
+        cell_ids.into_iter().collect()
     };
 
     'cells: for cell_id in cell_ids {
