@@ -18,7 +18,7 @@ pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> 
         .collect::<anyhow::Result<Vec<_>>>()?;
 
     let audit = match args {
-        AuditArgs { new: true, .. } => cluster.capture_snapshot(None)?,
+        AuditArgs { fresh: true, .. } => cluster.capture_snapshot(None)?,
         AuditArgs { cache: true, .. } => cluster.load_pending_snapshot().unwrap_or_default(),
         _ => cluster.capture_snapshot(Some(cluster.load_pending_snapshot().unwrap_or_default()))?,
     };

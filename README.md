@@ -114,6 +114,6 @@ my-fragile-file: dirty (-1 +0)
   NOT
 1 not ack'd
 ```
-If the cell was recently audited, the samples may be cached. Pass `--new` to enforce fresh samples.
+If the cell was recently audited, the samples may be cached. Pass `--fresh` to enforce fresh samples.
 Pass `--expand-diff` to show the cells' diffs.
 Provide positional arguments of cell IDs to filter.
