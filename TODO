@@ -4,3 +4,4 @@
 - registry as variable instead of global static
 - configuring secrets and using env vars for operations
 - improve op documentation
+- move logic from cli to core
