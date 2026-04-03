@@ -126,6 +126,7 @@ impl Cluster {
             return Err(CellError::PathNotFound(path).into());
         }
 
+        info!("removing cell at {path:?}");
         fs::remove_file(path)?;
 
         let cells = self.load_cells()?;
