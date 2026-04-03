@@ -72,4 +72,8 @@ impl Cell {
     pub fn cache_lifespan(&self) -> &Duration {
         &self.cache_lifespan
     }
+
+    pub fn cache_lifespan_mut(&mut self) -> &mut Duration {
+        &mut self.cache_lifespan
+    }
 }

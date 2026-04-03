@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::{
     args::cell::edit::EditCellArgs,
     config::Config,
@@ -14,6 +16,14 @@ pub(super) fn dispatch(_config: &Config, args: EditCellArgs) -> anyhow::Result<(
 
     if args.unset_description {
         *cell.description_mut() = None;
+    }
+
+    if let Some(lifespan) = args.lifespan {
+        *cell.cache_lifespan_mut() = lifespan.into();
+    }
+
+    if args.unset_lifespan {
+        *cell.cache_lifespan_mut() = Duration::ZERO;
     }
 
     cluster.save_cell(&cell)?;

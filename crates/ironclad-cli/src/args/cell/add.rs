@@ -16,9 +16,13 @@ pub(crate) struct AddCellArgs {
     #[arg(long)]
     pub(crate) generate_id: bool,
 
-    /// Describe the cell.
+    /// Describe the cell's purpose.
     #[arg(long)]
     pub(crate) description: Option<String>,
+
+    /// Specify the cell's cache lifespan for audits.
+    #[arg(long)]
+    pub(crate) lifespan: Option<humantime::Duration>,
 
     /// Skip automatic cell reuse (see `cell use`).
     #[arg(long)]
