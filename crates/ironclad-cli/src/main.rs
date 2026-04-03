@@ -34,8 +34,8 @@ fn start() -> anyhow::Result<()> {
         .merge(Serialized::defaults(&cli.config))
         .merge(Env::prefixed("IC_"));
 
-    let config_file = cli
-        .config
+    let config_file = figment_builder
+        .extract::<Config>()?
         .config_file
         .clone()
         .or_else(|| home_dir().map(|home_dir| home_dir.join(".config/ironclad/config.json")));
