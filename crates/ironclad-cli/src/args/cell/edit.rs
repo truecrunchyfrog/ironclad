@@ -18,11 +18,11 @@ pub(crate) struct EditCellArgs {
     #[arg(long, conflicts_with = "description")]
     pub(crate) unset_description: bool,
 
-    /// Change the lifespan.
+    /// Change the cache lifespan.
     #[arg(long)]
-    pub(crate) lifespan: Option<humantime::Duration>,
+    pub(crate) cache_lifespan: Option<humantime::Duration>,
 
-    /// Remove the lifespan.
+    /// Remove the cache lifespan.
     #[arg(long, conflicts_with = "lifespan")]
-    pub(crate) unset_lifespan: bool,
+    pub(crate) unset_cache_lifespan: bool,
 }

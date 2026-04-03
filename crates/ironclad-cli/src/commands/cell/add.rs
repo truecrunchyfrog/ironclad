@@ -23,7 +23,7 @@ pub(super) fn dispatch(_config: &Config, args: AddCellArgs) -> anyhow::Result<()
         cell_id,
         args.description,
         Default::default(),
-        args.lifespan.map_or(Duration::ZERO, |d| d.into()),
+        args.cache_lifespan.map_or(Duration::ZERO, |d| d.into()),
         Default::default(),
     );
 

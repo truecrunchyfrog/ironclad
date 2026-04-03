@@ -22,7 +22,7 @@ pub(crate) struct AddCellArgs {
 
     /// Specify the cell's cache lifespan for audits.
     #[arg(long)]
-    pub(crate) lifespan: Option<humantime::Duration>,
+    pub(crate) cache_lifespan: Option<humantime::Duration>,
 
     /// Skip automatic cell reuse (see `cell use`).
     #[arg(long)]

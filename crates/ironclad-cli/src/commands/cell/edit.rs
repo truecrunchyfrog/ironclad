@@ -20,11 +20,11 @@ pub(super) fn dispatch(_config: &Config, args: EditCellArgs) -> anyhow::Result<(
         *cell.description_mut() = None;
     }
 
-    if let Some(lifespan) = args.lifespan {
-        *cell.cache_lifespan_mut() = lifespan.into();
+    if let Some(cache_lifespan) = args.cache_lifespan {
+        *cell.cache_lifespan_mut() = cache_lifespan.into();
     }
 
-    if args.unset_lifespan {
+    if args.unset_cache_lifespan {
         *cell.cache_lifespan_mut() = Duration::ZERO;
     }
 
