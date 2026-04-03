@@ -38,14 +38,14 @@ pub(crate) enum Command {
     #[command(subcommand)]
     Cell(CellCommand),
 
-    #[command(subcommand, name = "dep")]
-    Dependency(DependencyCommand),
+    #[command(subcommand, name = "op")]
+    Operation(OperationCommand),
 
     #[command(subcommand)]
     Schema(SchemaCommand),
 
-    #[command(subcommand, name = "op")]
-    Operation(OperationCommand),
+    #[command(subcommand, name = "dep")]
+    Dependency(DependencyCommand),
 
     Audit(AuditArgs),
 
