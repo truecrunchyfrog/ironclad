@@ -23,6 +23,6 @@ pub(crate) struct EditCellArgs {
     pub(crate) cache_lifespan: Option<humantime::Duration>,
 
     /// Remove the cache lifespan.
-    #[arg(long, conflicts_with = "lifespan")]
+    #[arg(long, conflicts_with = "cache_lifespan")]
     pub(crate) unset_cache_lifespan: bool,
 }
