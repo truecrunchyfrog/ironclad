@@ -1,5 +1,12 @@
+- operation: run (shell) command
 - context struct instead of passing config directly to command dispatchers
 - registry as variable instead of global static
 - configuring secrets and using env vars for operations
 - improve op documentation
 - move logic from cli to core
+- ability to inspect baseline and its items
+- view diffs without interaction
+- args for review to specify where to start
+- in interactive review's 'gN', allow specifying cell id instead of index
+- show cell description on
+- rename 'cell', and 'schema' to 'routine'?
