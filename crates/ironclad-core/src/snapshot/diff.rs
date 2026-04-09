@@ -12,7 +12,7 @@ pub struct BatchDiff {
     after: Option<Batch>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum SamplePresence {
     OnlyBefore,
     OnlyAfter,
@@ -31,13 +31,28 @@ impl BatchDiff {
     }
 
     #[must_use]
-    pub fn sample_diffs(self) -> Vec<(Sample, SamplePresence)> {
+    pub fn batches_equal(&self) -> bool {
+        self.before
+            .as_ref()
+            .map(|batch| batch.samples().iter().collect::<HashSet<_>>())
+            == self
+                .after
+                .as_ref()
+                .map(|batch| batch.samples().iter().collect::<HashSet<_>>())
+    }
+
+    #[must_use]
+    pub fn sample_diffs(&self) -> Vec<(&Sample, SamplePresence)> {
         let samples_before = self
             .before
-            .map_or(Vec::new(), super::super::sample::batch::Batch::into_samples);
+            .as_ref()
+            .map(|batch| batch.samples())
+            .unwrap_or_default();
         let samples_after = self
             .after
-            .map_or(Vec::new(), super::super::sample::batch::Batch::into_samples);
+            .as_ref()
+            .map(|batch| batch.samples())
+            .unwrap_or_default();
 
         let mut result = Vec::new();
 
@@ -63,7 +78,7 @@ impl BatchDiff {
 
 impl Snapshot {
     #[must_use]
-    pub fn diff(&self, before: Self) -> HashMap<CellId, (BatchDiff, Vec<(CellId, BatchDiff)>)> {
+    pub fn diff(&self, before: &Self) -> HashMap<CellId, (BatchDiff, Vec<(CellId, BatchDiff)>)> {
         let before = before.entries();
         let after = self.entries();
 

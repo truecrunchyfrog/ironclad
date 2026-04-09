@@ -1,22 +1,31 @@
-use console::Style;
-use ironclad_core::{sample::Sample, snapshot::diff::SamplePresence};
+use std::{
+    fmt::Display,
+    io::{Write, stdin, stdout},
+};
 
-pub(crate) fn display_sample_diff(sample_diff: &(Sample, SamplePresence)) -> String {
-    let style = match sample_diff.1 {
+use console::{Style, style};
+use ironclad_core::{
+    sample::Sample,
+    snapshot::diff::{BatchDiff, SamplePresence},
+};
+
+use crate::{batch_origin::BatchOrigin, ui};
+
+pub(crate) fn format_sample_diff(sample: &Sample, presence: &SamplePresence) -> String {
+    let style = match presence {
         SamplePresence::OnlyBefore => Style::new().red(),
         SamplePresence::OnlyAfter => Style::new().green(),
         SamplePresence::Both => Style::new(),
     };
     format!(
         "{}\n{}",
-        style.apply_to(match sample_diff.1 {
+        style.apply_to(match presence {
             SamplePresence::OnlyBefore => "-",
             SamplePresence::OnlyAfter => "+",
             SamplePresence::Both => "=",
         }),
         style.apply_to(
-            sample_diff
-                .0
+            sample
                 .content()
                 .lines()
                 .map(|line| format!("  {line}"))
@@ -26,16 +35,139 @@ pub(crate) fn display_sample_diff(sample_diff: &(Sample, SamplePresence)) -> Str
     )
 }
 
-pub(crate) fn display_dirtiness(sample_diff_presences: Vec<&SamplePresence>) -> String {
+pub(crate) fn format_dirtiness(presences: &[SamplePresence]) -> String {
+    let removed = presences
+        .iter()
+        .filter(|p| matches!(p, SamplePresence::OnlyBefore))
+        .count();
+    let added = presences
+        .iter()
+        .filter(|p| matches!(p, SamplePresence::OnlyAfter))
+        .count();
+
+    let display_removed = format!("-{removed}");
+    let display_added = format!("+{added}");
+
     format!(
-        "-{} +{}",
-        sample_diff_presences
-            .iter()
-            .filter(|p| matches!(p, SamplePresence::OnlyBefore))
-            .count(),
-        sample_diff_presences
-            .iter()
-            .filter(|p| matches!(p, SamplePresence::OnlyAfter))
-            .count(),
+        "{} {}",
+        if removed != 0 {
+            style(display_removed).red()
+        } else {
+            style(display_removed).dim()
+        },
+        if added != 0 {
+            style(display_added).green()
+        } else {
+            style(display_added).dim()
+        },
     )
+}
+
+pub(crate) fn format_batch_diff(origin: &BatchOrigin, diff: &BatchDiff) -> String {
+    let (cell_id, dependent_cell_id) = match origin {
+        BatchOrigin::DirtyCell(cell_id) => (cell_id, None),
+        BatchOrigin::StaleDependencyCell {
+            dependent,
+            dependency,
+        } => (dependency, Some(dependent)),
+    };
+
+    let status = match (diff.before(), diff.after()) {
+        (None, Some(_)) => style("add").green(),
+        (Some(_), None) => style("rem").red(),
+        (Some(_), Some(_)) if diff.batches_equal() => style("ok!").black().on_green(),
+        (Some(_), Some(_)) => style("mut").yellow(),
+        _ => unreachable!(),
+    };
+
+    let dirtiness = format_dirtiness(
+        diff.sample_diffs()
+            .into_iter()
+            .map(|(_, presence)| presence)
+            .collect::<Vec<_>>()
+            .as_slice(),
+    );
+
+    format!(
+        "{status} {dirtiness} {cell_id} {}",
+        dependent_cell_id
+            .map(|dependent_cell_id| format!(
+                "{}{dependent_cell_id}{}",
+                style("(dependency of ").dim(),
+                style(")").dim()
+            ))
+            .unwrap_or_default()
+    )
+}
+
+pub(crate) enum PromptOption<'a, T> {
+    Simple(&'a str, fn() -> T),
+    Dynamic(fn(&str) -> Option<Result<T, &str>>),
+}
+
+pub(crate) enum DisplayPromptOption<F: Display> {
+    AlwaysVisible { command: F, description: F },
+    Collapsed { command: F, description: F },
+}
+
+pub(crate) fn prompt<'a, T, F>(
+    options: Vec<(PromptOption<'a, T>, DisplayPromptOption<F>)>,
+) -> anyhow::Result<T>
+where
+    F: Display + 'a,
+{
+    let expandable = options
+        .iter()
+        .any(|(_, display_option)| matches!(display_option, DisplayPromptOption::Collapsed { .. }));
+    let mut expanded = false;
+
+    loop {
+        println!("");
+        for (_, display_option) in &options {
+            match display_option {
+                DisplayPromptOption::AlwaysVisible {
+                    command,
+                    description,
+                } => println!("   {command}\t{description}"),
+                DisplayPromptOption::Collapsed {
+                    command,
+                    description,
+                } if expanded => println!("   {command}\t{description}"),
+                _ => (),
+            }
+        }
+
+        if expandable && !expanded {
+            println!(
+                "   {}\t{}",
+                style("?").dim(),
+                style("show all commands").dim()
+            );
+        }
+
+        stdout().flush()?;
+
+        let mut choice = String::new();
+        stdin().read_line(&mut choice)?;
+
+        let choice = choice.trim();
+
+        let result = options
+            .iter()
+            .find_map(|(prompt_option, _)| match prompt_option {
+                PromptOption::Simple(command, result) if &choice == command => Some(Ok(result())),
+                PromptOption::Dynamic(determiner) => determiner(choice),
+                _ => None,
+            });
+
+        match result {
+            Some(Ok(result)) => return Ok(result),
+            Some(Err(err)) => ui::error(err),
+            None if expandable && (choice == "?" || expanded && choice == "") => {
+                expanded = !expanded
+            }
+            None if choice == "" => ui::error(format!("please enter a command.")),
+            None => ui::error(format!("no such command '{choice}'.")),
+        };
+    }
 }

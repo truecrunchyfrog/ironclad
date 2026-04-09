@@ -1,193 +1,320 @@
-use std::{
-    collections::HashSet,
-    io::{self, Write, stdin},
-};
+use std::time::Duration;
 
-use anyhow::anyhow;
-use ironclad_core::{
-    cell::id::CellId,
-    sample::{Sample, batch::Batch},
-    snapshot::diff::{BatchDiff, SamplePresence},
-};
+use console::style;
 
 use crate::{
     args::review::ReviewArgs,
+    batch_origin::BatchOrigin,
     config::Config,
-    helper::{resolve_cluster, resolve_explicit_or_reused_cell_id},
-    output, ui,
+    helper::{
+        collect_changed_snapshot_diffs, find_batch_diff, resolve_cluster, set_snapshot_batch,
+    },
+    output::{self, DisplayPromptOption, PromptOption, format_batch_diff, format_sample_diff},
+    ui,
 };
 
-pub(super) fn dispatch(_config: &Config, args: ReviewArgs) -> anyhow::Result<()> {
+enum ReviewState<'a> {
+    Overview,
+    Batch(&'a BatchOrigin),
+    Sample(&'a BatchOrigin, usize),
+}
+
+pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()> {
     let cluster = resolve_cluster()?;
-    let cell_ids = args
-        .cell_id
-        .into_iter()
-        .map(|cell_id| resolve_explicit_or_reused_cell_id(&cluster, Some(cell_id)))
-        .collect::<anyhow::Result<Vec<_>>>()?;
-    let dependency_cell_ids = args
-        .dependency
-        .into_iter()
-        .map(|cell_id| resolve_explicit_or_reused_cell_id(&cluster, Some(cell_id)))
-        .collect::<anyhow::Result<Vec<_>>>()?;
 
     let audit = cluster.load_pending_snapshot().unwrap_or_default();
-    let mut baseline = cluster.load_baseline_snapshot().unwrap_or_default();
-    let mut diffs = audit.diff(baseline.clone());
+    let baseline = cluster.load_baseline_snapshot().unwrap_or_default();
+    let mut working_baseline = baseline.clone();
 
-    let cell_ids = if cell_ids.is_empty() {
-        audit
-            .entries()
-            .keys()
-            .chain(baseline.entries().keys())
-            .cloned()
-            .collect::<HashSet<_>>()
-    } else {
-        cell_ids.into_iter().collect()
-    };
+    let relevant_diffs = collect_changed_snapshot_diffs(audit.diff(&baseline));
 
-    'cells: for cell_id in cell_ids {
-        let (diff, dep_diffs) = diffs
-            .remove(&cell_id)
-            .ok_or_else(|| anyhow!("cell absent in both pending and baseline snapshot"))?;
+    if relevant_diffs.iter().all(|(_, diff)| diff.batches_equal()) {
+        println!("nothing to review");
+        return Ok(());
+    }
 
-        let baseline_entry = baseline.entries_mut().entry(cell_id.clone()).or_default();
+    let mut state = ReviewState::Overview;
 
-        let interactive = !args.all;
+    loop {
+        match state {
+            ReviewState::Overview => {
+                let working_diff_audit = audit.diff(&working_baseline);
+                let working_diff_baseline = working_baseline.diff(&baseline);
 
-        if dependency_cell_ids.is_empty() {
-            let should_quit = !ack_batch_diff(
-                BatchOrigin::DirtyCell(cell_id),
-                diff,
-                baseline_entry.batch_mut(),
-                interactive,
-            )?;
-            if should_quit {
-                break;
+                for ((origin, diff), index) in relevant_diffs.iter().zip(1..).collect::<Vec<_>>() {
+                    let any_changes = find_batch_diff(origin, &working_diff_baseline)
+                        .map_or(false, |d| !d.batches_equal());
+                    let resolved_to_baseline = find_batch_diff(origin, &working_diff_audit)
+                        .map_or(true, |d| d.batches_equal());
+                    println!(
+                        "{index} {}{}",
+                        if resolved_to_baseline {
+                            style("resolved ").green().bold().to_string()
+                        } else if any_changes {
+                            style("partial  ").yellow().bold().to_string()
+                        } else {
+                            String::from("         ")
+                        },
+                        format_batch_diff(origin, diff)
+                    );
+                }
+
+                println!(
+                    "{}/{} batches resolved",
+                    relevant_diffs.len() - collect_changed_snapshot_diffs(working_diff_audit).len(),
+                    relevant_diffs.len()
+                );
+
+                enum OverviewPromptResponse {
+                    GoToBatch(usize),
+                    QuitWithSave,
+                    QuitWithoutSave,
+                }
+
+                let result = output::prompt(vec![
+                    (
+                        PromptOption::Dynamic(|i| {
+                            if i.starts_with("g") && i.len() > 1 {
+                                if let Ok(index) =
+                                    i.chars().skip(1).collect::<String>().parse::<usize>()
+                                {
+                                    Some(Ok(OverviewPromptResponse::GoToBatch(index)))
+                                } else {
+                                    Some(Err(
+                                        "'g' must be followed by a number of the batch to review.",
+                                    ))
+                                }
+                            } else {
+                                None
+                            }
+                        }),
+                        DisplayPromptOption::AlwaysVisible {
+                            command: style("gN").blue(),
+                            description: style("review batch N").dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Simple("q", || OverviewPromptResponse::QuitWithSave),
+                        DisplayPromptOption::AlwaysVisible {
+                            command: style("q").green(),
+                            description: style("save and quit").dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Simple("Q", || OverviewPromptResponse::QuitWithoutSave),
+                        DisplayPromptOption::AlwaysVisible {
+                            command: style("Q").red(),
+                            description: style("abort changes and quit").dim(),
+                        },
+                    ),
+                ])?;
+
+                match result {
+                    OverviewPromptResponse::GoToBatch(index) => {
+                        match index.checked_sub(1).and_then(|zero_based_index| {
+                            relevant_diffs.iter().nth(zero_based_index)
+                        }) {
+                            Some((origin, _)) => state = ReviewState::Batch(origin),
+                            None => ui::error(format!("no batch at position {index}.")),
+                        }
+                    }
+                    OverviewPromptResponse::QuitWithSave => {
+                        cluster.save_baseline_snapshot(working_baseline)?;
+                        return Ok(());
+                    }
+                    OverviewPromptResponse::QuitWithoutSave => return Ok(()),
+                };
             }
-        } else {
-            for (dep_cell_id, dep_diff) in dep_diffs
-                .into_iter()
-                .filter(|(cell_id, _)| dependency_cell_ids.contains(cell_id))
-            {
-                let should_quit = ack_batch_diff(
-                    BatchOrigin::StaleDependencyCell {
-                        dependent: cell_id.clone(),
-                        dependency: dep_cell_id.clone(),
-                    },
-                    dep_diff,
-                    baseline_entry
-                        .dependencies_mut()
-                        .entry(dep_cell_id)
-                        .or_default(),
-                    interactive,
-                )?;
-                if should_quit {
-                    break 'cells;
+            ReviewState::Batch(origin) => {
+                let diff = relevant_diffs
+                    .iter()
+                    .find_map(|(origin2, diff)| if origin2 == origin { Some(diff) } else { None })
+                    .unwrap();
+
+                println!("{}", format_batch_diff(origin, diff));
+
+                if let Some(before) = diff.before() {
+                    println!(
+                        "baseline batch is {} old",
+                        humantime::format_duration(Duration::from_secs(
+                            before.created().elapsed().unwrap().as_secs()
+                        ))
+                    );
+                }
+
+                if let Some(after) = diff.after() {
+                    println!(
+                        "pending batch is {} old",
+                        humantime::format_duration(Duration::from_secs(
+                            after.created().elapsed().unwrap().as_secs()
+                        ))
+                    );
+                }
+
+                let sample_diffs = diff.sample_diffs();
+
+                for ((sample, presence), index) in &sample_diffs.iter().zip(1..).collect::<Vec<_>>()
+                {
+                    println!("{index} {}", format_sample_diff(sample, &presence));
+                }
+
+                enum BatchPromptResponse {
+                    AckBatch,
+                    GoToSample(usize),
+                    GoToOverview,
+                }
+
+                let result = output::prompt(vec![
+                    (
+                        PromptOption::Simple("K", || BatchPromptResponse::AckBatch),
+                        DisplayPromptOption::AlwaysVisible {
+                            command: style("K").green().bold(),
+                            description: style("acknowledge batch").dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Dynamic(|i| {
+                            if i.starts_with("g") && i.len() > 1 {
+                                if let Ok(index) =
+                                    i.chars().skip(1).collect::<String>().parse::<usize>()
+                                {
+                                    Some(Ok(BatchPromptResponse::GoToSample(index)))
+                                } else {
+                                    Some(Err(
+                                        "'g' must be followed by a number of the sample to review.",
+                                    ))
+                                }
+                            } else {
+                                None
+                            }
+                        }),
+                        DisplayPromptOption::AlwaysVisible {
+                            command: style("gN").blue(),
+                            description: style("review sample N").dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Simple("g", || BatchPromptResponse::GoToOverview),
+                        DisplayPromptOption::AlwaysVisible {
+                            command: style("g").blue(),
+                            description: style("return to overview").dim(),
+                        },
+                    ),
+                ])?;
+
+                match result {
+                    BatchPromptResponse::AckBatch => {
+                        set_snapshot_batch(origin, &mut working_baseline, diff.after().clone());
+                    }
+                    BatchPromptResponse::GoToSample(index) => {
+                        match index.checked_sub(1).filter(|zero_based_index| {
+                            sample_diffs.iter().nth(*zero_based_index).is_some()
+                        }) {
+                            Some(index) => state = ReviewState::Sample(origin, index),
+                            None => ui::error(format!("no sample at position {index}.")),
+                        }
+                    }
+                    BatchPromptResponse::GoToOverview => state = ReviewState::Overview,
                 }
             }
-        }
-    }
+            ReviewState::Sample(origin, index) => {
+                let diff = relevant_diffs
+                    .iter()
+                    .find_map(|(origin2, diff)| if origin2 == origin { Some(diff) } else { None })
+                    .unwrap();
 
-    cluster.save_baseline_snapshot(baseline)?;
+                let (sample, presence) = diff.sample_diffs().into_iter().nth(index).unwrap();
 
-    Ok(())
-}
+                println!("{}", format_sample_diff(sample, &presence));
 
-enum BatchOrigin {
-    DirtyCell(CellId),
-    StaleDependencyCell {
-        dependent: CellId,
-        dependency: CellId,
-    },
-}
+                enum SamplePromptResponse {
+                    AckSample,
+                    GoToBatch,
+                    PipeToCommand(String),
+                    PipeToPager,
+                    PipeToEditor,
+                    QuitWithSave,
+                    QuitWithoutSave,
+                }
 
-fn ack_batch_diff(
-    origin: BatchOrigin,
-    batch_diff: BatchDiff,
-    working_batch: &mut Batch,
-    interactive: bool,
-) -> anyhow::Result<bool> {
-    let sample_diffs = batch_diff
-        .sample_diffs()
-        .into_iter()
-        .filter(|(_, presence)| presence != &SamplePresence::Both)
-        .collect::<Vec<_>>();
+                let result = output::prompt(vec![
+                    (
+                        PromptOption::Simple("K", || SamplePromptResponse::AckSample),
+                        DisplayPromptOption::AlwaysVisible {
+                            command: style("K").green().bold(),
+                            description: style("acknowledge sample").dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Simple("g", || SamplePromptResponse::GoToBatch),
+                        DisplayPromptOption::AlwaysVisible {
+                            command: style("g").blue(),
+                            description: style("return to batch").dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Simple("v", || SamplePromptResponse::PipeToPager),
+                        DisplayPromptOption::Collapsed {
+                            command: style("v").yellow(),
+                            description: style(
+                                format!(
+                                    "pipe to $PAGER = {}",
+                                    std::env::var("PAGER").unwrap_or(String::from("n/a"))
+                                )
+                                .as_str(),
+                            )
+                            .dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Simple("V", || SamplePromptResponse::PipeToEditor),
+                        DisplayPromptOption::Collapsed {
+                            command: style("V").yellow(),
+                            description: style(
+                                format!(
+                                    "pipe to $EDITOR = {}",
+                                    std::env::var("EDITOR").unwrap_or(String::from("n/a"))
+                                )
+                                .as_str(),
+                            )
+                            .dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Simple("x", || {
+                            SamplePromptResponse::PipeToCommand(String::new())
+                        }),
+                        DisplayPromptOption::Collapsed {
+                            command: style("x").yellow(),
+                            description: style("pipe to command").dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Simple("q", || SamplePromptResponse::QuitWithSave),
+                        DisplayPromptOption::Collapsed {
+                            command: style("q").green(),
+                            description: style("save and quit").dim(),
+                        },
+                    ),
+                    (
+                        PromptOption::Simple("Q", || SamplePromptResponse::QuitWithoutSave),
+                        DisplayPromptOption::Collapsed {
+                            command: style("Q").red(),
+                            description: style("abort changes and quit").dim(),
+                        },
+                    ),
+                ])?;
 
-    if interactive && !sample_diffs.is_empty() {
-        match origin {
-            BatchOrigin::DirtyCell(cell_id) => {
-                println!("{cell_id} is dirty");
+                match result {
+                    SamplePromptResponse::AckSample => todo!(),
+                    SamplePromptResponse::GoToBatch => todo!(),
+                    SamplePromptResponse::PipeToCommand(_) => todo!(),
+                    SamplePromptResponse::PipeToPager => todo!(),
+                    SamplePromptResponse::PipeToEditor => todo!(),
+                    SamplePromptResponse::QuitWithSave => todo!(),
+                    SamplePromptResponse::QuitWithoutSave => todo!(),
+                }
             }
-            BatchOrigin::StaleDependencyCell {
-                dependent,
-                dependency,
-            } => println!("{dependent} is stale due to dependency of {dependency}"),
-        }
-    }
-
-    for sample_diff in sample_diffs {
-        if interactive {
-            match prompt_ack_sample_diff(&sample_diff)? {
-                SamplePromptResponse::AckSample => (),
-                SamplePromptResponse::SkipSample => continue,
-                SamplePromptResponse::SkipBatch => break,
-                SamplePromptResponse::SkipAll => return Ok(false),
-            }
-        }
-
-        match sample_diff {
-            (sample, SamplePresence::OnlyBefore) => {
-                working_batch.samples_mut().retain(|s| s != &sample);
-            }
-            (sample, SamplePresence::OnlyAfter) => working_batch.samples_mut().push(sample),
-            _ => (),
-        }
-    }
-
-    Ok(true)
-}
-
-enum SamplePromptResponse {
-    AckSample,
-    SkipSample,
-    SkipBatch,
-    SkipAll,
-}
-
-fn prompt_ack_sample_diff(
-    sample_diff: &(Sample, SamplePresence),
-) -> anyhow::Result<SamplePromptResponse> {
-    println!("{}", output::display_sample_diff(sample_diff));
-    loop {
-        print!("y/n/N/q/s/t/? = ");
-        io::stdout().flush()?;
-
-        let mut choice = String::new();
-        stdin().read_line(&mut choice)?;
-
-        match choice.trim() {
-            "y" | "yes" => return Ok(SamplePromptResponse::AckSample),
-            "n" | "no" => return Ok(SamplePromptResponse::SkipSample),
-            "N" | "NO" => return Ok(SamplePromptResponse::SkipBatch),
-            "q" | "quit" => return Ok(SamplePromptResponse::SkipAll),
-            "s" | "sample" => println!("{}", output::display_sample_diff(sample_diff)),
-            "t" | "trace" => println!("{}", serde_json::to_string_pretty(sample_diff.0.traces())?),
-            "?" | "h" | "help" => println!(
-                "\
-yes:    ack the sample
-no:     skip the sample
-NO:     skip the rest of the samples in the batch (keeps previous acks)
-quit:   skip the rest of the samples and quit (keeps previous acks)
-sample: show the sample
-trace:  show the sample's trace to determine its origin
-help:   show this
-
-each command has its first letter as an alias"
-            ),
-            "" => (),
-            input => ui::error(format!(
-                "no such command '{input}'. try 'help' for an explanation."
-            )),
-        }
+        };
     }
 }

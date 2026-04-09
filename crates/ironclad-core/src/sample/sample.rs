@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::sample::trace::Trace;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Sample {
     traces: Vec<Trace>,
     content: String,
