@@ -4,9 +4,33 @@
 - configuring secrets and using env vars for operations
 - improve op documentation
 - move logic from cli to core
-- ability to inspect baseline and its items
-- view diffs without interaction
-- args for review to specify where to start
-- in interactive review's 'gN', allow specifying cell id instead of index
-- show cell description on
-- rename 'cell', and 'schema' to 'routine'?
+- rework cli structure:
+   - plumbing
+     - ic resolve [fact id...]
+     - ic diff <snapshot before> < <snapshot after>
+     - ic apply <snapshot before> [fact id...] < <snapshot after>
+   - porcelain
+     - ic init
+     - ic add <fact id>
+     - ic show <fact id>
+     - ic edit <fact id>
+     - ic remove <fact id>
+     - ic list
+     - ic step add <fact id> <operation id> -- --option value
+     - ic step remove <fact id> <index>
+     - ic step list <fact id>
+     - ic snapshot baseline [fact id...]
+     - ic snapshot candidate [fact id...]
+     - ic audit [fact id...]
+     - ic inspect [fact id...]
+     - ic accept <fact id...>
+- remove --generate-id
+- remove fact scoping
+- show cell description in diffs
+- rename 'cell' to 'fact'
+- rename 'schema' to 'recipe'
+- rename 'stage' to 'step'
+- rename 'cluster' to 'catalog'
+- rename 'pending' to 'candidate'
+- remove fact TTL?
+- github action
