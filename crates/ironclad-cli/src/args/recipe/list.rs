@@ -1,6 +1,6 @@
 use clap::Args;
 
-/// List a recipe's stages.
+/// List a recipe's steps.
 #[derive(Args)]
 pub(crate) struct ListRecipeArgs {
     /// ID of fact to show recipe of.

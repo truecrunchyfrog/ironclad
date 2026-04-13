@@ -19,7 +19,7 @@ pub(super) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<(
 
         _ => {
             println!(
-                "{}\ndescription: {}\ndependencies: {}\nstages: {}",
+                "{}\ndescription: {}\ndependencies: {}\nsteps: {}",
                 fact.id(),
                 fact.description()
                     .clone()
@@ -29,7 +29,7 @@ pub(super) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<(
                     .map(ToString::to_string)
                     .collect::<Vec<_>>()
                     .join(" "),
-                fact.recipe().stages().len()
+                fact.recipe().steps().len()
             );
         }
     }

@@ -12,11 +12,11 @@ pub(super) fn dispatch(_config: &Config, args: EvalRecipeArgs) -> anyhow::Result
     let catalog = resolve_catalog()?;
     let fact = resolve_explicit_or_reused_fact(&catalog, args.fact_id)?;
 
-    let stage_len = fact.recipe().stages().len();
+    let step_len = fact.recipe().steps().len();
 
-    let eval_stages = fact
+    let eval_steps = fact
         .recipe()
-        .stages()
+        .steps()
         .iter()
         .zip(0..)
         .filter(|(_, index)| {
@@ -26,28 +26,28 @@ pub(super) fn dispatch(_config: &Config, args: EvalRecipeArgs) -> anyhow::Result
         })
         .collect::<Vec<_>>();
 
-    if eval_stages.is_empty() {
+    if eval_steps.is_empty() {
         return Err(anyhow!("empty recipe"));
     }
 
-    eval_stages.into_iter().try_fold(
+    eval_steps.into_iter().try_fold(
         Vec::new(),
-        |input, (stage, index)| -> anyhow::Result<Vec<Vec<Sample>>> {
+        |input, (step, index)| -> anyhow::Result<Vec<Vec<Sample>>> {
             ui::info(format!(
                 "{}  {}  {}",
                 index,
-                stage.operation_id(),
-                stage.options()
+                step.operation_id(),
+                step.options()
             ));
 
-            let output = stage.eval(&catalog, input)?;
+            let output = step.eval(&catalog, input)?;
 
             if args.show_all
                 || args
                     .show
                     .as_ref()
                     .is_some_and(|indices| indices.contains(&index))
-                || (args.show.is_none() && index == stage_len - 1)
+                || (args.show.is_none() && index == step_len - 1)
             {
                 println!("{}", serde_json::to_string_pretty(&output)?);
             }

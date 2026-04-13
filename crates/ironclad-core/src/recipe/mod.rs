@@ -1,7 +1,7 @@
 mod error;
 mod recipe;
-mod stage;
+mod step;
 
 pub use error::RecipeError;
 pub use recipe::Recipe;
-pub use stage::Stage;
+pub use step::Step;

@@ -1,6 +1,6 @@
 use clap::Args;
 
-/// Remove a stage from a recipe.
+/// Remove a step from a recipe.
 #[derive(Args)]
 pub(crate) struct PopRecipeArgs {
     /// ID of fact.
@@ -10,7 +10,7 @@ pub(crate) struct PopRecipeArgs {
     #[arg(short, long)]
     pub(crate) index: Option<usize>,
 
-    /// Remove all stages.
+    /// Remove all steps.
     #[arg(long, conflicts_with = "index")]
     pub(crate) all: bool,
 }

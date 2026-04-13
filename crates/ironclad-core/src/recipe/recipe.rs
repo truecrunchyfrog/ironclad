@@ -3,41 +3,41 @@ use serde::{Deserialize, Serialize};
 use crate::{
     catalog::Catalog,
     sample::batch::Batch,
-    recipe::{RecipeError, stage::Stage},
+    recipe::{RecipeError, step::Step},
 };
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct Recipe(Vec<Stage>);
+pub struct Recipe(Vec<Step>);
 
 impl Recipe {
     #[must_use]
-    pub fn new(stages: Vec<Stage>) -> Self {
-        Self(stages)
+    pub fn new(steps: Vec<Step>) -> Self {
+        Self(steps)
     }
 
     #[must_use]
-    pub fn stages(&self) -> &[Stage] {
+    pub fn steps(&self) -> &[Step] {
         &self.0
     }
 
-    pub fn add(&mut self, index: Option<usize>, stage: Stage) -> Result<(), RecipeError> {
+    pub fn add(&mut self, index: Option<usize>, step: Step) -> Result<(), RecipeError> {
         match index {
             Some(index) if index > self.0.len() => Err(RecipeError::OutOfRange {
                 index,
                 length: self.0.len(),
             }),
             Some(index) => {
-                self.0.insert(index, stage);
+                self.0.insert(index, step);
                 Ok(())
             }
             None => {
-                self.0.push(stage);
+                self.0.push(step);
                 Ok(())
             }
         }
     }
 
-    pub fn remove(&mut self, index: Option<usize>) -> Result<Stage, RecipeError> {
+    pub fn remove(&mut self, index: Option<usize>) -> Result<Step, RecipeError> {
         match index {
             Some(index) if index > self.0.len() => Err(RecipeError::OutOfRange {
                 index,
@@ -55,7 +55,7 @@ impl Recipe {
         Ok(Batch::new(
             self.0
                 .iter()
-                .try_fold(Vec::new(), |input, stage| stage.eval(catalog, input))?
+                .try_fold(Vec::new(), |input, step| step.eval(catalog, input))?
                 .into_iter()
                 .flatten()
                 .collect::<Vec<_>>(),

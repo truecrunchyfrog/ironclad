@@ -1,6 +1,6 @@
 use clap::Args;
 
-/// Add a stage to a recipe.
+/// Add a step to a recipe.
 #[derive(Args)]
 pub(crate) struct PushRecipeArgs {
     /// ID of fact.

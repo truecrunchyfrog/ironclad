@@ -9,12 +9,12 @@ use crate::{
 };
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Stage {
+pub struct Step {
     operation_id: String,
     options: Value,
 }
 
-impl Stage {
+impl Step {
     #[must_use]
     pub fn new(operation_id: String, options: Value) -> Self {
         Self {

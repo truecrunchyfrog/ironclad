@@ -1,4 +1,4 @@
-use ironclad_core::{registry, recipe::Stage};
+use ironclad_core::{registry, recipe::Step};
 
 use crate::{
     args::recipe::push::PushRecipeArgs,
@@ -17,9 +17,9 @@ pub(super) fn dispatch(_config: &Config, args: PushRecipeArgs) -> anyhow::Result
         None => serde_json::Value::Null,
     };
 
-    let stage = Stage::new(args.operation_id, options);
+    let step = Step::new(args.operation_id, options);
 
-    fact.recipe_mut().add(args.index, stage)?;
+    fact.recipe_mut().add(args.index, step)?;
 
     catalog.save_fact(&fact)?;
 
