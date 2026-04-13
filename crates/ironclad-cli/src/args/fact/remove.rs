@@ -4,5 +4,5 @@ use clap::Args;
 #[derive(Args)]
 pub(crate) struct RemoveFactArgs {
     /// ID of fact to remove.
-    pub(crate) fact_id: Option<String>,
+    pub(crate) fact_id: String,
 }

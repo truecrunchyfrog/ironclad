@@ -1,12 +1,10 @@
-use crate::{
-    args::recipe::list::ListRecipeArgs,
-    config::Config,
-    helper::{resolve_catalog, resolve_explicit_or_reused_fact},
-};
+use ironclad_core::fact::id::FactId;
+
+use crate::{args::recipe::list::ListRecipeArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: ListRecipeArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-    let fact = resolve_explicit_or_reused_fact(&catalog, args.fact_id)?;
+    let fact = catalog.load_fact_for_id(&FactId::from(args.fact_id))?;
     let steps = fact.recipe().steps();
 
     if args.raw {

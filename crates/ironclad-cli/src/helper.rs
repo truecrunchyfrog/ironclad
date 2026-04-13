@@ -1,43 +1,16 @@
 use std::collections::HashMap;
 
-use anyhow::anyhow;
 use ironclad_core::{
-    fact::{Fact, id::FactId},
     catalog::Catalog,
+    fact::id::FactId,
     sample::batch::Batch,
     snapshot::{Snapshot, diff::BatchDiff},
 };
 
-use crate::{batch_origin::BatchOrigin, reuse_fact};
+use crate::batch_origin::BatchOrigin;
 
 pub(crate) fn resolve_catalog() -> anyhow::Result<Catalog> {
     Ok(Catalog::find_for_working_dir(&std::env::current_dir()?)?)
-}
-
-fn explicit_or_reused_fact_id(
-    catalog: &Catalog,
-    specified_fact_id: Option<String>,
-) -> anyhow::Result<String> {
-    match specified_fact_id {
-        Some(fact_id) if fact_id != "-" => Ok(fact_id),
-        _ => reuse_fact::get(catalog)?
-            .map(|fact_id| fact_id.to_string())
-            .ok_or(anyhow!("fact ID not specified, and not reusing")),
-    }
-}
-
-pub(crate) fn resolve_explicit_or_reused_fact_id(
-    catalog: &Catalog,
-    specified_fact_id: Option<String>,
-) -> anyhow::Result<FactId> {
-    Ok(catalog.resolve_fact_id(&explicit_or_reused_fact_id(catalog, specified_fact_id)?)?)
-}
-
-pub(crate) fn resolve_explicit_or_reused_fact(
-    catalog: &Catalog,
-    specified_fact_id: Option<String>,
-) -> anyhow::Result<Fact> {
-    Ok(catalog.resolve_fact(&explicit_or_reused_fact_id(catalog, specified_fact_id)?)?)
 }
 
 pub(crate) fn collect_changed_snapshot_diffs(

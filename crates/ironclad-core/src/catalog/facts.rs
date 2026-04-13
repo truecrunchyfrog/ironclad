@@ -6,8 +6,8 @@ use std::{
 use log::{info, warn};
 
 use crate::{
-    fact::{Fact, error::FactError, id::FactId},
     catalog::{catalog::Catalog, error::CatalogError},
+    fact::{Fact, error::FactError, id::FactId},
 };
 
 impl Catalog {
@@ -45,28 +45,6 @@ impl Catalog {
             .iter()
             .map(|file| FactId::for_path(&file.path()))
             .collect()
-    }
-
-    pub fn resolve_fact_id(&self, id: &str) -> Result<FactId, FactError> {
-        let fact_ids = self.fact_ids();
-
-        if let Some(fact_id) = fact_ids.iter().find(|fact_id| fact_id.to_string() == id) {
-            return Ok(fact_id.clone());
-        }
-
-        let mut possible_ids = fact_ids
-            .iter()
-            .filter(|fact_id| fact_id.to_string().starts_with(id));
-
-        match (possible_ids.next(), possible_ids.next()) {
-            (Some(fact_id), None) => Ok(fact_id.clone()),
-            (None, _) => Err(FactError::NoSuchFactId(id.to_string())),
-            _ => Err(FactError::AmbiguousFactId(id.to_string())),
-        }
-    }
-
-    pub fn resolve_fact(&self, id: &str) -> Result<Fact, FactError> {
-        self.load_fact_for_id(&self.resolve_fact_id(id)?)
     }
 
     pub fn load_facts(&self) -> Result<Vec<Fact>, CatalogError> {

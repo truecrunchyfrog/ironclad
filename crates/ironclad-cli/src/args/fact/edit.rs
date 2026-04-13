@@ -4,7 +4,7 @@ use clap::Args;
 #[derive(Args)]
 pub(crate) struct EditFactArgs {
     /// ID of fact to edit.
-    pub(crate) fact_id: Option<String>,
+    pub(crate) fact_id: String,
 
     /// Change the fact's ID.
     #[arg(long)]

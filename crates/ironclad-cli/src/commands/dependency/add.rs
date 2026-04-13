@@ -1,12 +1,7 @@
+use ironclad_core::fact::id::FactId;
 use log::info;
 
-use crate::{
-    args::dependency::add::AddDependencyArgs,
-    config::Config,
-    helper::{
-        resolve_catalog, resolve_explicit_or_reused_fact, resolve_explicit_or_reused_fact_id,
-    },
-};
+use crate::{args::dependency::add::AddDependencyArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: AddDependencyArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
@@ -14,18 +9,18 @@ pub(super) fn dispatch(_config: &Config, args: AddDependencyArgs) -> anyhow::Res
     let dependents = args
         .fact_id
         .into_iter()
-        .map(|fact_id| resolve_explicit_or_reused_fact_id(&catalog, Some(fact_id)))
-        .collect::<anyhow::Result<Vec<_>>>()?;
+        .map(|fact_id| FactId::from(fact_id))
+        .collect::<Vec<_>>();
 
     let new_dependencies = {
         let mut result = Vec::new();
 
         for fact_id in args.dependency {
-            result.push(resolve_explicit_or_reused_fact_id(&catalog, Some(fact_id))?);
+            result.push(FactId::from(fact_id));
         }
 
         for fact_id in args.from {
-            let fact = resolve_explicit_or_reused_fact(&catalog, Some(fact_id))?;
+            let fact = catalog.load_fact_for_id(&FactId::from(fact_id))?;
             result.extend(fact.dependencies().to_owned());
         }
 

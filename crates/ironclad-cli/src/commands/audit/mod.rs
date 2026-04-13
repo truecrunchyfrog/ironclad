@@ -1,13 +1,12 @@
 use std::time::Duration;
 
 use console::style;
-use ironclad_core::{fact::id::FactId, snapshot::diff::BatchDiff};
+use ironclad_core::fact::id::FactId;
 
 use crate::{
     args::audit::AuditArgs,
-    batch_origin::BatchOrigin,
     config::Config,
-    helper::{collect_changed_snapshot_diffs, resolve_catalog, resolve_explicit_or_reused_fact_id},
+    helper::{collect_changed_snapshot_diffs, resolve_catalog},
     output::format_batch_diff,
     ui,
 };
@@ -17,13 +16,15 @@ pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> 
     let show_fact_ids = args
         .fact_id
         .into_iter()
-        .map(|fact_id| resolve_explicit_or_reused_fact_id(&catalog, Some(fact_id)))
-        .collect::<anyhow::Result<Vec<_>>>()?;
+        .map(|fact_id| FactId::from(fact_id))
+        .collect::<Vec<_>>();
 
     let audit = match args {
         AuditArgs { fresh: true, .. } => catalog.capture_snapshot(None)?,
         AuditArgs { cache: true, .. } => catalog.load_candidate_snapshot().unwrap_or_default(),
-        _ => catalog.capture_snapshot(Some(catalog.load_candidate_snapshot().unwrap_or_default()))?,
+        _ => {
+            catalog.capture_snapshot(Some(catalog.load_candidate_snapshot().unwrap_or_default()))?
+        }
     };
     let baseline = catalog.load_baseline_snapshot().unwrap_or_default();
 

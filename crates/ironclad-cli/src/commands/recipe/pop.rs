@@ -1,15 +1,11 @@
 use anyhow::anyhow;
+use ironclad_core::fact::id::FactId;
 
-use crate::{
-    args::recipe::pop::PopRecipeArgs,
-    config::Config,
-    helper::{resolve_catalog, resolve_explicit_or_reused_fact},
-    ui,
-};
+use crate::{args::recipe::pop::PopRecipeArgs, config::Config, helper::resolve_catalog, ui};
 
 pub(super) fn dispatch(_config: &Config, args: PopRecipeArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-    let mut fact = resolve_explicit_or_reused_fact(&catalog, args.fact_id)?;
+    let mut fact = catalog.load_fact_for_id(&FactId::from(args.fact_id))?;
 
     if fact.recipe().steps().is_empty() {
         return Err(anyhow!("empty recipe"));

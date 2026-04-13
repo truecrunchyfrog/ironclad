@@ -1,8 +1,6 @@
-use crate::{
-    args::dependency::list::ListDependencyArgs,
-    config::Config,
-    helper::{resolve_catalog, resolve_explicit_or_reused_fact_id},
-};
+use ironclad_core::fact::id::FactId;
+
+use crate::{args::dependency::list::ListDependencyArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: ListDependencyArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
@@ -14,8 +12,8 @@ pub(super) fn dispatch(_config: &Config, args: ListDependencyArgs) -> anyhow::Re
     } else {
         args.fact_id
             .into_iter()
-            .map(|fact_id| resolve_explicit_or_reused_fact_id(&catalog, Some(fact_id)))
-            .collect::<anyhow::Result<Vec<_>>>()?
+            .map(|fact_id| FactId::from(fact_id))
+            .collect::<Vec<_>>()
             .into_iter()
             .map(|fact_id| all_facts.iter().find(|fact| fact.id() == &fact_id).unwrap())
             .collect::<Vec<_>>()

@@ -9,14 +9,12 @@ use clap::Subcommand;
 
 use crate::args::fact::{
     add::AddFactArgs, edit::EditFactArgs, list::ListFactArgs, remove::RemoveFactArgs,
-    reuse::ReuseFactArgs, show::ShowFactArgs,
+    show::ShowFactArgs,
 };
 
 /// Manage facts of the catalog.
 #[derive(Subcommand)]
 pub(crate) enum FactCommand {
-    #[command(name = "use")]
-    Reuse(ReuseFactArgs),
     Add(AddFactArgs),
     Edit(EditFactArgs),
     Remove(RemoveFactArgs),

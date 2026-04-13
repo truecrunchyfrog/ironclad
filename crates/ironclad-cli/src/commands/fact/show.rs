@@ -1,12 +1,10 @@
-use crate::{
-    args::fact::show::ShowFactArgs,
-    config::Config,
-    helper::{resolve_catalog, resolve_explicit_or_reused_fact},
-};
+use ironclad_core::fact::id::FactId;
+
+use crate::{args::fact::show::ShowFactArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-    let fact = resolve_explicit_or_reused_fact(&catalog, args.fact_id)?;
+    let fact = catalog.load_fact_for_id(&FactId::from(args.fact_id))?;
 
     match args {
         ShowFactArgs { raw: true, .. } => {

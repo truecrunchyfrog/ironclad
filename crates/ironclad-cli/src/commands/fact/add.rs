@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use ironclad_core::fact::{Fact, id::FactId};
 
-use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalog, reuse_fact};
+use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()> {
     let fact_id: FactId = args.fact_id.into();
@@ -20,10 +20,6 @@ pub(super) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()
     catalog.add_fact(&fact)?;
 
     println!("{}", fact.id());
-
-    if !args.no_use {
-        reuse_fact::set(&catalog, fact.id().clone(), None)?;
-    }
 
     Ok(())
 }

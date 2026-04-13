@@ -9,7 +9,7 @@ use clap::{ArgGroup, Args};
 ))]
 pub(crate) struct ShowFactArgs {
     /// ID of fact to show.
-    pub(crate) fact_id: Option<String>,
+    pub(crate) fact_id: String,
 
     /// Show the fact's raw JSON object.
     #[arg(short, long)]

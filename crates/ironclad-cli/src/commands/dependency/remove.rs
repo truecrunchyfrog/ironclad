@@ -1,9 +1,8 @@
+use ironclad_core::fact::id::FactId;
 use log::info;
 
 use crate::{
-    args::dependency::remove::RemoveDependencyArgs,
-    config::Config,
-    helper::{resolve_catalog, resolve_explicit_or_reused_fact_id},
+    args::dependency::remove::RemoveDependencyArgs, config::Config, helper::resolve_catalog,
 };
 
 pub(super) fn dispatch(_config: &Config, args: RemoveDependencyArgs) -> anyhow::Result<()> {
@@ -12,14 +11,14 @@ pub(super) fn dispatch(_config: &Config, args: RemoveDependencyArgs) -> anyhow::
     let dependents = args
         .fact_id
         .into_iter()
-        .map(|fact_id| resolve_explicit_or_reused_fact_id(&catalog, Some(fact_id)))
-        .collect::<anyhow::Result<Vec<_>>>()?;
+        .map(|fact_id| FactId::from(fact_id))
+        .collect::<Vec<_>>();
 
     let remove_deps = args
         .dependency
         .into_iter()
-        .map(|fact_id| resolve_explicit_or_reused_fact_id(&catalog, Some(fact_id)))
-        .collect::<anyhow::Result<Vec<_>>>()?;
+        .map(|fact_id| FactId::from(fact_id))
+        .collect::<Vec<_>>();
 
     for fact_id in dependents {
         let mut fact = catalog.load_fact_for_id(&fact_id)?;

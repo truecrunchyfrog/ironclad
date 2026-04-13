@@ -5,7 +5,6 @@ pub(crate) mod config;
 pub(crate) mod helper;
 mod logging;
 pub(crate) mod output;
-pub(crate) mod reuse_fact;
 pub(crate) mod ui;
 
 use std::{env::home_dir, process::ExitCode};

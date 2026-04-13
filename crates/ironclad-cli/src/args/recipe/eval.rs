@@ -4,7 +4,7 @@ use clap::Args;
 #[derive(Args)]
 pub(crate) struct EvalRecipeArgs {
     /// ID of fact.
-    pub(crate) fact_id: Option<String>,
+    pub(crate) fact_id: String,
 
     /// Show the output of these steps.
     #[arg(short, long)]

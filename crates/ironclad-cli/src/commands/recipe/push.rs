@@ -1,14 +1,10 @@
-use ironclad_core::{registry, recipe::Step};
+use ironclad_core::{fact::id::FactId, recipe::Step, registry};
 
-use crate::{
-    args::recipe::push::PushRecipeArgs,
-    config::Config,
-    helper::{resolve_catalog, resolve_explicit_or_reused_fact},
-};
+use crate::{args::recipe::push::PushRecipeArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: PushRecipeArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-    let mut fact = resolve_explicit_or_reused_fact(&catalog, Some(args.fact_id))?;
+    let mut fact = catalog.load_fact_for_id(&FactId::from(args.fact_id))?;
 
     registry::resolve_op(&args.operation_id)?;
 

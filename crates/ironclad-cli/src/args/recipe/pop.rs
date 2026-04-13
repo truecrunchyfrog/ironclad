@@ -4,7 +4,7 @@ use clap::Args;
 #[derive(Args)]
 pub(crate) struct PopRecipeArgs {
     /// ID of fact.
-    pub(crate) fact_id: Option<String>,
+    pub(crate) fact_id: String,
 
     /// Remove at a position instead of at the end.
     #[arg(short, long)]

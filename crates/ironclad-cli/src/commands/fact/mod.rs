@@ -2,14 +2,12 @@ mod add;
 mod edit;
 mod list;
 mod remove;
-mod reuse;
 mod show;
 
 use crate::{args::fact::FactCommand, config::Config};
 
 pub(super) fn dispatch(config: &Config, command: FactCommand) -> anyhow::Result<()> {
     match command {
-        FactCommand::Reuse(args) => reuse::dispatch(config, args),
         FactCommand::Add(args) => add::dispatch(config, args),
         FactCommand::Edit(args) => edit::dispatch(config, args),
         FactCommand::Remove(args) => remove::dispatch(config, args),
