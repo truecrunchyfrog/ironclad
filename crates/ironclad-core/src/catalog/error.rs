@@ -19,9 +19,6 @@ pub enum CatalogError {
     #[error("an operation does not exist by such ID: {0}")]
     OperationNotFound(String),
 
-    #[error("dependency fact could not be found: {0}")]
-    DependencyFactNotFound(FactId),
-
     #[error(transparent)]
     Fact(#[from] FactError),
 

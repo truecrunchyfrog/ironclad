@@ -78,7 +78,7 @@ impl BatchDiff {
 
 impl Snapshot {
     #[must_use]
-    pub fn diff(&self, before: &Self) -> HashMap<FactId, (BatchDiff, Vec<(FactId, BatchDiff)>)> {
+    pub fn diff(&self, before: &Self) -> HashMap<FactId, BatchDiff> {
         let before = before.entries();
         let after = self.entries();
 
@@ -88,38 +88,12 @@ impl Snapshot {
             let before = before.get(&fact_id);
             let after = after.get(&fact_id);
 
-            let dep_fact_ids = HashSet::<FactId>::from_iter(
-                before
-                    .iter()
-                    .chain(after.iter())
-                    .flat_map(|e| e.dependencies().keys())
-                    .cloned(),
-            );
-
             (
                 fact_id,
-                (
-                    BatchDiff {
-                        before: before.map(|e| e.batch().clone()),
-                        after: after.map(|e| e.batch().clone()),
-                    },
-                    dep_fact_ids
-                        .into_iter()
-                        .map(|dep_fact_id| {
-                            (
-                                dep_fact_id.clone(),
-                                BatchDiff {
-                                    before: before
-                                        .and_then(|e| e.dependencies().get(&dep_fact_id))
-                                        .cloned(),
-                                    after: after
-                                        .and_then(|e| e.dependencies().get(&dep_fact_id))
-                                        .cloned(),
-                                },
-                            )
-                        })
-                        .collect::<Vec<_>>(),
-                ),
+                BatchDiff {
+                    before: before.map(|e| e.clone()),
+                    after: after.map(|e| e.clone()),
+                },
             )
         }))
     }

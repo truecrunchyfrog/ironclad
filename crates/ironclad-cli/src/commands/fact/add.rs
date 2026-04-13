@@ -10,7 +10,6 @@ pub(super) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()
     let fact = Fact::new(
         fact_id,
         args.description,
-        Default::default(),
         args.cache_lifespan
             .map_or(Duration::ZERO, std::convert::Into::into),
         Default::default(),

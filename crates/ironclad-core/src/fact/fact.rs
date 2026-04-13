@@ -9,7 +9,6 @@ pub struct Fact {
     #[serde(skip)]
     id: FactId,
     description: Option<String>,
-    dependencies: Vec<FactId>,
     recipe: Recipe,
     cache_lifespan: Duration,
 }
@@ -19,14 +18,12 @@ impl Fact {
     pub fn new(
         id: FactId,
         description: Option<String>,
-        dependencies: Vec<FactId>,
         cache_lifespan: Duration,
         recipe: Recipe,
     ) -> Self {
         Self {
             id,
             description,
-            dependencies,
             recipe,
             cache_lifespan,
         }
@@ -48,15 +45,6 @@ impl Fact {
 
     pub fn description_mut(&mut self) -> &mut Option<String> {
         &mut self.description
-    }
-
-    #[must_use]
-    pub fn dependencies(&self) -> &Vec<FactId> {
-        &self.dependencies
-    }
-
-    pub fn dependencies_mut(&mut self) -> &mut Vec<FactId> {
-        &mut self.dependencies
     }
 
     #[must_use]

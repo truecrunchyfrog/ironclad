@@ -4,7 +4,6 @@
 - configuring secrets and using env vars for operations
 - improve op documentation
 - move logic from cli to core
-- remove 'dependency' feature
 - rework cli structure
    - plumbing
      - ic resolve [fact id...]

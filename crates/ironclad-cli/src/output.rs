@@ -5,11 +5,12 @@ use std::{
 
 use console::{Style, style};
 use ironclad_core::{
+    fact::id::FactId,
     sample::Sample,
     snapshot::diff::{BatchDiff, SamplePresence},
 };
 
-use crate::{batch_origin::BatchOrigin, ui};
+use crate::ui;
 
 pub(crate) fn format_sample_diff(sample: &Sample, presence: &SamplePresence) -> String {
     let style = match presence {
@@ -63,15 +64,7 @@ pub(crate) fn format_dirtiness(presences: &[SamplePresence]) -> String {
     )
 }
 
-pub(crate) fn format_batch_diff(origin: &BatchOrigin, diff: &BatchDiff) -> String {
-    let (fact_id, dependent_fact_id) = match origin {
-        BatchOrigin::DirtyFact(fact_id) => (fact_id, None),
-        BatchOrigin::StaleDependencyFact {
-            dependent,
-            dependency,
-        } => (dependency, Some(dependent)),
-    };
-
+pub(crate) fn format_batch_diff(fact_id: &FactId, diff: &BatchDiff) -> String {
     let status = match (diff.before(), diff.after()) {
         (None, Some(_)) => style("add").green(),
         (Some(_), None) => style("rem").red(),
@@ -88,16 +81,7 @@ pub(crate) fn format_batch_diff(origin: &BatchOrigin, diff: &BatchDiff) -> Strin
             .as_slice(),
     );
 
-    format!(
-        "{status} {dirtiness} {fact_id} {}",
-        dependent_fact_id
-            .map(|dependent_fact_id| format!(
-                "{}{dependent_fact_id}{}",
-                style("(dependency of ").dim(),
-                style(")").dim()
-            ))
-            .unwrap_or_default()
-    )
+    format!("{status} {dirtiness} {fact_id}")
 }
 
 pub(crate) enum PromptOption<'a, T> {

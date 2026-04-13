@@ -10,10 +10,6 @@ pub(crate) struct AuditArgs {
     #[arg(short = 'd', long)]
     pub(crate) expand_diff: bool,
 
-    /// Show stale dependencies.
-    #[arg(short = 's', long)]
-    pub(crate) expand_stale: bool,
-
     /// Use cache instead of creating a new audit.
     #[arg(short, long)]
     pub(crate) cache: bool,

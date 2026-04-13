@@ -107,16 +107,6 @@ impl Catalog {
         info!("removing fact at {path:?}");
         fs::remove_file(path)?;
 
-        let facts = self.load_facts()?;
-
-        for mut fact in facts {
-            let deps = fact.dependencies_mut();
-            if deps.contains(id) {
-                *deps = deps.iter().filter(|dep| dep == &id).cloned().collect();
-                self.save_fact(&fact)?;
-            }
-        }
-
         Ok(())
     }
 }

@@ -17,16 +17,11 @@ pub(super) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<(
 
         _ => {
             println!(
-                "{}\ndescription: {}\ndependencies: {}\nsteps: {}",
+                "{}\ndescription: {}\nsteps: {}",
                 fact.id(),
                 fact.description()
                     .clone()
                     .unwrap_or_else(|| String::from("none")),
-                fact.dependencies()
-                    .iter()
-                    .map(ToString::to_string)
-                    .collect::<Vec<_>>()
-                    .join(" "),
                 fact.recipe().steps().len()
             );
         }

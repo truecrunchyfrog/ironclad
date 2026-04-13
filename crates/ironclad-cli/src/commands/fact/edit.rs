@@ -31,19 +31,6 @@ pub(super) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
         catalog.remove_fact(old_id)?;
         *fact.id_mut() = new_id.clone();
         catalog.add_fact(&fact)?;
-
-        for mut dependent_fact in catalog.load_facts()? {
-            let dependencies = dependent_fact.dependencies_mut();
-            if dependencies.contains(fact.id()) {
-                *dependencies = dependencies
-                    .iter()
-                    .filter(|&dependent_fact_id| dependent_fact_id != fact.id())
-                    .cloned()
-                    .collect();
-                dependencies.push(new_id.clone());
-                catalog.save_fact(&dependent_fact)?;
-            }
-        }
     } else {
         catalog.save_fact(&fact)?;
     }

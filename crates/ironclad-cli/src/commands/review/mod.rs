@@ -1,22 +1,20 @@
 use std::time::Duration;
 
 use console::style;
+use ironclad_core::fact::id::FactId;
 
 use crate::{
     args::review::ReviewArgs,
-    batch_origin::BatchOrigin,
     config::Config,
-    helper::{
-        collect_changed_snapshot_diffs, find_batch_diff, resolve_catalog, set_snapshot_batch,
-    },
+    helper::{collect_changed_snapshot_diffs, resolve_catalog, set_snapshot_batch},
     output::{self, DisplayPromptOption, PromptOption, format_batch_diff, format_sample_diff},
     ui,
 };
 
 enum ReviewState<'a> {
     Overview,
-    Batch(&'a BatchOrigin),
-    Sample(&'a BatchOrigin, usize),
+    Batch(&'a FactId),
+    Sample(&'a FactId, usize),
 }
 
 pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()> {
@@ -42,9 +40,11 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
                 let working_diff_baseline = working_baseline.diff(&baseline);
 
                 for ((origin, diff), index) in relevant_diffs.iter().zip(1..).collect::<Vec<_>>() {
-                    let any_changes = find_batch_diff(origin, &working_diff_baseline)
+                    let any_changes = working_diff_baseline
+                        .get(origin)
                         .map_or(false, |d| !d.batches_equal());
-                    let resolved_to_baseline = find_batch_diff(origin, &working_diff_audit)
+                    let resolved_to_baseline = working_diff_audit
+                        .get(origin)
                         .map_or(true, |d| d.batches_equal());
                     println!(
                         "{index} {}{}",
