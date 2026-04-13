@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::{
     fact::{error::FactError, id::FactId},
-    schema::SchemaError,
+    recipe::RecipeError,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -26,7 +26,7 @@ pub enum CatalogError {
     Fact(#[from] FactError),
 
     #[error(transparent)]
-    Schema(#[from] SchemaError),
+    Recipe(#[from] RecipeError),
 
     #[error(transparent)]
     SystemTime(#[from] std::time::SystemTimeError),

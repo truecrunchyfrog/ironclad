@@ -28,7 +28,7 @@ impl Catalog {
                         {
                             entry.batch().clone()
                         }
-                        _ => fact.schema().eval(self)?,
+                        _ => fact.recipe().eval(self)?,
                     },
                 ))
             })

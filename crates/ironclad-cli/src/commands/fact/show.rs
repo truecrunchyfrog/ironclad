@@ -29,7 +29,7 @@ pub(super) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<(
                     .map(ToString::to_string)
                     .collect::<Vec<_>>()
                     .join(" "),
-                fact.schema().stages().len()
+                fact.recipe().stages().len()
             );
         }
     }

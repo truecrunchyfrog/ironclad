@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{fact::id::FactId, schema::Schema};
+use crate::{fact::id::FactId, recipe::Recipe};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Fact {
@@ -10,7 +10,7 @@ pub struct Fact {
     id: FactId,
     description: Option<String>,
     dependencies: Vec<FactId>,
-    schema: Schema,
+    recipe: Recipe,
     cache_lifespan: Duration,
 }
 
@@ -21,13 +21,13 @@ impl Fact {
         description: Option<String>,
         dependencies: Vec<FactId>,
         cache_lifespan: Duration,
-        schema: Schema,
+        recipe: Recipe,
     ) -> Self {
         Self {
             id,
             description,
             dependencies,
-            schema,
+            recipe,
             cache_lifespan,
         }
     }
@@ -60,12 +60,12 @@ impl Fact {
     }
 
     #[must_use]
-    pub fn schema(&self) -> &Schema {
-        &self.schema
+    pub fn recipe(&self) -> &Recipe {
+        &self.recipe
     }
 
-    pub fn schema_mut(&mut self) -> &mut Schema {
-        &mut self.schema
+    pub fn recipe_mut(&mut self) -> &mut Recipe {
+        &mut self.recipe
     }
 
     #[must_use]

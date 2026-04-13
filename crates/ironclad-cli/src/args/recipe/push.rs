@@ -1,8 +1,8 @@
 use clap::Args;
 
-/// Add a stage to a schema.
+/// Add a stage to a recipe.
 #[derive(Args)]
-pub(crate) struct PushSchemaArgs {
+pub(crate) struct PushRecipeArgs {
     /// ID of fact.
     pub(crate) fact_id: String,
 

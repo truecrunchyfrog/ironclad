@@ -3,13 +3,13 @@ use serde::{Deserialize, Serialize};
 use crate::{
     catalog::Catalog,
     sample::batch::Batch,
-    schema::{SchemaError, stage::Stage},
+    recipe::{RecipeError, stage::Stage},
 };
 
 #[derive(Serialize, Deserialize, Default, Debug)]
-pub struct Schema(Vec<Stage>);
+pub struct Recipe(Vec<Stage>);
 
-impl Schema {
+impl Recipe {
     #[must_use]
     pub fn new(stages: Vec<Stage>) -> Self {
         Self(stages)
@@ -20,9 +20,9 @@ impl Schema {
         &self.0
     }
 
-    pub fn add(&mut self, index: Option<usize>, stage: Stage) -> Result<(), SchemaError> {
+    pub fn add(&mut self, index: Option<usize>, stage: Stage) -> Result<(), RecipeError> {
         match index {
-            Some(index) if index > self.0.len() => Err(SchemaError::OutOfRange {
+            Some(index) if index > self.0.len() => Err(RecipeError::OutOfRange {
                 index,
                 length: self.0.len(),
             }),
@@ -37,21 +37,21 @@ impl Schema {
         }
     }
 
-    pub fn remove(&mut self, index: Option<usize>) -> Result<Stage, SchemaError> {
+    pub fn remove(&mut self, index: Option<usize>) -> Result<Stage, RecipeError> {
         match index {
-            Some(index) if index > self.0.len() => Err(SchemaError::OutOfRange {
+            Some(index) if index > self.0.len() => Err(RecipeError::OutOfRange {
                 index,
                 length: self.0.len(),
             }),
             Some(index) => Ok(self.0.remove(index)),
-            None => self.0.pop().ok_or(SchemaError::OutOfRange {
+            None => self.0.pop().ok_or(RecipeError::OutOfRange {
                 index: 0,
                 length: self.0.len(),
             }),
         }
     }
 
-    pub fn eval(&self, catalog: &Catalog) -> Result<Batch, SchemaError> {
+    pub fn eval(&self, catalog: &Catalog) -> Result<Batch, RecipeError> {
         Ok(Batch::new(
             self.0
                 .iter()

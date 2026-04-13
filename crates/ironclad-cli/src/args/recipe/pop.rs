@@ -1,8 +1,8 @@
 use clap::Args;
 
-/// Remove a stage from a schema.
+/// Remove a stage from a recipe.
 #[derive(Args)]
-pub(crate) struct PopSchemaArgs {
+pub(crate) struct PopRecipeArgs {
     /// ID of fact.
     pub(crate) fact_id: Option<String>,
 

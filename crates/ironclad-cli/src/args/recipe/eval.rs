@@ -1,8 +1,8 @@
 use clap::Args;
 
-/// Evaluate a schema.
+/// Evaluate a recipe.
 #[derive(Args)]
-pub(crate) struct EvalSchemaArgs {
+pub(crate) struct EvalRecipeArgs {
     /// ID of fact.
     pub(crate) fact_id: Option<String>,
 

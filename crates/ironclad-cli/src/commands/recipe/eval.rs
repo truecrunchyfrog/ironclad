@@ -2,20 +2,20 @@ use anyhow::anyhow;
 use ironclad_core::sample::Sample;
 
 use crate::{
-    args::schema::eval::EvalSchemaArgs,
+    args::recipe::eval::EvalRecipeArgs,
     config::Config,
     helper::{resolve_catalog, resolve_explicit_or_reused_fact},
     ui,
 };
 
-pub(super) fn dispatch(_config: &Config, args: EvalSchemaArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: EvalRecipeArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
     let fact = resolve_explicit_or_reused_fact(&catalog, args.fact_id)?;
 
-    let stage_len = fact.schema().stages().len();
+    let stage_len = fact.recipe().stages().len();
 
     let eval_stages = fact
-        .schema()
+        .recipe()
         .stages()
         .iter()
         .zip(0..)
@@ -27,7 +27,7 @@ pub(super) fn dispatch(_config: &Config, args: EvalSchemaArgs) -> anyhow::Result
         .collect::<Vec<_>>();
 
     if eval_stages.is_empty() {
-        return Err(anyhow!("empty schema"));
+        return Err(anyhow!("empty recipe"));
     }
 
     eval_stages.into_iter().try_fold(

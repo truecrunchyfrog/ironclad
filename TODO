@@ -28,7 +28,6 @@
 - remove --generate-id
 - remove fact scoping
 - show fact description in diffs
-- rename 'schema' to 'recipe'
 - rename 'stage' to 'step'
 - rename 'pending' to 'candidate'
 - remove fact TTL?

@@ -5,7 +5,7 @@ use crate::{
     catalog::Catalog,
     registry::{self},
     sample::Sample,
-    schema::SchemaError,
+    recipe::RecipeError,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -37,7 +37,7 @@ impl Stage {
         &self,
         catalog: &Catalog,
         input: Vec<Vec<Sample>>,
-    ) -> Result<Vec<Vec<Sample>>, SchemaError> {
+    ) -> Result<Vec<Vec<Sample>>, RecipeError> {
         let operation = registry::resolve_op(&self.operation_id)?;
         Ok(operation.eval(catalog, input, self.options.clone())?)
     }
