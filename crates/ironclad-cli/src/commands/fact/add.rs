@@ -4,7 +4,7 @@ use ironclad_core::fact::{Fact, id::FactId};
 
 use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalog};
 
-pub(super) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()> {
+pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()> {
     let fact_id: FactId = args.fact_id.into();
 
     let fact = Fact::new(

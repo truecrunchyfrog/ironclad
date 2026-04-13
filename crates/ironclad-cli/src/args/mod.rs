@@ -9,8 +9,15 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     args::{
-        audit::AuditArgs, catalog::CatalogCommand, fact::FactCommand, operation::OperationCommand,
-        recipe::RecipeCommand, review::ReviewArgs,
+        audit::AuditArgs,
+        catalog::init::InitCatalogArgs,
+        fact::{
+            add::AddFactArgs, edit::EditFactArgs, list::ListFactArgs, remove::RemoveFactArgs,
+            show::ShowFactArgs,
+        },
+        operation::OperationCommand,
+        recipe::RecipeCommand,
+        review::ReviewArgs,
     },
     config::Config,
 };
@@ -30,16 +37,18 @@ pub(crate) fn parse() -> Cli {
 
 #[derive(Subcommand)]
 pub(crate) enum Command {
-    #[command(subcommand)]
-    Catalog(CatalogCommand),
+    Init(InitCatalogArgs),
 
-    #[command(subcommand)]
-    Fact(FactCommand),
+    Add(AddFactArgs),
+    Edit(EditFactArgs),
+    Remove(RemoveFactArgs),
+    Show(ShowFactArgs),
+    List(ListFactArgs),
 
     #[command(subcommand, name = "op")]
     Operation(OperationCommand),
 
-    #[command(subcommand)]
+    #[command(subcommand, name = "step")]
     Recipe(RecipeCommand),
 
     Audit(AuditArgs),

@@ -2,7 +2,7 @@ use ironclad_core::fact::id::FactId;
 
 use crate::{args::fact::show::ShowFactArgs, config::Config, helper::resolve_catalog};
 
-pub(super) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<()> {
+pub(crate) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
     let fact = catalog.load_fact_for_id(&FactId::from(args.fact_id))?;
 

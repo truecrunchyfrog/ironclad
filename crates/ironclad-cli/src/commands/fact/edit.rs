@@ -4,7 +4,7 @@ use ironclad_core::fact::id::FactId;
 
 use crate::{args::fact::edit::EditFactArgs, config::Config, helper::resolve_catalog};
 
-pub(super) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<()> {
+pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
     let mut fact = catalog.load_fact_for_id(&FactId::from(args.fact_id))?;
 

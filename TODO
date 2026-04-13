@@ -10,15 +10,15 @@
      - ic diff <snapshot before> < <snapshot after>
      - ic apply <snapshot before> [fact id...] < <snapshot after>
    - porcelain
-     - ic init
-     - ic add <fact id>
-     - ic show <fact id>
-     - ic edit <fact id>
-     - ic remove <fact id>
-     - ic list
+     # - ic init
+     # - ic add <fact id>
+     # - ic show <fact id>
+     # - ic edit <fact id>
+     # - ic remove <fact id>
+     # - ic list
      - ic step add <fact id> <operation id> -- --option value
-     - ic step remove <fact id> <index>
-     - ic step list <fact id>
+     # - ic step remove <fact id> <index>
+     # - ic step list <fact id>
      - ic snapshot baseline [fact id...]
      - ic snapshot candidate [fact id...]
      - ic audit [fact id...]
