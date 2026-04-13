@@ -1,12 +1,12 @@
 use crate::{
     args::schema::list::ListSchemaArgs,
     config::Config,
-    helper::{resolve_cluster, resolve_explicit_or_reused_fact},
+    helper::{resolve_catalog, resolve_explicit_or_reused_fact},
 };
 
 pub(super) fn dispatch(_config: &Config, args: ListSchemaArgs) -> anyhow::Result<()> {
-    let cluster = resolve_cluster()?;
-    let fact = resolve_explicit_or_reused_fact(&cluster, args.fact_id)?;
+    let catalog = resolve_catalog()?;
+    let fact = resolve_explicit_or_reused_fact(&catalog, args.fact_id)?;
     let stages = fact.schema().stages();
 
     if args.raw {

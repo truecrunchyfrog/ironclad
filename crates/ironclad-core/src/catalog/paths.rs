@@ -1,10 +1,10 @@
 use std::path::{Path, PathBuf};
 
-use crate::{fact::id::FactId, cluster::cluster::Cluster};
+use crate::{fact::id::FactId, catalog::catalog::Catalog};
 
-impl Cluster {
+impl Catalog {
     #[must_use]
-    pub fn cluster_dir(path: &Path) -> PathBuf {
+    pub fn catalog_dir(path: &Path) -> PathBuf {
         path.join(".ironclad")
     }
 

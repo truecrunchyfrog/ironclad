@@ -1,5 +1,5 @@
 pub mod fact;
-pub mod cluster;
+pub mod catalog;
 pub mod operation;
 pub mod registry;
 pub mod sample;

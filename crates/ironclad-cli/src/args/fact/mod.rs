@@ -12,7 +12,7 @@ use crate::args::fact::{
     reuse::ReuseFactArgs, show::ShowFactArgs,
 };
 
-/// Manage facts of the cluster.
+/// Manage facts of the catalog.
 #[derive(Subcommand)]
 pub(crate) enum FactCommand {
     #[command(name = "use")]

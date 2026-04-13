@@ -1,6 +1,6 @@
 mod audit;
 mod fact;
-mod cluster;
+mod catalog;
 mod dependency;
 mod operation;
 mod review;
@@ -10,7 +10,7 @@ use crate::{args::Command, config::Config};
 
 pub(super) fn dispatch(config: &Config, command: Command) -> anyhow::Result<()> {
     match command {
-        Command::Cluster(cmd) => cluster::dispatch(config, cmd),
+        Command::Catalog(cmd) => catalog::dispatch(config, cmd),
         Command::Fact(cmd) => fact::dispatch(config, cmd),
         Command::Dependency(cmd) => dependency::dispatch(config, cmd),
         Command::Schema(cmd) => schema::dispatch(config, cmd),

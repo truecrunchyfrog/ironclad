@@ -6,13 +6,13 @@ use std::{
 };
 
 use anyhow::anyhow;
-use ironclad_core::{fact::id::FactId, cluster::Cluster};
+use ironclad_core::{fact::id::FactId, catalog::Catalog};
 use log::info;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ReuseFact {
-    cluster_dir: PathBuf,
+    catalog_dir: PathBuf,
     fact_id: FactId,
     expire: SystemTime,
 }
@@ -23,7 +23,7 @@ fn reuse_fact_path() -> anyhow::Result<PathBuf> {
         .ok_or_else(|| anyhow!("user has no home directory. cannot get file path for fact reuse."))
 }
 
-pub(crate) fn get(cluster: &Cluster) -> anyhow::Result<Option<FactId>> {
+pub(crate) fn get(catalog: &Catalog) -> anyhow::Result<Option<FactId>> {
     let read_file = fs::read_to_string(reuse_fact_path()?);
 
     let default_fact = match read_file {
@@ -38,7 +38,7 @@ pub(crate) fn get(cluster: &Cluster) -> anyhow::Result<Option<FactId>> {
         return Ok(None);
     }
 
-    if default_fact.cluster_dir != cluster.dir() {
+    if default_fact.catalog_dir != catalog.dir() {
         return Ok(None);
     }
 
@@ -46,13 +46,13 @@ pub(crate) fn get(cluster: &Cluster) -> anyhow::Result<Option<FactId>> {
 }
 
 pub(crate) fn set(
-    cluster: &Cluster,
+    catalog: &Catalog,
     fact_id: FactId,
     expire: Option<SystemTime>,
 ) -> anyhow::Result<()> {
     let default_fact_path = reuse_fact_path()?;
     let default_fact = ReuseFact {
-        cluster_dir: cluster.dir().to_path_buf(),
+        catalog_dir: catalog.dir().to_path_buf(),
         fact_id,
         expire: expire.unwrap_or_else(|| SystemTime::now() + Duration::from_mins(30)),
     };

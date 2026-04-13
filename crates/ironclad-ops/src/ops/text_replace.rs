@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use ironclad_core::{
-    cluster::Cluster,
+    catalog::Catalog,
     operation::{SampleEvolution, TypedOperation},
     sample::{Sample, Trace},
 };
@@ -33,7 +33,7 @@ impl TypedOperation for TextReplace {
 
     fn eval_sample(
         &self,
-        _cluster: &Cluster,
+        _catalog: &Catalog,
         input: Sample,
         options: Self::Options,
     ) -> Result<SampleEvolution, Self::Error> {

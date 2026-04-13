@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use ironclad_core::{
-    cluster::Cluster,
+    catalog::Catalog,
     operation::TypedOperation,
     sample::{Sample, Trace},
 };
@@ -41,7 +41,7 @@ impl TypedOperation for HeadNetHttp {
 
     fn eval(
         &self,
-        _cluster: &Cluster,
+        _catalog: &Catalog,
         _input: Vec<Vec<Sample>>,
         options: Self::Options,
     ) -> Result<Vec<Vec<Sample>>, Self::Error> {

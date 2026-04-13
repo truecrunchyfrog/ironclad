@@ -5,12 +5,12 @@ use ironclad_core::fact::id::FactId;
 use crate::{
     args::fact::edit::EditFactArgs,
     config::Config,
-    helper::{resolve_cluster, resolve_explicit_or_reused_fact},
+    helper::{resolve_catalog, resolve_explicit_or_reused_fact},
 };
 
 pub(super) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<()> {
-    let cluster = resolve_cluster()?;
-    let mut fact = resolve_explicit_or_reused_fact(&cluster, args.fact_id)?;
+    let catalog = resolve_catalog()?;
+    let mut fact = resolve_explicit_or_reused_fact(&catalog, args.fact_id)?;
 
     if let Some(description) = args.description {
         *fact.description_mut() = Some(description);
@@ -32,11 +32,11 @@ pub(super) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
         let old_id = fact.id();
         let new_id: FactId = new_id.into();
 
-        cluster.remove_fact(old_id)?;
+        catalog.remove_fact(old_id)?;
         *fact.id_mut() = new_id.clone();
-        cluster.add_fact(&fact)?;
+        catalog.add_fact(&fact)?;
 
-        for mut dependent_fact in cluster.load_facts()? {
+        for mut dependent_fact in catalog.load_facts()? {
             let dependencies = dependent_fact.dependencies_mut();
             if dependencies.contains(fact.id()) {
                 *dependencies = dependencies
@@ -45,11 +45,11 @@ pub(super) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
                     .cloned()
                     .collect();
                 dependencies.push(new_id.clone());
-                cluster.save_fact(&dependent_fact)?;
+                catalog.save_fact(&dependent_fact)?;
             }
         }
     } else {
-        cluster.save_fact(&fact)?;
+        catalog.save_fact(&fact)?;
     }
 
     println!("{}", fact.id());

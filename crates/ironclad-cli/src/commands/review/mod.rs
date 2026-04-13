@@ -7,7 +7,7 @@ use crate::{
     batch_origin::BatchOrigin,
     config::Config,
     helper::{
-        collect_changed_snapshot_diffs, find_batch_diff, resolve_cluster, set_snapshot_batch,
+        collect_changed_snapshot_diffs, find_batch_diff, resolve_catalog, set_snapshot_batch,
     },
     output::{self, DisplayPromptOption, PromptOption, format_batch_diff, format_sample_diff},
     ui,
@@ -20,10 +20,10 @@ enum ReviewState<'a> {
 }
 
 pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()> {
-    let cluster = resolve_cluster()?;
+    let catalog = resolve_catalog()?;
 
-    let audit = cluster.load_pending_snapshot().unwrap_or_default();
-    let baseline = cluster.load_baseline_snapshot().unwrap_or_default();
+    let audit = catalog.load_pending_snapshot().unwrap_or_default();
+    let baseline = catalog.load_baseline_snapshot().unwrap_or_default();
     let mut working_baseline = baseline.clone();
 
     let relevant_diffs = collect_changed_snapshot_diffs(audit.diff(&baseline));
@@ -119,7 +119,7 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
                         }
                     }
                     OverviewPromptResponse::QuitWithSave => {
-                        cluster.save_baseline_snapshot(working_baseline)?;
+                        catalog.save_baseline_snapshot(working_baseline)?;
                         return Ok(());
                     }
                     OverviewPromptResponse::QuitWithoutSave => return Ok(()),

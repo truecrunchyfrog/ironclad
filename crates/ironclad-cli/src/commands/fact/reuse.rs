@@ -1,11 +1,11 @@
 use std::time::SystemTime;
 
 use crate::{
-    args::fact::reuse::ReuseFactArgs, config::Config, helper::resolve_cluster, reuse_fact, ui,
+    args::fact::reuse::ReuseFactArgs, config::Config, helper::resolve_catalog, reuse_fact, ui,
 };
 
 pub(super) fn dispatch(_config: &Config, args: ReuseFactArgs) -> anyhow::Result<()> {
-    let cluster = resolve_cluster()?;
+    let catalog = resolve_catalog()?;
 
     match args {
         ReuseFactArgs {
@@ -13,18 +13,18 @@ pub(super) fn dispatch(_config: &Config, args: ReuseFactArgs) -> anyhow::Result<
             duration,
             ..
         } => {
-            let fact_id = cluster.resolve_fact_id(&fact_id)?;
+            let fact_id = catalog.resolve_fact_id(&fact_id)?;
 
             println!("{fact_id}");
 
             reuse_fact::set(
-                &cluster,
+                &catalog,
                 fact_id,
                 duration.map(|d| SystemTime::now() + d.into()),
             )?;
         }
 
-        ReuseFactArgs { unset: true, .. } => match reuse_fact::get(&cluster)? {
+        ReuseFactArgs { unset: true, .. } => match reuse_fact::get(&catalog)? {
             Some(fact_id) => {
                 println!("{fact_id}");
                 reuse_fact::remove()?;
@@ -35,7 +35,7 @@ pub(super) fn dispatch(_config: &Config, args: ReuseFactArgs) -> anyhow::Result<
             }
         },
 
-        ReuseFactArgs { .. } => match reuse_fact::get(&cluster)? {
+        ReuseFactArgs { .. } => match reuse_fact::get(&catalog)? {
             Some(fact_id) => println!("{fact_id}"),
             None => eprintln!("no reuse fact set"),
         },

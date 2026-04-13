@@ -4,13 +4,13 @@ use rayon::iter::{FromParallelIterator, IntoParallelRefIterator, ParallelIterato
 
 use crate::{
     fact::id::FactId,
-    cluster::{Cluster, error::ClusterError},
+    catalog::{Catalog, error::CatalogError},
     sample::batch::Batch,
     snapshot::{Snapshot, SnapshotEntry},
 };
 
-impl Cluster {
-    pub fn capture_snapshot(&self, cache: Option<Snapshot>) -> Result<Snapshot, ClusterError> {
+impl Catalog {
+    pub fn capture_snapshot(&self, cache: Option<Snapshot>) -> Result<Snapshot, CatalogError> {
         let facts = self.load_facts()?;
 
         let batches = facts
@@ -32,12 +32,12 @@ impl Cluster {
                     },
                 ))
             })
-            .collect::<Result<Vec<_>, ClusterError>>()?;
+            .collect::<Result<Vec<_>, CatalogError>>()?;
 
-        let fact_dependencies = |deps: &[FactId]| -> Result<HashMap<FactId, Batch>, ClusterError> {
+        let fact_dependencies = |deps: &[FactId]| -> Result<HashMap<FactId, Batch>, CatalogError> {
             Ok(HashMap::from_iter(
                 deps.iter()
-                    .map(|dep_fact_id| -> Result<(FactId, Batch), ClusterError> {
+                    .map(|dep_fact_id| -> Result<(FactId, Batch), CatalogError> {
                         Ok((
                             dep_fact_id.clone(),
                             batches
@@ -50,11 +50,11 @@ impl Cluster {
                                     }
                                 })
                                 .ok_or_else(|| {
-                                    ClusterError::DependencyFactNotFound(dep_fact_id.clone())
+                                    CatalogError::DependencyFactNotFound(dep_fact_id.clone())
                                 })?,
                         ))
                     })
-                    .collect::<Result<Vec<_>, ClusterError>>()?,
+                    .collect::<Result<Vec<_>, CatalogError>>()?,
             ))
         };
 
@@ -67,32 +67,32 @@ impl Cluster {
                         SnapshotEntry::new(batch.to_owned(), fact_dependencies(deps)?),
                     ))
                 })
-                .collect::<Result<Vec<_>, ClusterError>>()?,
+                .collect::<Result<Vec<_>, CatalogError>>()?,
         )))
     }
 
-    fn load_snapshot(&self, path: &Path) -> Result<Snapshot, ClusterError> {
+    fn load_snapshot(&self, path: &Path) -> Result<Snapshot, CatalogError> {
         Ok(serde_json::from_str(&fs::read_to_string(path)?)?)
     }
 
-    fn save_snapshot(&self, path: &Path, snapshot: Snapshot) -> Result<(), ClusterError> {
+    fn save_snapshot(&self, path: &Path, snapshot: Snapshot) -> Result<(), CatalogError> {
         fs::write(path, serde_json::to_string_pretty(&snapshot)?)?;
         Ok(())
     }
 
-    pub fn load_pending_snapshot(&self) -> Result<Snapshot, ClusterError> {
+    pub fn load_pending_snapshot(&self) -> Result<Snapshot, CatalogError> {
         self.load_snapshot(&self.snapshot_pending_path())
     }
 
-    pub fn save_pending_snapshot(&self, snapshot: Snapshot) -> Result<(), ClusterError> {
+    pub fn save_pending_snapshot(&self, snapshot: Snapshot) -> Result<(), CatalogError> {
         self.save_snapshot(&self.snapshot_pending_path(), snapshot)
     }
 
-    pub fn load_baseline_snapshot(&self) -> Result<Snapshot, ClusterError> {
+    pub fn load_baseline_snapshot(&self) -> Result<Snapshot, CatalogError> {
         self.load_snapshot(&self.snapshot_baseline_path())
     }
 
-    pub fn save_baseline_snapshot(&self, snapshot: Snapshot) -> Result<(), ClusterError> {
+    pub fn save_baseline_snapshot(&self, snapshot: Snapshot) -> Result<(), CatalogError> {
         self.save_snapshot(&self.snapshot_baseline_path(), snapshot)
     }
 }

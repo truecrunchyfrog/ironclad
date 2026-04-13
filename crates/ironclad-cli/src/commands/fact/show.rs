@@ -1,12 +1,12 @@
 use crate::{
     args::fact::show::ShowFactArgs,
     config::Config,
-    helper::{resolve_cluster, resolve_explicit_or_reused_fact},
+    helper::{resolve_catalog, resolve_explicit_or_reused_fact},
 };
 
 pub(super) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<()> {
-    let cluster = resolve_cluster()?;
-    let fact = resolve_explicit_or_reused_fact(&cluster, args.fact_id)?;
+    let catalog = resolve_catalog()?;
+    let fact = resolve_explicit_or_reused_fact(&catalog, args.fact_id)?;
 
     match args {
         ShowFactArgs { raw: true, .. } => {
@@ -14,7 +14,7 @@ pub(super) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<(
         }
 
         ShowFactArgs { path: true, .. } => {
-            println!("{}", cluster.fact_path(fact.id()).to_string_lossy());
+            println!("{}", catalog.fact_path(fact.id()).to_string_lossy());
         }
 
         _ => {

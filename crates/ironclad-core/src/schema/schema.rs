@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    cluster::Cluster,
+    catalog::Catalog,
     sample::batch::Batch,
     schema::{SchemaError, stage::Stage},
 };
@@ -51,11 +51,11 @@ impl Schema {
         }
     }
 
-    pub fn eval(&self, cluster: &Cluster) -> Result<Batch, SchemaError> {
+    pub fn eval(&self, catalog: &Catalog) -> Result<Batch, SchemaError> {
         Ok(Batch::new(
             self.0
                 .iter()
-                .try_fold(Vec::new(), |input, stage| stage.eval(cluster, input))?
+                .try_fold(Vec::new(), |input, stage| stage.eval(catalog, input))?
                 .into_iter()
                 .flatten()
                 .collect::<Vec<_>>(),

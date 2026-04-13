@@ -1,8 +1,8 @@
-use crate::{args::fact::list::ListFactArgs, config::Config, helper::resolve_cluster};
+use crate::{args::fact::list::ListFactArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: ListFactArgs) -> anyhow::Result<()> {
-    let cluster = resolve_cluster()?;
-    let facts = cluster.load_facts()?;
+    let catalog = resolve_catalog()?;
+    let facts = catalog.load_facts()?;
 
     let fact_id_width = facts
         .iter()

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use chumsky::prelude::*;
 use ironclad_core::{
-    cluster::Cluster,
+    catalog::Catalog,
     operation::{SampleEvolution, TypedOperation},
     sample::{Sample, Trace},
 };
@@ -31,7 +31,7 @@ impl TypedOperation for TextTag {
 
     fn eval_sample(
         &self,
-        _cluster: &Cluster,
+        _catalog: &Catalog,
         input: Sample,
         options: Self::Options,
     ) -> Result<SampleEvolution, Self::Error> {

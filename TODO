@@ -30,7 +30,6 @@
 - show fact description in diffs
 - rename 'schema' to 'recipe'
 - rename 'stage' to 'step'
-- rename 'cluster' to 'catalog'
 - rename 'pending' to 'candidate'
 - remove fact TTL?
 - use only one batch while working through a pipeline, instead of grouping

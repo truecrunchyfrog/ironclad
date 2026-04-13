@@ -1,20 +1,20 @@
 use crate::{
     args::dependency::list::ListDependencyArgs,
     config::Config,
-    helper::{resolve_cluster, resolve_explicit_or_reused_fact_id},
+    helper::{resolve_catalog, resolve_explicit_or_reused_fact_id},
 };
 
 pub(super) fn dispatch(_config: &Config, args: ListDependencyArgs) -> anyhow::Result<()> {
-    let cluster = resolve_cluster()?;
+    let catalog = resolve_catalog()?;
 
-    let all_facts = cluster.load_facts()?;
+    let all_facts = catalog.load_facts()?;
 
     let facts = if args.all {
         all_facts.iter().collect()
     } else {
         args.fact_id
             .into_iter()
-            .map(|fact_id| resolve_explicit_or_reused_fact_id(&cluster, Some(fact_id)))
+            .map(|fact_id| resolve_explicit_or_reused_fact_id(&catalog, Some(fact_id)))
             .collect::<anyhow::Result<Vec<_>>>()?
             .into_iter()
             .map(|fact_id| all_facts.iter().find(|fact| fact.id() == &fact_id).unwrap())

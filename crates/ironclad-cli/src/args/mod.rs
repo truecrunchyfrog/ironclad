@@ -1,6 +1,6 @@
 pub(crate) mod audit;
 pub(crate) mod fact;
-pub(crate) mod cluster;
+pub(crate) mod catalog;
 pub(crate) mod dependency;
 pub(crate) mod operation;
 pub(crate) mod review;
@@ -10,7 +10,7 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     args::{
-        audit::AuditArgs, fact::FactCommand, cluster::ClusterCommand,
+        audit::AuditArgs, fact::FactCommand, catalog::CatalogCommand,
         dependency::DependencyCommand, operation::OperationCommand, review::ReviewArgs,
         schema::SchemaCommand,
     },
@@ -33,7 +33,7 @@ pub(crate) fn parse() -> Cli {
 #[derive(Subcommand)]
 pub(crate) enum Command {
     #[command(subcommand)]
-    Cluster(ClusterCommand),
+    Catalog(CatalogCommand),
 
     #[command(subcommand)]
     Fact(FactCommand),

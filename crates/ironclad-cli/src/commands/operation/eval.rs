@@ -2,10 +2,10 @@ use std::io::{Read, stdin};
 
 use ironclad_core::{registry, sample::Sample};
 
-use crate::{args::operation::eval::EvalOperationArgs, config::Config, helper::resolve_cluster};
+use crate::{args::operation::eval::EvalOperationArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: EvalOperationArgs) -> anyhow::Result<()> {
-    let cluster = resolve_cluster()?;
+    let catalog = resolve_catalog()?;
 
     let options = match args.options {
         Some(serialized) => serde_json::from_str::<serde_json::Value>(&serialized)?,
@@ -22,7 +22,7 @@ pub(super) fn dispatch(_config: &Config, args: EvalOperationArgs) -> anyhow::Res
         serde_json::from_slice::<Vec<Vec<Sample>>>(buf.as_slice())?
     };
 
-    let output = operation.eval(&cluster, input, options)?;
+    let output = operation.eval(&catalog, input, options)?;
 
     println!("{}", serde_json::to_string_pretty(&output)?);
 

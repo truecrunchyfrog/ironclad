@@ -1,10 +1,10 @@
 use std::path::{Path, PathBuf};
 
-pub struct Cluster {
+pub struct Catalog {
     dir: PathBuf,
 }
 
-impl Cluster {
+impl Catalog {
     #[must_use]
     pub fn new(dir: PathBuf) -> Self {
         Self { dir }

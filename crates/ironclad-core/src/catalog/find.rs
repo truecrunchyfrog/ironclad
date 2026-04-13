@@ -1,13 +1,13 @@
 use std::{ffi::OsStr, path::Path};
 
-use crate::cluster::{Cluster, error::ClusterError};
+use crate::catalog::{Catalog, error::CatalogError};
 
-impl Cluster {
-    pub(crate) fn is_cluster_dir(path: &Path) -> bool {
+impl Catalog {
+    pub(crate) fn is_catalog_dir(path: &Path) -> bool {
         path.file_name() == Some(OsStr::new(".ironclad")) && path.is_dir()
     }
 
-    pub fn find_for_working_dir(working_dir: &Path) -> Result<Cluster, ClusterError> {
+    pub fn find_for_working_dir(working_dir: &Path) -> Result<Catalog, CatalogError> {
         working_dir
             .ancestors()
             .find_map(|ancestor| {
@@ -15,10 +15,10 @@ impl Cluster {
                     read_dir
                         .flatten()
                         .map(|child| child.path())
-                        .find(|child| Cluster::is_cluster_dir(child))
-                        .map(Cluster::new)
+                        .find(|child| Catalog::is_catalog_dir(child))
+                        .map(Catalog::new)
                 })
             })
-            .ok_or_else(|| ClusterError::PathNotFound(working_dir.to_path_buf()))
+            .ok_or_else(|| CatalogError::PathNotFound(working_dir.to_path_buf()))
     }
 }

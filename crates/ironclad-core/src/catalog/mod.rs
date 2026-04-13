@@ -1,9 +1,9 @@
 mod facts;
-mod cluster;
+mod catalog;
 pub(crate) mod error;
 pub mod find;
 mod init;
 mod paths;
 mod snapshots;
 
-pub use cluster::Cluster;
+pub use catalog::Catalog;

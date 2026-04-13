@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::{
-    cluster::Cluster,
+    catalog::Catalog,
     registry::{self},
     sample::Sample,
     schema::SchemaError,
@@ -35,10 +35,10 @@ impl Stage {
 
     pub fn eval(
         &self,
-        cluster: &Cluster,
+        catalog: &Catalog,
         input: Vec<Vec<Sample>>,
     ) -> Result<Vec<Vec<Sample>>, SchemaError> {
         let operation = registry::resolve_op(&self.operation_id)?;
-        Ok(operation.eval(cluster, input, self.options.clone())?)
+        Ok(operation.eval(catalog, input, self.options.clone())?)
     }
 }

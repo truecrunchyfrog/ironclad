@@ -7,10 +7,10 @@ use log::{info, warn};
 
 use crate::{
     fact::{Fact, error::FactError, id::FactId},
-    cluster::{cluster::Cluster, error::ClusterError},
+    catalog::{catalog::Catalog, error::CatalogError},
 };
 
-impl Cluster {
+impl Catalog {
     fn fact_files(&self) -> Vec<DirEntry> {
         let facts_dir = self.facts_dir();
         let entries = facts_dir
@@ -69,7 +69,7 @@ impl Cluster {
         self.load_fact_for_id(&self.resolve_fact_id(id)?)
     }
 
-    pub fn load_facts(&self) -> Result<Vec<Fact>, ClusterError> {
+    pub fn load_facts(&self) -> Result<Vec<Fact>, CatalogError> {
         Ok(self
             .fact_files()
             .iter()
@@ -119,7 +119,7 @@ impl Cluster {
         Ok(())
     }
 
-    pub fn remove_fact(&self, id: &FactId) -> Result<(), ClusterError> {
+    pub fn remove_fact(&self, id: &FactId) -> Result<(), CatalogError> {
         let path = self.fact_path(id);
 
         if !path.try_exists()? {
