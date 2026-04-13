@@ -1,6 +1,5 @@
 use std::{fmt::Display, path::Path, str::FromStr};
 
-use rand::{RngCore, rngs::ThreadRng};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Hash)]
@@ -17,17 +16,11 @@ impl FactId {
                 .to_string(),
         )
     }
-
-    pub fn random(rng: Option<ThreadRng>) -> Self {
-        let mut bytes = [0u8; 4];
-        rng.unwrap_or_else(rand::rng).fill_bytes(&mut bytes);
-        Self(hex::encode(bytes))
-    }
 }
 
 impl Default for FactId {
     fn default() -> Self {
-        Self::random(None)
+        Self(String::from("[no id assigned]"))
     }
 }
 

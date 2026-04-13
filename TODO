@@ -25,7 +25,6 @@
      - ic audit [fact id...]
      - ic inspect [fact id...]
      - ic accept <fact id...>
-- remove --generate-id
 - remove fact scoping
 - show fact description in diffs
 - remove fact TTL?
