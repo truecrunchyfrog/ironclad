@@ -3,8 +3,8 @@ use clap::Args;
 /// Add a stage to a schema.
 #[derive(Args)]
 pub(crate) struct PushSchemaArgs {
-    /// ID of cell.
-    pub(crate) cell_id: String,
+    /// ID of fact.
+    pub(crate) fact_id: String,
 
     /// ID of operation.
     pub(crate) operation_id: String,

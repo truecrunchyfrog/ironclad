@@ -64,9 +64,9 @@ pub(crate) fn format_dirtiness(presences: &[SamplePresence]) -> String {
 }
 
 pub(crate) fn format_batch_diff(origin: &BatchOrigin, diff: &BatchDiff) -> String {
-    let (cell_id, dependent_cell_id) = match origin {
-        BatchOrigin::DirtyCell(cell_id) => (cell_id, None),
-        BatchOrigin::StaleDependencyCell {
+    let (fact_id, dependent_fact_id) = match origin {
+        BatchOrigin::DirtyFact(fact_id) => (fact_id, None),
+        BatchOrigin::StaleDependencyFact {
             dependent,
             dependency,
         } => (dependency, Some(dependent)),
@@ -89,10 +89,10 @@ pub(crate) fn format_batch_diff(origin: &BatchOrigin, diff: &BatchDiff) -> Strin
     );
 
     format!(
-        "{status} {dirtiness} {cell_id} {}",
-        dependent_cell_id
-            .map(|dependent_cell_id| format!(
-                "{}{dependent_cell_id}{}",
+        "{status} {dirtiness} {fact_id} {}",
+        dependent_fact_id
+            .map(|dependent_fact_id| format!(
+                "{}{dependent_fact_id}{}",
                 style("(dependency of ").dim(),
                 style(")").dim()
             ))

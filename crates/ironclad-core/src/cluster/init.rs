@@ -34,9 +34,9 @@ fn populate_cluster_dir(cluster: &Cluster) -> Result<(), ClusterError> {
         fs::write(gitignore_path, GITIGNORE_CONTENT)?;
 
         {
-            let cells_dir = cluster.cells_dir();
-            info!("creating {cells_dir:#?}");
-            fs::create_dir(cells_dir)?;
+            let facts_dir = cluster.facts_dir();
+            info!("creating {facts_dir:#?}");
+            fs::create_dir(facts_dir)?;
         }
 
         {

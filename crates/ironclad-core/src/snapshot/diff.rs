@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::{
-    cell::id::CellId,
+    fact::id::FactId,
     sample::{Sample, batch::Batch},
     snapshot::Snapshot,
 };
@@ -78,17 +78,17 @@ impl BatchDiff {
 
 impl Snapshot {
     #[must_use]
-    pub fn diff(&self, before: &Self) -> HashMap<CellId, (BatchDiff, Vec<(CellId, BatchDiff)>)> {
+    pub fn diff(&self, before: &Self) -> HashMap<FactId, (BatchDiff, Vec<(FactId, BatchDiff)>)> {
         let before = before.entries();
         let after = self.entries();
 
-        let cell_ids = HashSet::<CellId>::from_iter(before.keys().chain(after.keys()).cloned());
+        let fact_ids = HashSet::<FactId>::from_iter(before.keys().chain(after.keys()).cloned());
 
-        HashMap::from_iter(cell_ids.into_iter().map(|cell_id| {
-            let before = before.get(&cell_id);
-            let after = after.get(&cell_id);
+        HashMap::from_iter(fact_ids.into_iter().map(|fact_id| {
+            let before = before.get(&fact_id);
+            let after = after.get(&fact_id);
 
-            let dep_cell_ids = HashSet::<CellId>::from_iter(
+            let dep_fact_ids = HashSet::<FactId>::from_iter(
                 before
                     .iter()
                     .chain(after.iter())
@@ -97,23 +97,23 @@ impl Snapshot {
             );
 
             (
-                cell_id,
+                fact_id,
                 (
                     BatchDiff {
                         before: before.map(|e| e.batch().clone()),
                         after: after.map(|e| e.batch().clone()),
                     },
-                    dep_cell_ids
+                    dep_fact_ids
                         .into_iter()
-                        .map(|dep_cell_id| {
+                        .map(|dep_fact_id| {
                             (
-                                dep_cell_id.clone(),
+                                dep_fact_id.clone(),
                                 BatchDiff {
                                     before: before
-                                        .and_then(|e| e.dependencies().get(&dep_cell_id))
+                                        .and_then(|e| e.dependencies().get(&dep_fact_id))
                                         .cloned(),
                                     after: after
-                                        .and_then(|e| e.dependencies().get(&dep_cell_id))
+                                        .and_then(|e| e.dependencies().get(&dep_fact_id))
                                         .cloned(),
                                 },
                             )

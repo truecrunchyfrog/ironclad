@@ -2,17 +2,17 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{cell::id::CellId, sample::batch::Batch};
+use crate::{fact::id::FactId, sample::batch::Batch};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct SnapshotEntry {
     batch: Batch,
-    dependencies: HashMap<CellId, Batch>,
+    dependencies: HashMap<FactId, Batch>,
 }
 
 impl SnapshotEntry {
     #[must_use]
-    pub fn new(batch: Batch, dependencies: HashMap<CellId, Batch>) -> Self {
+    pub fn new(batch: Batch, dependencies: HashMap<FactId, Batch>) -> Self {
         Self {
             batch,
             dependencies,
@@ -29,11 +29,11 @@ impl SnapshotEntry {
     }
 
     #[must_use]
-    pub fn dependencies(&self) -> &HashMap<CellId, Batch> {
+    pub fn dependencies(&self) -> &HashMap<FactId, Batch> {
         &self.dependencies
     }
 
-    pub fn dependencies_mut(&mut self) -> &mut HashMap<CellId, Batch> {
+    pub fn dependencies_mut(&mut self) -> &mut HashMap<FactId, Batch> {
         &mut self.dependencies
     }
 }

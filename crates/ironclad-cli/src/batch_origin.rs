@@ -1,10 +1,10 @@
-use ironclad_core::cell::id::CellId;
+use ironclad_core::fact::id::FactId;
 
 #[derive(PartialEq)]
 pub(crate) enum BatchOrigin {
-    DirtyCell(CellId),
-    StaleDependencyCell {
-        dependency: CellId,
-        dependent: CellId,
+    DirtyFact(FactId),
+    StaleDependencyFact {
+        dependency: FactId,
+        dependent: FactId,
     },
 }

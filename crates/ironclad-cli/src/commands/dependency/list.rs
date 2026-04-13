@@ -1,43 +1,43 @@
 use crate::{
     args::dependency::list::ListDependencyArgs,
     config::Config,
-    helper::{resolve_cluster, resolve_explicit_or_reused_cell_id},
+    helper::{resolve_cluster, resolve_explicit_or_reused_fact_id},
 };
 
 pub(super) fn dispatch(_config: &Config, args: ListDependencyArgs) -> anyhow::Result<()> {
     let cluster = resolve_cluster()?;
 
-    let all_cells = cluster.load_cells()?;
+    let all_facts = cluster.load_facts()?;
 
-    let cells = if args.all {
-        all_cells.iter().collect()
+    let facts = if args.all {
+        all_facts.iter().collect()
     } else {
-        args.cell_id
+        args.fact_id
             .into_iter()
-            .map(|cell_id| resolve_explicit_or_reused_cell_id(&cluster, Some(cell_id)))
+            .map(|fact_id| resolve_explicit_or_reused_fact_id(&cluster, Some(fact_id)))
             .collect::<anyhow::Result<Vec<_>>>()?
             .into_iter()
-            .map(|cell_id| all_cells.iter().find(|cell| cell.id() == &cell_id).unwrap())
+            .map(|fact_id| all_facts.iter().find(|fact| fact.id() == &fact_id).unwrap())
             .collect::<Vec<_>>()
     };
 
-    for cell in &cells {
-        let related_cell_ids = if args.invert {
-            &all_cells
+    for fact in &facts {
+        let related_fact_ids = if args.invert {
+            &all_facts
                 .iter()
-                .filter(|dependent_cell| dependent_cell.dependencies().contains(cell.id()))
-                .map(|cell| cell.id().clone())
+                .filter(|dependent_fact| dependent_fact.dependencies().contains(fact.id()))
+                .map(|fact| fact.id().clone())
                 .collect::<Vec<_>>()
         } else {
-            cell.dependencies()
+            fact.dependencies()
         };
 
-        if !(related_cell_ids.is_empty() && args.skip_empty) {
+        if !(related_fact_ids.is_empty() && args.skip_empty) {
             println!(
                 "{} {}: {}",
-                cell.id(),
+                fact.id(),
                 if args.invert { "needed by" } else { "needs" },
-                related_cell_ids
+                related_fact_ids
                     .iter()
                     .map(std::string::ToString::to_string)
                     .collect::<Vec<_>>()

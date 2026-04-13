@@ -27,8 +27,7 @@
      - ic accept <fact id...>
 - remove --generate-id
 - remove fact scoping
-- show cell description in diffs
-- rename 'cell' to 'fact'
+- show fact description in diffs
 - rename 'schema' to 'recipe'
 - rename 'stage' to 'step'
 - rename 'cluster' to 'catalog'

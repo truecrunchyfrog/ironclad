@@ -3,8 +3,8 @@ use clap::Args;
 /// Evaluate a schema.
 #[derive(Args)]
 pub(crate) struct EvalSchemaArgs {
-    /// ID of cell.
-    pub(crate) cell_id: Option<String>,
+    /// ID of fact.
+    pub(crate) fact_id: Option<String>,
 
     /// Show the output of these stages.
     #[arg(short, long)]

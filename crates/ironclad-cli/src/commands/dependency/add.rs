@@ -4,7 +4,7 @@ use crate::{
     args::dependency::add::AddDependencyArgs,
     config::Config,
     helper::{
-        resolve_cluster, resolve_explicit_or_reused_cell, resolve_explicit_or_reused_cell_id,
+        resolve_cluster, resolve_explicit_or_reused_fact, resolve_explicit_or_reused_fact_id,
     },
 };
 
@@ -12,21 +12,21 @@ pub(super) fn dispatch(_config: &Config, args: AddDependencyArgs) -> anyhow::Res
     let cluster = resolve_cluster()?;
 
     let dependents = args
-        .cell_id
+        .fact_id
         .into_iter()
-        .map(|cell_id| resolve_explicit_or_reused_cell_id(&cluster, Some(cell_id)))
+        .map(|fact_id| resolve_explicit_or_reused_fact_id(&cluster, Some(fact_id)))
         .collect::<anyhow::Result<Vec<_>>>()?;
 
     let new_dependencies = {
         let mut result = Vec::new();
 
-        for cell_id in args.dependency {
-            result.push(resolve_explicit_or_reused_cell_id(&cluster, Some(cell_id))?);
+        for fact_id in args.dependency {
+            result.push(resolve_explicit_or_reused_fact_id(&cluster, Some(fact_id))?);
         }
 
-        for cell_id in args.from {
-            let cell = resolve_explicit_or_reused_cell(&cluster, Some(cell_id))?;
-            result.extend(cell.dependencies().to_owned());
+        for fact_id in args.from {
+            let fact = resolve_explicit_or_reused_fact(&cluster, Some(fact_id))?;
+            result.extend(fact.dependencies().to_owned());
         }
 
         if args.mirror {
@@ -36,18 +36,18 @@ pub(super) fn dispatch(_config: &Config, args: AddDependencyArgs) -> anyhow::Res
         result
     };
 
-    for cell_id in dependents {
-        let mut cell = cluster.load_cell_for_id(&cell_id)?;
-        let deps = cell.dependencies_mut();
+    for fact_id in dependents {
+        let mut fact = cluster.load_fact_for_id(&fact_id)?;
+        let deps = fact.dependencies_mut();
 
         for new_dependency in &new_dependencies {
-            if new_dependency != &cell_id && !deps.contains(new_dependency) {
-                info!("adding dependency to {cell_id}: {new_dependency}");
+            if new_dependency != &fact_id && !deps.contains(new_dependency) {
+                info!("adding dependency to {fact_id}: {new_dependency}");
                 deps.push(new_dependency.clone());
             }
         }
 
-        cluster.save_cell(&cell)?;
+        cluster.save_fact(&fact)?;
     }
 
     Ok(())

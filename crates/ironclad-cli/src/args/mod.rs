@@ -1,5 +1,5 @@
 pub(crate) mod audit;
-pub(crate) mod cell;
+pub(crate) mod fact;
 pub(crate) mod cluster;
 pub(crate) mod dependency;
 pub(crate) mod operation;
@@ -10,7 +10,7 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     args::{
-        audit::AuditArgs, cell::CellCommand, cluster::ClusterCommand,
+        audit::AuditArgs, fact::FactCommand, cluster::ClusterCommand,
         dependency::DependencyCommand, operation::OperationCommand, review::ReviewArgs,
         schema::SchemaCommand,
     },
@@ -36,7 +36,7 @@ pub(crate) enum Command {
     Cluster(ClusterCommand),
 
     #[command(subcommand)]
-    Cell(CellCommand),
+    Fact(FactCommand),
 
     #[command(subcommand, name = "op")]
     Operation(OperationCommand),

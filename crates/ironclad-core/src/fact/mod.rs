@@ -1,5 +1,5 @@
-mod cell;
+mod fact;
 pub(crate) mod error;
 pub mod id;
 
-pub use cell::Cell;
+pub use fact::Fact;

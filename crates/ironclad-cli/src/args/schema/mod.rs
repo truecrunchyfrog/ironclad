@@ -9,7 +9,7 @@ use crate::args::schema::{
     eval::EvalSchemaArgs, list::ListSchemaArgs, pop::PopSchemaArgs, push::PushSchemaArgs,
 };
 
-/// View, update, and evaluate the schema of a cell.
+/// View, update, and evaluate the schema of a fact.
 #[derive(Subcommand)]
 pub(crate) enum SchemaCommand {
     Push(PushSchemaArgs),

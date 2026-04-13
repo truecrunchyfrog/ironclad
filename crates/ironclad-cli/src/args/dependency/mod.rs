@@ -8,7 +8,7 @@ use crate::args::dependency::{
     add::AddDependencyArgs, list::ListDependencyArgs, remove::RemoveDependencyArgs,
 };
 
-/// Manage logical dependencies between cells.
+/// Manage logical dependencies between facts.
 #[derive(Subcommand)]
 pub(crate) enum DependencyCommand {
     Add(AddDependencyArgs),

@@ -1,12 +1,12 @@
 use clap::Args;
 
-/// Edit a cell.
+/// Edit a fact.
 #[derive(Args)]
-pub(crate) struct EditCellArgs {
-    /// ID of cell to edit.
-    pub(crate) cell_id: Option<String>,
+pub(crate) struct EditFactArgs {
+    /// ID of fact to edit.
+    pub(crate) fact_id: Option<String>,
 
-    /// Change the cell's ID.
+    /// Change the fact's ID.
     #[arg(long)]
     pub(crate) id: Option<String>,
 

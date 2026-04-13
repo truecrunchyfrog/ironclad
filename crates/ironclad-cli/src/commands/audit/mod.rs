@@ -1,23 +1,23 @@
 use std::time::Duration;
 
 use console::style;
-use ironclad_core::{cell::id::CellId, snapshot::diff::BatchDiff};
+use ironclad_core::{fact::id::FactId, snapshot::diff::BatchDiff};
 
 use crate::{
     args::audit::AuditArgs,
     batch_origin::BatchOrigin,
     config::Config,
-    helper::{collect_changed_snapshot_diffs, resolve_cluster, resolve_explicit_or_reused_cell_id},
+    helper::{collect_changed_snapshot_diffs, resolve_cluster, resolve_explicit_or_reused_fact_id},
     output::format_batch_diff,
     ui,
 };
 
 pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> {
     let cluster = resolve_cluster()?;
-    let show_cell_ids = args
-        .cell_id
+    let show_fact_ids = args
+        .fact_id
         .into_iter()
-        .map(|cell_id| resolve_explicit_or_reused_cell_id(&cluster, Some(cell_id)))
+        .map(|fact_id| resolve_explicit_or_reused_fact_id(&cluster, Some(fact_id)))
         .collect::<anyhow::Result<Vec<_>>>()?;
 
     let audit = match args {

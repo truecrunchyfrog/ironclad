@@ -4,16 +4,16 @@ use rand::{RngCore, rngs::ThreadRng};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Hash)]
-pub struct CellId(String);
+pub struct FactId(String);
 
-impl CellId {
+impl FactId {
     #[must_use]
     pub fn for_path(path: &Path) -> Self {
         Self(
             path.file_name()
-                .expect("cell path should have file name")
+                .expect("fact path should have file name")
                 .to_str()
-                .expect("cell file name should be UTF-8")
+                .expect("fact file name should be UTF-8")
                 .to_string(),
         )
     }
@@ -25,33 +25,33 @@ impl CellId {
     }
 }
 
-impl Default for CellId {
+impl Default for FactId {
     fn default() -> Self {
         Self::random(None)
     }
 }
 
-impl PartialEq for CellId {
+impl PartialEq for FactId {
     fn eq(&self, other: &Self) -> bool {
         self.0 == other.0
     }
 }
 
-impl Eq for CellId {}
+impl Eq for FactId {}
 
-impl Display for CellId {
+impl Display for FactId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl From<String> for CellId {
+impl From<String> for FactId {
     fn from(value: String) -> Self {
         Self(value)
     }
 }
 
-impl FromStr for CellId {
+impl FromStr for FactId {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {

@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
-    cell::{error::CellError, id::CellId},
+    fact::{error::FactError, id::FactId},
     schema::SchemaError,
 };
 
@@ -19,11 +19,11 @@ pub enum ClusterError {
     #[error("an operation does not exist by such ID: {0}")]
     OperationNotFound(String),
 
-    #[error("dependency cell could not be found: {0}")]
-    DependencyCellNotFound(CellId),
+    #[error("dependency fact could not be found: {0}")]
+    DependencyFactNotFound(FactId),
 
     #[error(transparent)]
-    Cell(#[from] CellError),
+    Fact(#[from] FactError),
 
     #[error(transparent)]
     Schema(#[from] SchemaError),

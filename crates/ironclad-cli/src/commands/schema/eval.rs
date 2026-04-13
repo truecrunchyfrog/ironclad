@@ -4,17 +4,17 @@ use ironclad_core::sample::Sample;
 use crate::{
     args::schema::eval::EvalSchemaArgs,
     config::Config,
-    helper::{resolve_cluster, resolve_explicit_or_reused_cell},
+    helper::{resolve_cluster, resolve_explicit_or_reused_fact},
     ui,
 };
 
 pub(super) fn dispatch(_config: &Config, args: EvalSchemaArgs) -> anyhow::Result<()> {
     let cluster = resolve_cluster()?;
-    let cell = resolve_explicit_or_reused_cell(&cluster, args.cell_id)?;
+    let fact = resolve_explicit_or_reused_fact(&cluster, args.fact_id)?;
 
-    let stage_len = cell.schema().stages().len();
+    let stage_len = fact.schema().stages().len();
 
-    let eval_stages = cell
+    let eval_stages = fact
         .schema()
         .stages()
         .iter()

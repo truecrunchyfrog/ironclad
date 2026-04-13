@@ -3,7 +3,7 @@ use std::{collections::HashMap, fs, path::Path};
 use rayon::iter::{FromParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
 use crate::{
-    cell::id::CellId,
+    fact::id::FactId,
     cluster::{Cluster, error::ClusterError},
     sample::batch::Batch,
     snapshot::{Snapshot, SnapshotEntry},
@@ -11,46 +11,46 @@ use crate::{
 
 impl Cluster {
     pub fn capture_snapshot(&self, cache: Option<Snapshot>) -> Result<Snapshot, ClusterError> {
-        let cells = self.load_cells()?;
+        let facts = self.load_facts()?;
 
-        let batches = cells
+        let batches = facts
             .par_iter()
-            .map(|cell| {
+            .map(|fact| {
                 Ok((
-                    cell.id().clone(),
-                    cell.dependencies(),
+                    fact.id().clone(),
+                    fact.dependencies(),
                     match cache
                         .as_ref()
-                        .and_then(|snapshot| snapshot.entries().get(cell.id()))
+                        .and_then(|snapshot| snapshot.entries().get(fact.id()))
                     {
                         Some(entry)
-                            if entry.batch().created().elapsed()? < *cell.cache_lifespan() =>
+                            if entry.batch().created().elapsed()? < *fact.cache_lifespan() =>
                         {
                             entry.batch().clone()
                         }
-                        _ => cell.schema().eval(self)?,
+                        _ => fact.schema().eval(self)?,
                     },
                 ))
             })
             .collect::<Result<Vec<_>, ClusterError>>()?;
 
-        let cell_dependencies = |deps: &[CellId]| -> Result<HashMap<CellId, Batch>, ClusterError> {
+        let fact_dependencies = |deps: &[FactId]| -> Result<HashMap<FactId, Batch>, ClusterError> {
             Ok(HashMap::from_iter(
                 deps.iter()
-                    .map(|dep_cell_id| -> Result<(CellId, Batch), ClusterError> {
+                    .map(|dep_fact_id| -> Result<(FactId, Batch), ClusterError> {
                         Ok((
-                            dep_cell_id.clone(),
+                            dep_fact_id.clone(),
                             batches
                                 .iter()
-                                .find_map(|(cell_id, _, batch)| {
-                                    if cell_id == dep_cell_id {
+                                .find_map(|(fact_id, _, batch)| {
+                                    if fact_id == dep_fact_id {
                                         Some(batch.to_owned())
                                     } else {
                                         None
                                     }
                                 })
                                 .ok_or_else(|| {
-                                    ClusterError::DependencyCellNotFound(dep_cell_id.clone())
+                                    ClusterError::DependencyFactNotFound(dep_fact_id.clone())
                                 })?,
                         ))
                     })
@@ -61,10 +61,10 @@ impl Cluster {
         Ok(Snapshot::new(HashMap::from_par_iter(
             batches
                 .par_iter()
-                .map(|(cell_id, deps, batch)| {
+                .map(|(fact_id, deps, batch)| {
                     Ok((
-                        cell_id.clone(),
-                        SnapshotEntry::new(batch.to_owned(), cell_dependencies(deps)?),
+                        fact_id.clone(),
+                        SnapshotEntry::new(batch.to_owned(), fact_dependencies(deps)?),
                     ))
                 })
                 .collect::<Result<Vec<_>, ClusterError>>()?,

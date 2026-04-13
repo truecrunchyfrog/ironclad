@@ -3,8 +3,8 @@ use clap::Args;
 /// Remove a stage from a schema.
 #[derive(Args)]
 pub(crate) struct PopSchemaArgs {
-    /// ID of cell.
-    pub(crate) cell_id: Option<String>,
+    /// ID of fact.
+    pub(crate) fact_id: Option<String>,
 
     /// Remove at a position instead of at the end.
     #[arg(short, long)]

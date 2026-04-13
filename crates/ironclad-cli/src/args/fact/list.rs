@@ -1,8 +1,8 @@
 use clap::Args;
 
-/// List cells.
+/// List facts.
 #[derive(Args)]
-pub(crate) struct ListCellArgs {
+pub(crate) struct ListFactArgs {
     #[arg(short, long)]
     pub(crate) verbose: bool,
 }

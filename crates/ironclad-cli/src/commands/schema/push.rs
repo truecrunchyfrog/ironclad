@@ -3,12 +3,12 @@ use ironclad_core::{registry, schema::Stage};
 use crate::{
     args::schema::push::PushSchemaArgs,
     config::Config,
-    helper::{resolve_cluster, resolve_explicit_or_reused_cell},
+    helper::{resolve_cluster, resolve_explicit_or_reused_fact},
 };
 
 pub(super) fn dispatch(_config: &Config, args: PushSchemaArgs) -> anyhow::Result<()> {
     let cluster = resolve_cluster()?;
-    let mut cell = resolve_explicit_or_reused_cell(&cluster, Some(args.cell_id))?;
+    let mut fact = resolve_explicit_or_reused_fact(&cluster, Some(args.fact_id))?;
 
     registry::resolve_op(&args.operation_id)?;
 
@@ -19,9 +19,9 @@ pub(super) fn dispatch(_config: &Config, args: PushSchemaArgs) -> anyhow::Result
 
     let stage = Stage::new(args.operation_id, options);
 
-    cell.schema_mut().add(args.index, stage)?;
+    fact.schema_mut().add(args.index, stage)?;
 
-    cluster.save_cell(&cell)?;
+    cluster.save_fact(&fact)?;
 
     Ok(())
 }

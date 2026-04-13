@@ -2,56 +2,56 @@ use std::collections::HashMap;
 
 use anyhow::anyhow;
 use ironclad_core::{
-    cell::{Cell, id::CellId},
+    fact::{Fact, id::FactId},
     cluster::Cluster,
     sample::batch::Batch,
     snapshot::{Snapshot, diff::BatchDiff},
 };
 
-use crate::{batch_origin::BatchOrigin, reuse_cell};
+use crate::{batch_origin::BatchOrigin, reuse_fact};
 
 pub(crate) fn resolve_cluster() -> anyhow::Result<Cluster> {
     Ok(Cluster::find_for_working_dir(&std::env::current_dir()?)?)
 }
 
-fn explicit_or_reused_cell_id(
+fn explicit_or_reused_fact_id(
     cluster: &Cluster,
-    specified_cell_id: Option<String>,
+    specified_fact_id: Option<String>,
 ) -> anyhow::Result<String> {
-    match specified_cell_id {
-        Some(cell_id) if cell_id != "-" => Ok(cell_id),
-        _ => reuse_cell::get(cluster)?
-            .map(|cell_id| cell_id.to_string())
-            .ok_or(anyhow!("cell ID not specified, and not reusing")),
+    match specified_fact_id {
+        Some(fact_id) if fact_id != "-" => Ok(fact_id),
+        _ => reuse_fact::get(cluster)?
+            .map(|fact_id| fact_id.to_string())
+            .ok_or(anyhow!("fact ID not specified, and not reusing")),
     }
 }
 
-pub(crate) fn resolve_explicit_or_reused_cell_id(
+pub(crate) fn resolve_explicit_or_reused_fact_id(
     cluster: &Cluster,
-    specified_cell_id: Option<String>,
-) -> anyhow::Result<CellId> {
-    Ok(cluster.resolve_cell_id(&explicit_or_reused_cell_id(cluster, specified_cell_id)?)?)
+    specified_fact_id: Option<String>,
+) -> anyhow::Result<FactId> {
+    Ok(cluster.resolve_fact_id(&explicit_or_reused_fact_id(cluster, specified_fact_id)?)?)
 }
 
-pub(crate) fn resolve_explicit_or_reused_cell(
+pub(crate) fn resolve_explicit_or_reused_fact(
     cluster: &Cluster,
-    specified_cell_id: Option<String>,
-) -> anyhow::Result<Cell> {
-    Ok(cluster.resolve_cell(&explicit_or_reused_cell_id(cluster, specified_cell_id)?)?)
+    specified_fact_id: Option<String>,
+) -> anyhow::Result<Fact> {
+    Ok(cluster.resolve_fact(&explicit_or_reused_fact_id(cluster, specified_fact_id)?)?)
 }
 
 pub(crate) fn collect_changed_snapshot_diffs(
-    snapshot_diff: HashMap<CellId, (BatchDiff, Vec<(CellId, BatchDiff)>)>,
+    snapshot_diff: HashMap<FactId, (BatchDiff, Vec<(FactId, BatchDiff)>)>,
 ) -> Vec<(BatchOrigin, BatchDiff)> {
     snapshot_diff
         .into_iter()
-        .flat_map(|(cell_id, (diff, dep_diffs))| {
-            std::iter::once((BatchOrigin::DirtyCell(cell_id.clone()), diff))
-                .chain(dep_diffs.into_iter().map(|(dep_cell_id, dep_diff)| {
+        .flat_map(|(fact_id, (diff, dep_diffs))| {
+            std::iter::once((BatchOrigin::DirtyFact(fact_id.clone()), diff))
+                .chain(dep_diffs.into_iter().map(|(dep_fact_id, dep_diff)| {
                     (
-                        BatchOrigin::StaleDependencyCell {
-                            dependency: dep_cell_id,
-                            dependent: cell_id.clone(),
+                        BatchOrigin::StaleDependencyFact {
+                            dependency: dep_fact_id,
+                            dependent: fact_id.clone(),
                         },
                         dep_diff,
                     )
@@ -64,18 +64,18 @@ pub(crate) fn collect_changed_snapshot_diffs(
 
 pub(crate) fn find_batch_diff<'a>(
     origin: &'a BatchOrigin,
-    diffs: &'a HashMap<CellId, (BatchDiff, Vec<(CellId, BatchDiff)>)>,
+    diffs: &'a HashMap<FactId, (BatchDiff, Vec<(FactId, BatchDiff)>)>,
 ) -> Option<&'a BatchDiff> {
     match origin {
-        BatchOrigin::DirtyCell(cell_id) => diffs.get(cell_id).map(|(diff, _)| diff),
-        BatchOrigin::StaleDependencyCell {
+        BatchOrigin::DirtyFact(fact_id) => diffs.get(fact_id).map(|(diff, _)| diff),
+        BatchOrigin::StaleDependencyFact {
             dependency,
             dependent,
         } => diffs
             .get(dependent)
             .map(|(_, dep_diffs)| {
-                dep_diffs.iter().find_map(|(dep_cell_id, diff)| {
-                    if dep_cell_id == dependency {
+                dep_diffs.iter().find_map(|(dep_fact_id, diff)| {
+                    if dep_fact_id == dependency {
                         Some(diff)
                     } else {
                         None
@@ -88,18 +88,18 @@ pub(crate) fn find_batch_diff<'a>(
 
 pub(crate) fn find_batch_diff_mut<'a>(
     origin: &'a BatchOrigin,
-    diffs: &'a mut HashMap<CellId, (BatchDiff, Vec<(CellId, BatchDiff)>)>,
+    diffs: &'a mut HashMap<FactId, (BatchDiff, Vec<(FactId, BatchDiff)>)>,
 ) -> Option<&'a mut BatchDiff> {
     match origin {
-        BatchOrigin::DirtyCell(cell_id) => diffs.get_mut(cell_id).map(|(diff, _)| diff),
-        BatchOrigin::StaleDependencyCell {
+        BatchOrigin::DirtyFact(fact_id) => diffs.get_mut(fact_id).map(|(diff, _)| diff),
+        BatchOrigin::StaleDependencyFact {
             dependency,
             dependent,
         } => diffs
             .get_mut(dependent)
             .map(|(_, dep_diffs)| {
-                dep_diffs.iter_mut().find_map(|(dep_cell_id, diff)| {
-                    if dep_cell_id == dependency {
+                dep_diffs.iter_mut().find_map(|(dep_fact_id, diff)| {
+                    if dep_fact_id == dependency {
                         Some(diff)
                     } else {
                         None
@@ -116,19 +116,19 @@ pub(crate) fn set_snapshot_batch<'a>(
     batch: Option<Batch>,
 ) {
     match origin {
-        BatchOrigin::DirtyCell(cell_id) => match batch {
+        BatchOrigin::DirtyFact(fact_id) => match batch {
             Some(batch) => {
                 *snapshot
                     .entries_mut()
-                    .entry(cell_id.clone())
+                    .entry(fact_id.clone())
                     .or_default()
                     .batch_mut() = batch;
             }
             None => {
-                snapshot.entries_mut().remove(cell_id);
+                snapshot.entries_mut().remove(fact_id);
             }
         },
-        BatchOrigin::StaleDependencyCell {
+        BatchOrigin::StaleDependencyFact {
             dependency,
             dependent,
         } => match batch {

@@ -3,8 +3,8 @@ use clap::Args;
 /// Capture snapshot of current state and compare against baseline.
 #[derive(Args)]
 pub(crate) struct AuditArgs {
-    /// ID of cell to show.
-    pub(crate) cell_id: Vec<String>,
+    /// ID of fact to show.
+    pub(crate) fact_id: Vec<String>,
 
     /// Show confliced samples.
     #[arg(short = 'd', long)]

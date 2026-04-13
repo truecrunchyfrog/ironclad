@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::{cell::id::CellId, cluster::cluster::Cluster};
+use crate::{fact::id::FactId, cluster::cluster::Cluster};
 
 impl Cluster {
     #[must_use]
@@ -14,13 +14,13 @@ impl Cluster {
     }
 
     #[must_use]
-    pub fn cells_dir(&self) -> PathBuf {
-        self.dir().join("cells")
+    pub fn facts_dir(&self) -> PathBuf {
+        self.dir().join("facts")
     }
 
     #[must_use]
-    pub fn cell_path(&self, id: &CellId) -> PathBuf {
-        self.cells_dir().join(id.to_string())
+    pub fn fact_path(&self, id: &FactId) -> PathBuf {
+        self.facts_dir().join(id.to_string())
     }
 
     #[must_use]

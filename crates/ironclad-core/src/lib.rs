@@ -1,4 +1,4 @@
-pub mod cell;
+pub mod fact;
 pub mod cluster;
 pub mod operation;
 pub mod registry;
