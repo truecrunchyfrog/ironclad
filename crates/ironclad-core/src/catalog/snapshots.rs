@@ -80,12 +80,12 @@ impl Catalog {
         Ok(())
     }
 
-    pub fn load_pending_snapshot(&self) -> Result<Snapshot, CatalogError> {
-        self.load_snapshot(&self.snapshot_pending_path())
+    pub fn load_candidate_snapshot(&self) -> Result<Snapshot, CatalogError> {
+        self.load_snapshot(&self.snapshot_candidate_path())
     }
 
-    pub fn save_pending_snapshot(&self, snapshot: Snapshot) -> Result<(), CatalogError> {
-        self.save_snapshot(&self.snapshot_pending_path(), snapshot)
+    pub fn save_candidate_snapshot(&self, snapshot: Snapshot) -> Result<(), CatalogError> {
+        self.save_snapshot(&self.snapshot_candidate_path(), snapshot)
     }
 
     pub fn load_baseline_snapshot(&self) -> Result<Snapshot, CatalogError> {

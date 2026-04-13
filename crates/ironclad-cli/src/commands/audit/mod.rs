@@ -22,15 +22,15 @@ pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> 
 
     let audit = match args {
         AuditArgs { fresh: true, .. } => catalog.capture_snapshot(None)?,
-        AuditArgs { cache: true, .. } => catalog.load_pending_snapshot().unwrap_or_default(),
-        _ => catalog.capture_snapshot(Some(catalog.load_pending_snapshot().unwrap_or_default()))?,
+        AuditArgs { cache: true, .. } => catalog.load_candidate_snapshot().unwrap_or_default(),
+        _ => catalog.capture_snapshot(Some(catalog.load_candidate_snapshot().unwrap_or_default()))?,
     };
     let baseline = catalog.load_baseline_snapshot().unwrap_or_default();
 
     let relevant_diffs = collect_changed_snapshot_diffs(audit.diff(&baseline));
 
     if !args.dry_run {
-        catalog.save_pending_snapshot(audit)?;
+        catalog.save_candidate_snapshot(audit)?;
     }
 
     let batch_diff_count = relevant_diffs.len();

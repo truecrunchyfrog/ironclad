@@ -34,7 +34,7 @@ impl Catalog {
     }
 
     #[must_use]
-    pub fn snapshot_pending_path(&self) -> PathBuf {
-        self.snapshots_dir().join("pending.json")
+    pub fn snapshot_candidate_path(&self) -> PathBuf {
+        self.snapshots_dir().join("candidate.json")
     }
 }

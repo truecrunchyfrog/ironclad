@@ -22,7 +22,7 @@ enum ReviewState<'a> {
 pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
 
-    let audit = catalog.load_pending_snapshot().unwrap_or_default();
+    let audit = catalog.load_candidate_snapshot().unwrap_or_default();
     let baseline = catalog.load_baseline_snapshot().unwrap_or_default();
     let mut working_baseline = baseline.clone();
 
@@ -144,7 +144,7 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
 
                 if let Some(after) = diff.after() {
                     println!(
-                        "pending batch is {} old",
+                        "candidate batch is {} old",
                         humantime::format_duration(Duration::from_secs(
                             after.created().elapsed().unwrap().as_secs()
                         ))

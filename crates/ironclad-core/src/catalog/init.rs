@@ -4,7 +4,7 @@ use log::info;
 
 use crate::catalog::{catalog::Catalog, error::CatalogError};
 
-const GITIGNORE_CONTENT: &str = "snapshots/pending.json";
+const GITIGNORE_CONTENT: &str = "snapshots/candidate.json";
 
 impl Catalog {
     pub fn create_catalog(working_dir: &Path) -> Result<Catalog, CatalogError> {
@@ -51,9 +51,9 @@ fn populate_catalog_dir(catalog: &Catalog) -> Result<(), CatalogError> {
             }
 
             {
-                let snapshot_pending_path = catalog.snapshot_pending_path();
-                info!("creating {snapshot_pending_path:#?}");
-                fs::write(snapshot_pending_path, "{}")?;
+                let snapshot_candidate_path = catalog.snapshot_candidate_path();
+                info!("creating {snapshot_candidate_path:#?}");
+                fs::write(snapshot_candidate_path, "{}")?;
             }
         }
     }

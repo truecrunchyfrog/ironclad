@@ -22,7 +22,7 @@ pub(crate) struct AuditArgs {
     #[arg(short, long, conflicts_with = "cache")]
     pub(crate) fresh: bool,
 
-    /// Don't set the audit as pending state.
+    /// Don't set the audit as candidate state.
     #[arg(long)]
     pub(crate) dry_run: bool,
 }

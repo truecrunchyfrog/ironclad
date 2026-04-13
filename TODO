@@ -28,7 +28,6 @@
 - remove --generate-id
 - remove fact scoping
 - show fact description in diffs
-- rename 'pending' to 'candidate'
 - remove fact TTL?
 - use only one batch while working through a pipeline, instead of grouping
 - github action
