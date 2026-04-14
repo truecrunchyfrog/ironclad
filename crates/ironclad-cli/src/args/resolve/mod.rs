@@ -2,7 +2,7 @@ use clap::Args;
 
 /// Capture snapshot of current state and compare against baseline.
 #[derive(Args)]
-pub(crate) struct AuditArgs {
+pub(crate) struct ResolveArgs {
     /// ID of fact to show.
     pub(crate) fact_id: Vec<String>,
 

@@ -4,14 +4,14 @@ use console::style;
 use ironclad_core::fact::id::FactId;
 
 use crate::{
-    args::audit::AuditArgs,
+    args::resolve::ResolveArgs,
     config::Config,
     helper::{collect_changed_snapshot_diffs, resolve_catalog},
     output::format_batch_diff,
     ui,
 };
 
-pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> {
+pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
     let show_fact_ids = args
         .fact_id
@@ -20,8 +20,8 @@ pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> 
         .collect::<Vec<_>>();
 
     let audit = match args {
-        AuditArgs { fresh: true, .. } => catalog.capture_snapshot(None)?,
-        AuditArgs { cache: true, .. } => catalog.load_candidate_snapshot().unwrap_or_default(),
+        ResolveArgs { fresh: true, .. } => catalog.capture_snapshot(None)?,
+        ResolveArgs { cache: true, .. } => catalog.load_candidate_snapshot().unwrap_or_default(),
         _ => {
             catalog.capture_snapshot(Some(catalog.load_candidate_snapshot().unwrap_or_default()))?
         }

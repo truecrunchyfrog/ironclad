@@ -1,15 +1,14 @@
-pub(crate) mod audit;
 pub(crate) mod catalog;
 pub(crate) mod fact;
 pub(crate) mod operation;
 pub(crate) mod recipe;
+pub(crate) mod resolve;
 pub(crate) mod review;
 
 use clap::{Parser, Subcommand};
 
 use crate::{
     args::{
-        audit::AuditArgs,
         catalog::init::InitCatalogArgs,
         fact::{
             add::AddFactArgs, edit::EditFactArgs, list::ListFactArgs, remove::RemoveFactArgs,
@@ -17,6 +16,7 @@ use crate::{
         },
         operation::OperationCommand,
         recipe::RecipeCommand,
+        resolve::ResolveArgs,
         review::ReviewArgs,
     },
     config::Config,
@@ -54,7 +54,7 @@ pub(crate) enum Command {
     #[command(subcommand, name = "step")]
     Recipe(RecipeCommand),
 
-    Audit(AuditArgs),
+    Resolve(ResolveArgs),
 
     Review(ReviewArgs),
 }
