@@ -16,7 +16,7 @@ pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> 
     let show_fact_ids = args
         .fact_id
         .into_iter()
-        .map(|fact_id| FactId::from(fact_id))
+        .map(FactId::from)
         .collect::<Vec<_>>();
 
     let audit = match args {
@@ -37,9 +37,13 @@ pub(super) fn dispatch(_config: &Config, args: AuditArgs) -> anyhow::Result<()> 
     let batch_diff_count = relevant_diffs.len();
     let oldest_cache_age = relevant_diffs
         .iter()
-        .flat_map(|(_, diff)| diff.after().as_ref().map(|batch| batch.created()))
+        .filter_map(|(_, diff)| {
+            diff.after()
+                .as_ref()
+                .map(ironclad_core::sample::batch::Batch::created)
+        })
         .max()
-        .map(|time| time.elapsed())
+        .map(std::time::SystemTime::elapsed)
         .transpose()?
         .unwrap_or(Duration::ZERO);
 

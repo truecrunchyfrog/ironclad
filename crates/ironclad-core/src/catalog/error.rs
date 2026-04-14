@@ -1,9 +1,6 @@
 use std::path::PathBuf;
 
-use crate::{
-    fact::{error::FactError, id::FactId},
-    recipe::RecipeError,
-};
+use crate::{fact::error::FactError, recipe::RecipeError};
 
 #[derive(thiserror::Error, Debug)]
 pub enum CatalogError {

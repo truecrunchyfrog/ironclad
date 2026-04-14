@@ -106,7 +106,7 @@ where
     let mut expanded = false;
 
     loop {
-        println!("");
+        println!();
         for (_, display_option) in &options {
             match display_option {
                 DisplayPromptOption::AlwaysVisible {
@@ -147,11 +147,11 @@ where
         match result {
             Some(Ok(result)) => return Ok(result),
             Some(Err(err)) => ui::error(err),
-            None if expandable && (choice == "?" || expanded && choice == "") => {
-                expanded = !expanded
+            None if expandable && (choice == "?" || expanded && choice.is_empty()) => {
+                expanded = !expanded;
             }
-            None if choice == "" => ui::error(format!("please enter a command.")),
+            None if choice.is_empty() => ui::error("please enter a command."),
             None => ui::error(format!("no such command '{choice}'.")),
-        };
+        }
     }
 }

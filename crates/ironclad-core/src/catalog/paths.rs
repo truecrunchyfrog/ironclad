@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::{fact::id::FactId, catalog::catalog::Catalog};
+use crate::{catalog::catalog::Catalog, fact::id::FactId};
 
 impl Catalog {
     #[must_use]

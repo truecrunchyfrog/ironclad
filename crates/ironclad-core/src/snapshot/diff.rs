@@ -46,18 +46,18 @@ impl BatchDiff {
         let samples_before = self
             .before
             .as_ref()
-            .map(|batch| batch.samples())
+            .map(super::super::sample::batch::Batch::samples)
             .unwrap_or_default();
         let samples_after = self
             .after
             .as_ref()
-            .map(|batch| batch.samples())
+            .map(super::super::sample::batch::Batch::samples)
             .unwrap_or_default();
 
         let mut result = Vec::new();
 
         for sample in samples_before {
-            let presence = if samples_after.contains(&sample) {
+            let presence = if samples_after.contains(sample) {
                 SamplePresence::Both
             } else {
                 SamplePresence::OnlyBefore
@@ -91,8 +91,8 @@ impl Snapshot {
             (
                 fact_id,
                 BatchDiff {
-                    before: before.map(|e| e.clone()),
-                    after: after.map(|e| e.clone()),
+                    before: before.cloned(),
+                    after: after.cloned(),
                 },
             )
         }))

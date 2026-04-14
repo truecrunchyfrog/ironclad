@@ -3,9 +3,9 @@ use serde_json::Value;
 
 use crate::{
     catalog::Catalog,
+    recipe::RecipeError,
     registry::{self},
     sample::Sample,
-    recipe::RecipeError,
 };
 
 #[derive(Serialize, Deserialize, Debug)]

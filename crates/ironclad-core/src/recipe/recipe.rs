@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     catalog::Catalog,
-    sample::batch::Batch,
     recipe::{RecipeError, step::Step},
+    sample::batch::Batch,
 };
 
 #[derive(Serialize, Deserialize, Default, Debug)]

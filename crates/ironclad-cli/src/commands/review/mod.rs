@@ -42,10 +42,10 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
                 for ((origin, diff), index) in relevant_diffs.iter().zip(1..).collect::<Vec<_>>() {
                     let any_changes = working_diff_baseline
                         .get(origin)
-                        .map_or(false, |d| !d.batches_equal());
+                        .is_some_and(|d| !d.batches_equal());
                     let resolved_to_baseline = working_diff_audit
                         .get(origin)
-                        .map_or(true, |d| d.batches_equal());
+                        .is_none_or(ironclad_core::snapshot::diff::BatchDiff::batches_equal);
                     println!(
                         "{index} {}{}",
                         if resolved_to_baseline {
@@ -74,7 +74,7 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
                 let result = output::prompt(vec![
                     (
                         PromptOption::Dynamic(|i| {
-                            if i.starts_with("g") && i.len() > 1 {
+                            if i.starts_with('g') && i.len() > 1 {
                                 if let Ok(index) =
                                     i.chars().skip(1).collect::<String>().parse::<usize>()
                                 {
@@ -111,9 +111,10 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
 
                 match result {
                     OverviewPromptResponse::GoToBatch(index) => {
-                        match index.checked_sub(1).and_then(|zero_based_index| {
-                            relevant_diffs.iter().nth(zero_based_index)
-                        }) {
+                        match index
+                            .checked_sub(1)
+                            .and_then(|zero_based_index| relevant_diffs.get(zero_based_index))
+                        {
                             Some((origin, _)) => state = ReviewState::Batch(origin),
                             None => ui::error(format!("no batch at position {index}.")),
                         }
@@ -123,7 +124,7 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
                         return Ok(());
                     }
                     OverviewPromptResponse::QuitWithoutSave => return Ok(()),
-                };
+                }
             }
             ReviewState::Batch(origin) => {
                 let diff = relevant_diffs
@@ -155,7 +156,7 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
 
                 for ((sample, presence), index) in &sample_diffs.iter().zip(1..).collect::<Vec<_>>()
                 {
-                    println!("{index} {}", format_sample_diff(sample, &presence));
+                    println!("{index} {}", format_sample_diff(sample, presence));
                 }
 
                 enum BatchPromptResponse {
@@ -174,7 +175,7 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
                     ),
                     (
                         PromptOption::Dynamic(|i| {
-                            if i.starts_with("g") && i.len() > 1 {
+                            if i.starts_with('g') && i.len() > 1 {
                                 if let Ok(index) =
                                     i.chars().skip(1).collect::<String>().parse::<usize>()
                                 {
@@ -208,7 +209,7 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
                     }
                     BatchPromptResponse::GoToSample(index) => {
                         match index.checked_sub(1).filter(|zero_based_index| {
-                            sample_diffs.iter().nth(*zero_based_index).is_some()
+                            sample_diffs.get(*zero_based_index).is_some()
                         }) {
                             Some(index) => state = ReviewState::Sample(origin, index),
                             None => ui::error(format!("no sample at position {index}.")),
@@ -315,6 +316,6 @@ pub(super) fn dispatch(_config: &Config, _args: ReviewArgs) -> anyhow::Result<()
                     SamplePromptResponse::QuitWithoutSave => todo!(),
                 }
             }
-        };
+        }
     }
 }
