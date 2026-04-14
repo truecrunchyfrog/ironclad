@@ -41,11 +41,14 @@ pub(crate) enum Command {
 
     Add(AddFactArgs),
     Edit(EditFactArgs),
+    #[command(alias = "rm")]
     Remove(RemoveFactArgs),
+    #[command(alias = "sh")]
     Show(ShowFactArgs),
+    #[command(alias = "ls")]
     List(ListFactArgs),
 
-    #[command(subcommand, name = "op")]
+    #[command(subcommand, alias = "op")]
     Operation(OperationCommand),
 
     #[command(subcommand, name = "step")]

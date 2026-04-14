@@ -15,5 +15,6 @@ pub(crate) enum RecipeCommand {
     Add(PushRecipeArgs),
     Remove(PopRecipeArgs),
     Eval(EvalRecipeArgs),
+    #[command(alias = "ls")]
     List(ListRecipeArgs),
 }

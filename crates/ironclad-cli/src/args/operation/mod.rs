@@ -9,5 +9,6 @@ use crate::args::operation::{eval::EvalOperationArgs, list::ListOperationArgs};
 #[derive(Subcommand)]
 pub(crate) enum OperationCommand {
     Eval(EvalOperationArgs),
+    #[command(alias = "ls")]
     List(ListOperationArgs),
 }
