@@ -16,7 +16,7 @@
      # - ic edit <fact id>
      # - ic remove <fact id>
      # - ic list
-     - ic step add <fact id> <operation id> -- --option value
+     - ic step add <fact id> <operation id>
      # - ic step remove <fact id> <index>
      # - ic step list <fact id>
      - ic snapshot baseline [fact id...]

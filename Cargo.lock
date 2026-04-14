@@ -204,6 +204,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap-stdin"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c597a504c7d12819c50d2e1f78719afb6e01d4e14cbc94eb4c5f6a850494d1c"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "clap_builder"
 version = "4.5.54"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -924,6 +933,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "clap-stdin",
  "console",
  "env_logger",
  "figment",
