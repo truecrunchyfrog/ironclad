@@ -12,8 +12,8 @@ use crate::args::recipe::{
 /// View, update, and evaluate the recipe of a fact.
 #[derive(Subcommand)]
 pub(crate) enum RecipeCommand {
-    Push(PushRecipeArgs),
-    Pop(PopRecipeArgs),
+    Add(PushRecipeArgs),
+    Remove(PopRecipeArgs),
     Eval(EvalRecipeArgs),
     List(ListRecipeArgs),
 }
