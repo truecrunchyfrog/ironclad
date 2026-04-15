@@ -1,6 +1,7 @@
 mod apply;
 mod catalog;
 mod fact;
+mod inspect;
 mod operation;
 mod recipe;
 mod resolve;
@@ -18,6 +19,7 @@ pub(super) fn dispatch(config: &Config, command: Command) -> anyhow::Result<()> 
         Command::Recipe(cmd) => recipe::dispatch(config, cmd),
         Command::Operation(cmd) => operation::dispatch(config, cmd),
         Command::Resolve(args) => resolve::dispatch(config, args),
+        Command::Inspect(args) => inspect::dispatch(config, args),
         Command::Apply(args) => apply::dispatch(config, args),
     }
 }

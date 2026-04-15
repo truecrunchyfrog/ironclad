@@ -13,6 +13,11 @@ impl Trace {
     pub fn new(values: HashMap<String, String>) -> Self {
         Self(values)
     }
+
+    #[must_use]
+    pub fn entries(&self) -> &HashMap<String, String> {
+        &self.0
+    }
 }
 
 impl Hash for Trace {

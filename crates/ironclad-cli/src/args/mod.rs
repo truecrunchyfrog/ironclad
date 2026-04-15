@@ -1,6 +1,7 @@
 pub(crate) mod apply;
 pub(crate) mod catalog;
 pub(crate) mod fact;
+pub(crate) mod inspect;
 pub(crate) mod operation;
 pub(crate) mod recipe;
 pub(crate) mod resolve;
@@ -15,6 +16,7 @@ use crate::{
             add::AddFactArgs, edit::EditFactArgs, list::ListFactArgs, remove::RemoveFactArgs,
             show::ShowFactArgs,
         },
+        inspect::InspectArgs,
         operation::OperationCommand,
         recipe::RecipeCommand,
         resolve::ResolveArgs,
@@ -55,6 +57,6 @@ pub(crate) enum Command {
     Recipe(RecipeCommand),
 
     Resolve(ResolveArgs),
-
+    Inspect(InspectArgs),
     Apply(ApplyArgs),
 }
