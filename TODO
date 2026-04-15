@@ -4,6 +4,7 @@
 - configuring secrets and using env vars for operations
 - improve op documentation
 - move logic from cli to core
+- ulid for id, editable unique labels, indexing
 - rework cli structure
    - Capture a snapshot and write it:
       ic resolve [--into (default: candidate)] [fact id...]
