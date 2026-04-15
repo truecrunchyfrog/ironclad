@@ -13,8 +13,4 @@ pub(crate) struct AddFactArgs {
     /// Specify the fact's cache lifespan for audits.
     #[arg(long)]
     pub(crate) cache_lifespan: Option<humantime::Duration>,
-
-    /// Skip automatic fact reuse (see `fact use`).
-    #[arg(long)]
-    pub(crate) no_use: bool,
 }
