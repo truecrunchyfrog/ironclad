@@ -90,7 +90,16 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
         }
     }
 
-    Ok(())
+    let unequal_batches = diff
+        .iter()
+        .filter(|(_, batch_diff)| !batch_diff.batches_equal())
+        .count();
+
+    if unequal_batches == 0 {
+        Ok(())
+    } else {
+        std::process::exit(unequal_batches as i32);
+    }
 }
 
 fn format_batch_diff(fact_id: &FactId, diff: &BatchDiff) -> String {
