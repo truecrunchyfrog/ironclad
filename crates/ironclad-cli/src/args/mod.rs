@@ -1,5 +1,6 @@
 pub(crate) mod apply;
 pub(crate) mod catalog;
+pub(crate) mod diff;
 pub(crate) mod fact;
 pub(crate) mod inspect;
 pub(crate) mod operation;
@@ -12,6 +13,7 @@ use crate::{
     args::{
         apply::ApplyArgs,
         catalog::init::InitCatalogArgs,
+        diff::DiffArgs,
         fact::{
             add::AddFactArgs, edit::EditFactArgs, list::ListFactArgs, remove::RemoveFactArgs,
             show::ShowFactArgs,
@@ -58,5 +60,7 @@ pub(crate) enum Command {
 
     Resolve(ResolveArgs),
     Inspect(InspectArgs),
+    #[command(alias = "d")]
+    Diff(DiffArgs),
     Apply(ApplyArgs),
 }

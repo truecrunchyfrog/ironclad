@@ -1,12 +1,14 @@
 use std::collections::{HashMap, HashSet};
 
+use serde::Serialize;
+
 use crate::{
     fact::id::FactId,
     sample::{Sample, batch::Batch},
     snapshot::Snapshot,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct BatchDiff {
     before: Option<Batch>,
     after: Option<Batch>,
@@ -43,16 +45,8 @@ impl BatchDiff {
 
     #[must_use]
     pub fn sample_diffs(&self) -> Vec<(&Sample, SamplePresence)> {
-        let samples_before = self
-            .before
-            .as_ref()
-            .map(super::super::sample::batch::Batch::samples)
-            .unwrap_or_default();
-        let samples_after = self
-            .after
-            .as_ref()
-            .map(super::super::sample::batch::Batch::samples)
-            .unwrap_or_default();
+        let samples_before = self.before.as_ref().map(Batch::samples).unwrap_or_default();
+        let samples_after = self.after.as_ref().map(Batch::samples).unwrap_or_default();
 
         let mut result = Vec::new();
 

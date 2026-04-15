@@ -1,33 +1,5 @@
-use console::{Style, style};
-use ironclad_core::{
-    fact::id::FactId,
-    sample::Sample,
-    snapshot::diff::{BatchDiff, SamplePresence},
-};
-
-pub(crate) fn format_sample_diff(sample: &Sample, presence: &SamplePresence) -> String {
-    let style = match presence {
-        SamplePresence::OnlyBefore => Style::new().red(),
-        SamplePresence::OnlyAfter => Style::new().green(),
-        SamplePresence::Both => Style::new(),
-    };
-    format!(
-        "{}\n{}",
-        style.apply_to(match presence {
-            SamplePresence::OnlyBefore => "-",
-            SamplePresence::OnlyAfter => "+",
-            SamplePresence::Both => "=",
-        }),
-        style.apply_to(
-            sample
-                .content()
-                .lines()
-                .map(|line| format!("  {line}"))
-                .collect::<Vec<_>>()
-                .join("\n")
-        )
-    )
-}
+use console::style;
+use ironclad_core::snapshot::diff::SamplePresence;
 
 pub(crate) fn format_dirtiness(presences: &[SamplePresence]) -> String {
     let removed = presences
@@ -55,24 +27,4 @@ pub(crate) fn format_dirtiness(presences: &[SamplePresence]) -> String {
             style(display_added).dim()
         },
     )
-}
-
-pub(crate) fn format_batch_diff(fact_id: &FactId, diff: &BatchDiff) -> String {
-    let status = match (diff.before(), diff.after()) {
-        (None, Some(_)) => style("add").green(),
-        (Some(_), None) => style("rem").red(),
-        (Some(_), Some(_)) if diff.batches_equal() => style("ok!").black().on_green(),
-        (Some(_), Some(_)) => style("mut").yellow(),
-        _ => unreachable!(),
-    };
-
-    let dirtiness = format_dirtiness(
-        diff.sample_diffs()
-            .into_iter()
-            .map(|(_, presence)| presence)
-            .collect::<Vec<_>>()
-            .as_slice(),
-    );
-
-    format!("{status} {dirtiness} {fact_id}")
 }
