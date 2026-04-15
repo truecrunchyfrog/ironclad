@@ -14,6 +14,11 @@ impl Snapshot {
     }
 
     #[must_use]
+    pub fn into_entries(self) -> HashMap<FactId, Batch> {
+        self.0
+    }
+
+    #[must_use]
     pub fn entries(&self) -> &HashMap<FactId, Batch> {
         &self.0
     }

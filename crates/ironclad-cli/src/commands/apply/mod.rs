@@ -1,0 +1,46 @@
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{BufReader, BufWriter, Read, Write},
+};
+
+use ironclad_core::{fact::id::FactId, sample::batch::Batch, snapshot::Snapshot};
+
+use crate::{args::apply::ApplyArgs, config::Config, helper::resolve_catalog};
+
+pub(super) fn dispatch(_config: &Config, args: ApplyArgs) -> anyhow::Result<()> {
+    let catalog = resolve_catalog()?;
+
+    let promotion = serde_json::from_reader::<Box<dyn Read>, Snapshot>(match args.promotion {
+        Some(file_or_stdin) => Box::new(file_or_stdin.into_reader()?),
+        None => Box::new(BufReader::new(File::open(
+            catalog.snapshot_candidate_path(),
+        )?)),
+    })?;
+
+    let baseline = serde_json::from_reader::<Box<dyn Read>, Snapshot>(match args.baseline {
+        Some(file_or_stdin) => Box::new(file_or_stdin.into_reader()?),
+        None => Box::new(BufReader::new(File::open(
+            catalog.snapshot_baseline_path(),
+        )?)),
+    })?;
+
+    let mut dest: Box<dyn Write> = match args.destination {
+        Some(file_or_stdout) => Box::new(file_or_stdout.into_writer()?),
+        None => Box::new(BufWriter::new(File::create(
+            catalog.snapshot_baseline_path(),
+        )?)),
+    };
+
+    let promoted_baseline = Snapshot::new(
+        baseline
+            .into_entries()
+            .into_iter()
+            .chain(promotion.into_entries().into_iter())
+            .collect::<HashMap<FactId, Batch>>(),
+    );
+
+    dest.write(serde_json::to_vec_pretty(&promoted_baseline)?.as_slice())?;
+
+    Ok(())
+}
