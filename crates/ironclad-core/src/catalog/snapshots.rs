@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, path::Path};
+use std::collections::HashMap;
 
 use rayon::iter::{FromParallelIterator, IntoParallelRefIterator, ParallelIterator};
 
@@ -36,30 +36,5 @@ impl Catalog {
                 .map(|(fact_id, batch)| Ok((fact_id.clone(), batch.to_owned())))
                 .collect::<Result<Vec<_>, CatalogError>>()?,
         )))
-    }
-
-    fn load_snapshot(&self, path: &Path) -> Result<Snapshot, CatalogError> {
-        Ok(serde_json::from_str(&fs::read_to_string(path)?)?)
-    }
-
-    fn save_snapshot(&self, path: &Path, snapshot: Snapshot) -> Result<(), CatalogError> {
-        fs::write(path, serde_json::to_string_pretty(&snapshot)?)?;
-        Ok(())
-    }
-
-    pub fn load_candidate_snapshot(&self) -> Result<Snapshot, CatalogError> {
-        self.load_snapshot(&self.snapshot_candidate_path())
-    }
-
-    pub fn save_candidate_snapshot(&self, snapshot: Snapshot) -> Result<(), CatalogError> {
-        self.save_snapshot(&self.snapshot_candidate_path(), snapshot)
-    }
-
-    pub fn load_baseline_snapshot(&self) -> Result<Snapshot, CatalogError> {
-        self.load_snapshot(&self.snapshot_baseline_path())
-    }
-
-    pub fn save_baseline_snapshot(&self, snapshot: Snapshot) -> Result<(), CatalogError> {
-        self.save_snapshot(&self.snapshot_baseline_path(), snapshot)
     }
 }

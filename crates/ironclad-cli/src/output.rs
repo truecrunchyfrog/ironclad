@@ -1,16 +1,9 @@
-use std::{
-    fmt::Display,
-    io::{Write, stdin, stdout},
-};
-
 use console::{Style, style};
 use ironclad_core::{
     fact::id::FactId,
     sample::Sample,
     snapshot::diff::{BatchDiff, SamplePresence},
 };
-
-use crate::ui;
 
 pub(crate) fn format_sample_diff(sample: &Sample, presence: &SamplePresence) -> String {
     let style = match presence {
@@ -82,76 +75,4 @@ pub(crate) fn format_batch_diff(fact_id: &FactId, diff: &BatchDiff) -> String {
     );
 
     format!("{status} {dirtiness} {fact_id}")
-}
-
-pub(crate) enum PromptOption<'a, T> {
-    Simple(&'a str, fn() -> T),
-    Dynamic(fn(&str) -> Option<Result<T, &str>>),
-}
-
-pub(crate) enum DisplayPromptOption<F: Display> {
-    AlwaysVisible { command: F, description: F },
-    Collapsed { command: F, description: F },
-}
-
-pub(crate) fn prompt<'a, T, F>(
-    options: Vec<(PromptOption<'a, T>, DisplayPromptOption<F>)>,
-) -> anyhow::Result<T>
-where
-    F: Display + 'a,
-{
-    let expandable = options
-        .iter()
-        .any(|(_, display_option)| matches!(display_option, DisplayPromptOption::Collapsed { .. }));
-    let mut expanded = false;
-
-    loop {
-        println!();
-        for (_, display_option) in &options {
-            match display_option {
-                DisplayPromptOption::AlwaysVisible {
-                    command,
-                    description,
-                } => println!("   {command}\t{description}"),
-                DisplayPromptOption::Collapsed {
-                    command,
-                    description,
-                } if expanded => println!("   {command}\t{description}"),
-                _ => (),
-            }
-        }
-
-        if expandable && !expanded {
-            println!(
-                "   {}\t{}",
-                style("?").dim(),
-                style("show all commands").dim()
-            );
-        }
-
-        stdout().flush()?;
-
-        let mut choice = String::new();
-        stdin().read_line(&mut choice)?;
-
-        let choice = choice.trim();
-
-        let result = options
-            .iter()
-            .find_map(|(prompt_option, _)| match prompt_option {
-                PromptOption::Simple(command, result) if &choice == command => Some(Ok(result())),
-                PromptOption::Dynamic(determiner) => determiner(choice),
-                _ => None,
-            });
-
-        match result {
-            Some(Ok(result)) => return Ok(result),
-            Some(Err(err)) => ui::error(err),
-            None if expandable && (choice == "?" || expanded && choice.is_empty()) => {
-                expanded = !expanded;
-            }
-            None if choice.is_empty() => ui::error("please enter a command."),
-            None => ui::error(format!("no such command '{choice}'.")),
-        }
-    }
 }
