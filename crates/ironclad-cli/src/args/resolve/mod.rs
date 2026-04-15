@@ -1,24 +1,11 @@
 use clap::Args;
+use clap_stdin::FileOrStdout;
 
-/// Capture snapshot of current state and compare against baseline.
+/// Capture a snapshot of currently evaluated state.
 #[derive(Args)]
 pub(crate) struct ResolveArgs {
-    /// ID of fact to show.
-    pub(crate) fact_id: Vec<String>,
 
-    /// Show confliced samples.
-    #[arg(short = 'd', long)]
-    pub(crate) expand_diff: bool,
-
-    /// Use cache instead of creating a new audit.
+    /// File to write snapshot to.
     #[arg(short, long)]
-    pub(crate) cache: bool,
-
-    /// Capture a fresh snapshot, without including cache from audit snapshot.
-    #[arg(short, long, conflicts_with = "cache")]
-    pub(crate) fresh: bool,
-
-    /// Don't set the audit as candidate state.
-    #[arg(long)]
-    pub(crate) dry_run: bool,
+    pub(crate) destination: Option<FileOrStdout>,
 }
