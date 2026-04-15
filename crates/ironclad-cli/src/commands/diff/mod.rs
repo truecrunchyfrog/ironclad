@@ -83,8 +83,10 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
             }
         }
     } else {
-        for (fact_id, batch_diff) in diff {
-            println!("{}", format_batch_diff(&fact_id, &batch_diff));
+        for (fact_id, batch_diff) in &diff {
+            if !batch_diff.batches_equal() {
+                println!("{}", format_batch_diff(&fact_id, &batch_diff));
+            }
         }
     }
 
@@ -95,7 +97,7 @@ fn format_batch_diff(fact_id: &FactId, diff: &BatchDiff) -> String {
     let status = match (diff.before(), diff.after()) {
         (None, Some(_)) => style("new").green(),
         (Some(_), None) => style("old").red(),
-        (Some(_), Some(_)) if diff.batches_equal() => style("ok!").black().on_green(),
+        (Some(_), Some(_)) if diff.batches_equal() => style("ok!"),
         (Some(_), Some(_)) => style("dft").yellow(),
         _ => unreachable!(),
     };
