@@ -59,6 +59,7 @@ pub(crate) enum Command {
     Recipe(RecipeCommand),
 
     Resolve(ResolveArgs),
+    #[command(alias = "i")]
     Inspect(InspectArgs),
     #[command(alias = "d")]
     Diff(DiffArgs),
