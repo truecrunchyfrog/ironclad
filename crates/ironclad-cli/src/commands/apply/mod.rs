@@ -32,11 +32,16 @@ pub(super) fn dispatch(_config: &Config, args: ApplyArgs) -> anyhow::Result<()> 
         )?)),
     };
 
+    let accepted_promotion = promotion
+        .into_entries()
+        .into_iter()
+        .filter(|(fact_id, _)| args.all || args.fact_id.contains(fact_id));
+
     let promoted_baseline = Snapshot::new(
         baseline
             .into_entries()
             .into_iter()
-            .chain(promotion.into_entries().into_iter())
+            .chain(accepted_promotion)
             .collect::<HashMap<FactId, Batch>>(),
     );
 
