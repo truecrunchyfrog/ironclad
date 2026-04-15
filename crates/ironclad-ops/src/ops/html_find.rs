@@ -48,7 +48,15 @@ impl TypedOperation for HtmlFind {
         Ok(SampleEvolution::Split(
             fragment
                 .select(&selector)
-                .map(|selection| input.evolve(Trace::new(HashMap::new()), selection.html()))
+                .map(|selection| {
+                    input.evolve(
+                        Trace::new(HashMap::from([(
+                            "node_id".to_string(),
+                            format!("{:?}", selection.id()),
+                        )])),
+                        selection.html(),
+                    )
+                })
                 .collect(),
         ))
     }
