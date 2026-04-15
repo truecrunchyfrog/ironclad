@@ -5,7 +5,7 @@ use clap_stdin::FileOrStdout;
 #[derive(Args)]
 pub(crate) struct ResolveArgs {
 
-    /// File to write snapshot to.
+    /// File to write snapshot to (default: catalog's candidate).
     #[arg(short, long)]
     pub(crate) destination: Option<FileOrStdout>,
 }
