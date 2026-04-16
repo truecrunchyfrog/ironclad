@@ -8,5 +8,4 @@
 - ulid for id, editable unique labels, indexing
 - show fact description in diffs
 - remove fact TTL?
-- use only one batch while working through a pipeline, instead of grouping
 - github action
