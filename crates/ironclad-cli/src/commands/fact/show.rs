@@ -12,7 +12,7 @@ pub(crate) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<(
         }
 
         ShowFactArgs { path: true, .. } => {
-            println!("{}", catalog.fact_path(fact.id()).to_string_lossy());
+            println!("{}", catalog.fact_file_path(fact.id()).to_string_lossy());
         }
 
         _ => {

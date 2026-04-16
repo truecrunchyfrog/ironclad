@@ -14,7 +14,7 @@ pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()
     let snapshot = serde_json::from_reader::<Box<dyn Read>, Snapshot>(match args.snapshot {
         Some(file_or_stdin) => Box::new(file_or_stdin.into_reader()?),
         None => Box::new(BufReader::new(File::open(
-            catalog.snapshot_baseline_path(),
+            catalog.snapshot_baseline_file_path(),
         )?)),
     })?;
 

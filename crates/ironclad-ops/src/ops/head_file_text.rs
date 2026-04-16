@@ -39,7 +39,7 @@ impl TypedOperation for HeadFileText {
         _input: Vec<Sample>,
         options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {
-        let base_path = catalog.container_dir();
+        let base_path = catalog.container_dir_path();
 
         let paths = options
             .files

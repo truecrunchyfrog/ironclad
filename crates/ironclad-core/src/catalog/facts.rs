@@ -12,7 +12,7 @@ use crate::{
 
 impl Catalog {
     fn fact_files(&self) -> Vec<DirEntry> {
-        let facts_dir = self.facts_dir();
+        let facts_dir = self.facts_dir_path();
         let entries = facts_dir
             .read_dir()
             .unwrap_or_else(|_| panic!("cannot read {facts_dir:#?} as directory"));
@@ -70,11 +70,11 @@ impl Catalog {
     }
 
     pub fn load_fact_for_id(&self, id: &FactId) -> Result<Fact, FactError> {
-        self.load_fact_for_path(&self.fact_path(id))
+        self.load_fact_for_path(&self.fact_file_path(id))
     }
 
     pub fn save_fact(&self, fact: &Fact) -> Result<(), FactError> {
-        let path = self.fact_path(fact.id());
+        let path = self.fact_file_path(fact.id());
 
         if !path.try_exists()? {
             return Err(FactError::PathNotFound(path));
@@ -86,7 +86,7 @@ impl Catalog {
     }
 
     pub fn add_fact(&self, fact: &Fact) -> Result<(), FactError> {
-        let path = self.fact_path(fact.id());
+        let path = self.fact_file_path(fact.id());
 
         if path.try_exists()? {
             return Err(FactError::PathAlreadyExists(path));
@@ -98,7 +98,7 @@ impl Catalog {
     }
 
     pub fn remove_fact(&self, id: &FactId) -> Result<(), CatalogError> {
-        let path = self.fact_path(id);
+        let path = self.fact_file_path(id);
 
         if !path.try_exists()? {
             return Err(FactError::PathNotFound(path).into());
