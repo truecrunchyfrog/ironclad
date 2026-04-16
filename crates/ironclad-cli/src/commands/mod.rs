@@ -1,5 +1,6 @@
 mod apply;
 mod catalog;
+mod check;
 mod diff;
 mod fact;
 mod inspect;
@@ -22,6 +23,7 @@ pub(super) fn dispatch(config: &Config, command: Command) -> anyhow::Result<()> 
         Command::Resolve(args) => resolve::dispatch(config, args),
         Command::Inspect(args) => inspect::dispatch(config, args),
         Command::Diff(args) => diff::dispatch(config, args),
+        Command::Check(args) => check::dispatch(config, args),
         Command::Apply(args) => apply::dispatch(config, args),
     }
 }
