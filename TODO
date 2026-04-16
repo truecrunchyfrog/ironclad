@@ -6,6 +6,5 @@
 - improve op documentation
 - move logic from cli to core
 - ulid for id, editable unique labels, indexing
-- show fact description in diffs
 - remove fact TTL?
 - github action
