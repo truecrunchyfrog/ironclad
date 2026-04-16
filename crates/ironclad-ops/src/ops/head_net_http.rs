@@ -39,7 +39,7 @@ impl TypedOperation for HeadNetHttp {
         "HTTP GET a web resource."
     }
 
-    fn eval(
+    fn eval_all_samples(
         &self,
         _catalog: &Catalog,
         _input: Vec<Vec<Sample>>,

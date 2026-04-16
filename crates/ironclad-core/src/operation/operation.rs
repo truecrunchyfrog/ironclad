@@ -8,16 +8,9 @@ pub trait Operation: Send + Sync {
     fn eval(
         &self,
         catalog: &Catalog,
-        input: Vec<Vec<Sample>>,
+        input: Vec<Sample>,
         options: serde_json::Value,
-    ) -> Result<Vec<Vec<Sample>>, OperationError>;
-}
-
-// TODO Consider only 'Split'-ting into a new batch each time instead of transforming, unless necessary.
-pub enum SampleEvolution {
-    Drop,
-    Transform(Sample),
-    Split(Vec<Sample>),
+    ) -> Result<Vec<Sample>, OperationError>;
 }
 
 pub trait TypedOperation: Send + Sync + 'static {
@@ -26,53 +19,25 @@ pub trait TypedOperation: Send + Sync + 'static {
 
     fn description(&self) -> &'static str;
 
-    fn eval(
-        &self,
-        catalog: &Catalog,
-        input: Vec<Vec<Sample>>,
-        options: Self::Options,
-    ) -> Result<Vec<Vec<Sample>>, Self::Error> {
-        input.into_iter().try_fold(Vec::new(), |mut result, batch| {
-            result.extend(self.eval_sample_set(catalog, batch, options.clone())?);
-            Ok(result)
-        })
-    }
-
-    fn eval_sample_set(
+    fn eval_all(
         &self,
         catalog: &Catalog,
         input: Vec<Sample>,
         options: Self::Options,
-    ) -> Result<Vec<Vec<Sample>>, Self::Error> {
-        let (old_set, new_sets) = input.into_iter().try_fold(
-            (vec![], vec![]),
-            |(mut old_set, mut new_sets), sample| {
-                match self.eval_sample(catalog, sample, options.clone())? {
-                    SampleEvolution::Drop => (),
-                    SampleEvolution::Transform(sample) => old_set.push(sample),
-                    SampleEvolution::Split(samples) => new_sets.push(samples),
-                }
-
-                Ok((old_set, new_sets))
-            },
-        )?;
-
-        let mut sample_sets = new_sets;
-
-        if !old_set.is_empty() {
-            sample_sets.push(old_set);
-        }
-
-        Ok(sample_sets)
+    ) -> Result<Vec<Sample>, Self::Error> {
+        input.into_iter().try_fold(Vec::new(), |mut acc, sample| {
+            acc.extend(self.eval_each(catalog, sample, options.clone())?);
+            Ok(acc)
+        })
     }
 
-    fn eval_sample(
+    fn eval_each(
         &self,
         #[allow(unused)] catalog: &Catalog,
         input: Sample,
         #[allow(unused)] options: Self::Options,
-    ) -> Result<SampleEvolution, Self::Error> {
-        Ok(SampleEvolution::Transform(input))
+    ) -> Result<Vec<Sample>, Self::Error> {
+        Ok(vec![input])
     }
 }
 
@@ -86,11 +51,11 @@ impl<T: TypedOperation> Operation for TypedOperationAdapter<T> {
     fn eval(
         &self,
         catalog: &Catalog,
-        input: Vec<Vec<Sample>>,
+        input: Vec<Sample>,
         options: serde_json::Value,
-    ) -> Result<Vec<Vec<Sample>>, OperationError> {
+    ) -> Result<Vec<Sample>, OperationError> {
         self.0
-            .eval(
+            .eval_all(
                 catalog,
                 input,
                 serde_json::from_value::<T::Options>(options)?,

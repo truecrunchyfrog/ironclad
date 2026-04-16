@@ -33,7 +33,7 @@ impl TypedOperation for HeadFileText {
         "Read text content from files."
     }
 
-    fn eval(
+    fn eval_all_samples(
         &self,
         catalog: &Catalog,
         _input: Vec<Vec<Sample>>,

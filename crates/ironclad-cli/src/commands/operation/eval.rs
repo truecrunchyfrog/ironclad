@@ -19,7 +19,7 @@ pub(super) fn dispatch(_config: &Config, args: EvalOperationArgs) -> anyhow::Res
     } else {
         let mut buf = Vec::new();
         stdin().read_to_end(&mut buf)?;
-        serde_json::from_slice::<Vec<Vec<Sample>>>(buf.as_slice())?
+        serde_json::from_slice::<Vec<Sample>>(buf.as_slice())?
     };
 
     let output = operation.eval(&catalog, input, options)?;

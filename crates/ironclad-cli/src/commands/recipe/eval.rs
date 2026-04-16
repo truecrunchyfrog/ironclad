@@ -27,7 +27,7 @@ pub(super) fn dispatch(_config: &Config, args: EvalRecipeArgs) -> anyhow::Result
 
     eval_steps.into_iter().try_fold(
         Vec::new(),
-        |input, (step, index)| -> anyhow::Result<Vec<Vec<Sample>>> {
+        |input, (step, index)| -> anyhow::Result<Vec<Sample>> {
             ui::info(format!(
                 "{}  {}  {}",
                 index,

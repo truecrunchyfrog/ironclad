@@ -55,10 +55,7 @@ impl Recipe {
         Ok(Batch::new(
             self.0
                 .iter()
-                .try_fold(Vec::new(), |input, step| step.eval(catalog, input))?
-                .into_iter()
-                .flatten()
-                .collect::<Vec<_>>(),
+                .try_fold(Vec::new(), |input, step| step.eval(catalog, input))?,
         ))
     }
 }
