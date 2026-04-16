@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use ironclad_core::{
     catalog::Catalog,
-    operation::{SampleEvolution, TypedOperation},
+    operation::TypedOperation,
     sample::{Sample, Trace},
 };
 use serde::Deserialize;
@@ -31,13 +31,13 @@ impl TypedOperation for TextReplace {
         "Replace text."
     }
 
-    fn eval_sample(
+    fn eval_each(
         &self,
         _catalog: &Catalog,
         input: Sample,
         options: Self::Options,
-    ) -> Result<SampleEvolution, Self::Error> {
-        Ok(SampleEvolution::Transform(
+    ) -> Result<Vec<Sample>, Self::Error> {
+        Ok(vec![
             input.evolve(
                 Trace::new(HashMap::new()),
                 match options {
@@ -68,6 +68,6 @@ impl TypedOperation for TextReplace {
                         .to_string(),
                 },
             ),
-        ))
+        ])
     }
 }

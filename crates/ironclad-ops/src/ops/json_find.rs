@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use ironclad_core::{
     catalog::Catalog,
-    operation::{SampleEvolution, TypedOperation},
+    operation::TypedOperation,
     sample::{Sample, Trace},
 };
 use serde::Deserialize;
@@ -30,12 +30,12 @@ impl TypedOperation for JsonFind {
         "Find values in a JSON object or array. https://docs.rs/serde_json_path/latest/serde_json_path/struct.JsonPath.html"
     }
 
-    fn eval_sample(
+    fn eval_each(
         &self,
         _catalog: &Catalog,
         input: Sample,
         options: Self::Options,
-    ) -> Result<SampleEvolution, Self::Error> {
+    ) -> Result<Vec<Sample>, Self::Error> {
         let json = serde_json::from_str::<serde_json::Value>(input.content())?;
         let values = options.path.query_located(&json);
 
@@ -49,11 +49,9 @@ impl TypedOperation for JsonFind {
             )
         }
 
-        Ok(SampleEvolution::Split(
-            values
-                .into_iter()
-                .map(|located_node| located_node_to_sample(&input, located_node))
-                .collect(),
-        ))
+        Ok(values
+            .into_iter()
+            .map(|located_node| located_node_to_sample(&input, located_node))
+            .collect())
     }
 }

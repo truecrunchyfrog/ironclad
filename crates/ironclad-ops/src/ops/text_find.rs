@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use ironclad_core::{
     catalog::Catalog,
-    operation::{SampleEvolution, TypedOperation},
+    operation::TypedOperation,
     sample::{Sample, Trace},
 };
 use serde::Deserialize;
@@ -30,13 +30,13 @@ impl TypedOperation for TextFind {
         "Match text. https://docs.rs/regex/latest/regex/#syntax"
     }
 
-    fn eval_sample(
+    fn eval_each(
         &self,
         _catalog: &Catalog,
         input: Sample,
         options: Self::Options,
-    ) -> Result<SampleEvolution, Self::Error> {
-        Ok(SampleEvolution::Split(match options.selection {
+    ) -> Result<Vec<Sample>, Self::Error> {
+        Ok(match options.selection {
             TextSelector::Plaintext(plaintext) => input
                 .content()
                 .match_indices(&plaintext)
@@ -70,6 +70,6 @@ impl TypedOperation for TextFind {
                     )
                 })
                 .collect::<Vec<_>>(),
-        }))
+        })
     }
 }

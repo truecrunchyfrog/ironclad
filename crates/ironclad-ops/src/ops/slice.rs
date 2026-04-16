@@ -23,12 +23,12 @@ impl TypedOperation for Slice {
         "Select a subslice of the samples."
     }
 
-    fn eval_sample_set(
+    fn eval_all(
         &self,
         _catalog: &Catalog,
         input: Vec<Sample>,
         options: Self::Options,
-    ) -> Result<Vec<Vec<Sample>>, Self::Error> {
+    ) -> Result<Vec<Sample>, Self::Error> {
         let range = Range {
             start: options.drop.unwrap_or(0),
             end: options
@@ -36,6 +36,6 @@ impl TypedOperation for Slice {
                 .map_or_else(|| input.len(), |take| options.drop.unwrap_or(0) + take),
         };
 
-        Ok(vec![input.get(range).unwrap_or_default().to_vec()])
+        Ok(input.get(range).unwrap_or_default().to_vec())
     }
 }

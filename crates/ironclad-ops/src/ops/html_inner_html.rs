@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use ironclad_core::{
     catalog::Catalog,
-    operation::{SampleEvolution, TypedOperation},
+    operation::TypedOperation,
     sample::{Sample, Trace},
 };
 use scraper::Element;
@@ -19,15 +19,15 @@ impl TypedOperation for HtmlInnerHtml {
         "Select the inner HTML of an HTML element."
     }
 
-    fn eval_sample(
+    fn eval_each(
         &self,
         _catalog: &Catalog,
         input: Sample,
         _options: Self::Options,
-    ) -> Result<SampleEvolution, Self::Error> {
+    ) -> Result<Vec<Sample>, Self::Error> {
         let fragment = scraper::Html::parse_fragment(input.content());
 
-        Ok(SampleEvolution::Transform(
+        Ok(vec![
             input.evolve(
                 Trace::new(HashMap::new()),
                 fragment
@@ -36,6 +36,6 @@ impl TypedOperation for HtmlInnerHtml {
                     .ok_or(FragmentError::NoElement)?
                     .inner_html(),
             ),
-        ))
+        ])
     }
 }

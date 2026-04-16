@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use ironclad_core::{
     catalog::Catalog,
-    operation::{SampleEvolution, TypedOperation},
+    operation::TypedOperation,
     sample::{Sample, Trace},
 };
 use serde::Deserialize;
@@ -31,12 +31,12 @@ impl TypedOperation for HtmlFind {
         "Find elements in HTML."
     }
 
-    fn eval_sample(
+    fn eval_each(
         &self,
         _catalog: &Catalog,
         input: Sample,
         options: Self::Options,
-    ) -> Result<SampleEvolution, Self::Error> {
+    ) -> Result<Vec<Sample>, Self::Error> {
         let fragment = if options.document {
             scraper::Html::parse_document
         } else {
@@ -45,19 +45,17 @@ impl TypedOperation for HtmlFind {
         let selector = scraper::Selector::parse(&options.selector)
             .map_err(|err| Error::Selector(err.to_string()))?;
 
-        Ok(SampleEvolution::Split(
-            fragment
-                .select(&selector)
-                .map(|selection| {
-                    input.evolve(
-                        Trace::new(HashMap::from([(
-                            "node_id".to_string(),
-                            format!("{:?}", selection.id()),
-                        )])),
-                        selection.html(),
-                    )
-                })
-                .collect(),
-        ))
+        Ok(fragment
+            .select(&selector)
+            .map(|selection| {
+                input.evolve(
+                    Trace::new(HashMap::from([(
+                        "node_id".to_string(),
+                        format!("{:?}", selection.id()),
+                    )])),
+                    selection.html(),
+                )
+            })
+            .collect())
     }
 }

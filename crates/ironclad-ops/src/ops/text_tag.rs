@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use chumsky::prelude::*;
 use ironclad_core::{
     catalog::Catalog,
-    operation::{SampleEvolution, TypedOperation},
+    operation::TypedOperation,
     sample::{Sample, Trace},
 };
 use serde::Deserialize;
@@ -29,12 +29,12 @@ impl TypedOperation for TextTag {
         "Find tags."
     }
 
-    fn eval_sample(
+    fn eval_each(
         &self,
         _catalog: &Catalog,
         input: Sample,
         options: Self::Options,
-    ) -> Result<SampleEvolution, Self::Error> {
+    ) -> Result<Vec<Sample>, Self::Error> {
         /*
 
         Only this line:
@@ -124,29 +124,26 @@ impl TypedOperation for TextTag {
         let parse = parser.parse(content);
 
         if let Some(tags) = parse.into_output() {
-            Ok(SampleEvolution::Split(
-                tags.into_iter()
-                    .filter(|tag| tag.id == options.tag)
-                    .map(|tag| {
-                        let rules = tag.inner.rules;
+            Ok(tags
+                .into_iter()
+                .filter(|tag| tag.id == options.tag)
+                .map(|tag| {
+                    let rules = tag.inner.rules;
 
-                        let left_text =
-                            TagRule::Left(rules.left).select(&content[..tag.span.start]);
-                        let right_text =
-                            TagRule::Right(rules.right).select(&content[tag.span.end..]);
+                    let left_text = TagRule::Left(rules.left).select(&content[..tag.span.start]);
+                    let right_text = TagRule::Right(rules.right).select(&content[tag.span.end..]);
 
-                        input.evolve(
-                            Trace::new(HashMap::from([
-                                ("start".to_string(), (tag.span.start).to_string()),
-                                ("end".to_string(), (tag.span.end).to_string()),
-                            ])),
-                            format!("{left_text}{right_text}"),
-                        )
-                    })
-                    .collect(),
-            ))
+                    input.evolve(
+                        Trace::new(HashMap::from([
+                            ("start".to_string(), (tag.span.start).to_string()),
+                            ("end".to_string(), (tag.span.end).to_string()),
+                        ])),
+                        format!("{left_text}{right_text}"),
+                    )
+                })
+                .collect())
         } else {
-            Ok(SampleEvolution::Drop)
+            Ok(Vec::new())
         }
     }
 }

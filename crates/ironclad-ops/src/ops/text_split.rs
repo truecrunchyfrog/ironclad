@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use ironclad_core::{
     catalog::Catalog,
-    operation::{SampleEvolution, TypedOperation},
+    operation::TypedOperation,
     sample::{Sample, Trace},
 };
 use serde::Deserialize;
@@ -31,12 +31,12 @@ impl TypedOperation for TextSplit {
         "Split text into samples."
     }
 
-    fn eval_sample(
+    fn eval_each(
         &self,
         _catalog: &Catalog,
         input: Sample,
         options: Self::Options,
-    ) -> Result<SampleEvolution, Self::Error> {
+    ) -> Result<Vec<Sample>, Self::Error> {
         let parts = match options {
             Self::Options::AtIndex(mid) => input
                 .content()
@@ -50,11 +50,9 @@ impl TypedOperation for TextSplit {
             Options::OnTextInclusive { text } => input.content().split_inclusive(&text).collect(),
         };
 
-        Ok(SampleEvolution::Split(
-            parts
-                .into_iter()
-                .map(|content| input.evolve(Trace::new(HashMap::new()), content.to_string()))
-                .collect::<Vec<_>>(),
-        ))
+        Ok(parts
+            .into_iter()
+            .map(|content| input.evolve(Trace::new(HashMap::new()), content.to_string()))
+            .collect::<Vec<_>>())
     }
 }

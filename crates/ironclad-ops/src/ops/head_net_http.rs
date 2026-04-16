@@ -39,21 +39,18 @@ impl TypedOperation for HeadNetHttp {
         "HTTP GET a web resource."
     }
 
-    fn eval_all_samples(
+    fn eval_all(
         &self,
         _catalog: &Catalog,
-        _input: Vec<Vec<Sample>>,
+        _input: Vec<Sample>,
         options: Self::Options,
-    ) -> Result<Vec<Vec<Sample>>, Self::Error> {
+    ) -> Result<Vec<Sample>, Self::Error> {
         let client = reqwest::blocking::Client::new();
         let mut headers = HeaderMap::new();
         headers.insert(USER_AGENT, HeaderValue::from_str(&options.user_agent)?);
 
         let response_text = client.get(options.url).headers(headers).send()?.text()?;
 
-        Ok(vec![vec![Sample::new(
-            Trace::new(HashMap::new()),
-            response_text,
-        )]])
+        Ok(vec![Sample::new(Trace::new(HashMap::new()), response_text)])
     }
 }

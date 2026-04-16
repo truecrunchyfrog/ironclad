@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use ironclad_core::{
     catalog::Catalog,
-    operation::{SampleEvolution, TypedOperation},
+    operation::TypedOperation,
     sample::{Sample, Trace},
 };
 
@@ -19,18 +19,16 @@ impl TypedOperation for TextLines {
         "Split lines into samples."
     }
 
-    fn eval_sample(
+    fn eval_each(
         &self,
         _catalog: &Catalog,
         input: Sample,
         _options: Self::Options,
-    ) -> Result<SampleEvolution, Self::Error> {
-        Ok(SampleEvolution::Split(
-            input
-                .content()
-                .lines()
-                .map(|line| input.evolve(Trace::new(HashMap::new()), line.to_string()))
-                .collect::<Vec<_>>(),
-        ))
+    ) -> Result<Vec<Sample>, Self::Error> {
+        Ok(input
+            .content()
+            .lines()
+            .map(|line| input.evolve(Trace::new(HashMap::new()), line.to_string()))
+            .collect::<Vec<_>>())
     }
 }

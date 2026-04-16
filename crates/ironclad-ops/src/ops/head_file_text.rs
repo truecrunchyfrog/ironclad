@@ -33,12 +33,12 @@ impl TypedOperation for HeadFileText {
         "Read text content from files."
     }
 
-    fn eval_all_samples(
+    fn eval_all(
         &self,
         catalog: &Catalog,
-        _input: Vec<Vec<Sample>>,
+        _input: Vec<Sample>,
         options: Self::Options,
-    ) -> Result<Vec<Vec<Sample>>, Self::Error> {
+    ) -> Result<Vec<Sample>, Self::Error> {
         let base_path = catalog.container_dir();
 
         let paths = options
@@ -77,6 +77,6 @@ impl TypedOperation for HeadFileText {
             })
             .collect::<Vec<_>>();
 
-        Ok(vec![files])
+        Ok(files)
     }
 }
