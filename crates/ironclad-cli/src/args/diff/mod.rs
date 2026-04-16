@@ -1,7 +1,7 @@
 use clap::Args;
 use clap_stdin::FileOrStdin;
 
-/// Show difference between two snapshots.
+/// Show comparison between two snapshots.
 #[derive(Args)]
 pub(crate) struct DiffArgs {
     /// ID of fact whose samples to inspect.
