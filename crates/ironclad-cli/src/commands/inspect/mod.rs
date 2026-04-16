@@ -62,7 +62,7 @@ pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()
         for (fact_id, batch) in snapshot.into_entries() {
             println!(
                 "{fact_id}: {}: {}",
-                humantime::format_rfc3339_seconds(batch.created().clone()),
+                humantime::format_rfc3339_seconds(*batch.created()),
                 batch.samples().len(),
             );
         }

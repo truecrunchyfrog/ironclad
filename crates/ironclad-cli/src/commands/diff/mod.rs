@@ -85,7 +85,7 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
     } else {
         for (fact_id, batch_diff) in &diff {
             if !batch_diff.batches_equal() {
-                println!("{}", format_batch_diff(&fact_id, &batch_diff));
+                println!("{}", format_batch_diff(fact_id, batch_diff));
             }
         }
     }
