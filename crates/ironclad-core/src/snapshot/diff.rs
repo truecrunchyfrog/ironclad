@@ -3,7 +3,6 @@ use std::collections::{HashMap, HashSet};
 use serde::Serialize;
 
 use crate::{
-    fact::id::FactId,
     sample::{Sample, batch::Batch},
     snapshot::Snapshot,
 };
@@ -72,11 +71,11 @@ impl BatchDiff {
 
 impl Snapshot {
     #[must_use]
-    pub fn diff(&self, before: &Self) -> HashMap<FactId, BatchDiff> {
+    pub fn diff(&self, before: &Self) -> HashMap<String, BatchDiff> {
         let before = before.entries();
         let after = self.entries();
 
-        let fact_ids = HashSet::<FactId>::from_iter(before.keys().chain(after.keys()).cloned());
+        let fact_ids = HashSet::<String>::from_iter(before.keys().chain(after.keys()).cloned());
 
         HashMap::from_iter(fact_ids.into_iter().map(|fact_id| {
             let before = before.get(&fact_id);

@@ -1,10 +1,15 @@
-use clap::Args;
+use clap::{ArgGroup, Args};
 
 /// Create a fact.
 #[derive(Args)]
+#[command(group(ArgGroup::new("label_mode").args(["label", "no_label"]).required(true)))]
 pub(crate) struct AddFactArgs {
-    /// An ID of the fact to create.
-    pub(crate) fact_id: String,
+    /// Assign a label to the fact.
+    pub(crate) label: Option<String>,
+
+    /// Don't assign a label to the fact.
+    #[arg(long)]
+    pub(crate) no_label: bool,
 
     /// Describe the fact's purpose.
     #[arg(long)]

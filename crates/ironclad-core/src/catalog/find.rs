@@ -3,7 +3,7 @@ use std::{ffi::OsStr, path::Path};
 use crate::catalog::{Catalog, error::CatalogError};
 
 impl Catalog {
-    pub(crate) fn is_catalog_dir(path: &Path) -> bool {
+    fn is_catalog_dir(path: &Path) -> bool {
         path.file_name() == Some(OsStr::new(".ironclad")) && path.is_dir()
     }
 

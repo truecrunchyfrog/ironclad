@@ -1,61 +1,22 @@
-use std::{
-    fs::{self, DirEntry},
-    path::Path,
-};
-
-use log::{info, warn};
+use std::path::{Path, PathBuf};
 
 use crate::{
-    catalog::{catalog::Catalog, error::CatalogError},
-    fact::{Fact, error::FactError, id::FactId},
+    catalog::{FactIndex, catalog::Catalog, error::CatalogError},
+    fact::{Fact, error::FactError},
 };
 
 impl Catalog {
-    fn fact_files(&self) -> Vec<DirEntry> {
-        let facts_dir = self.facts_dir_path();
-        let entries = facts_dir
-            .read_dir()
-            .unwrap_or_else(|_| panic!("cannot read {facts_dir:#?} as directory"));
-
-        entries
-            .filter_map(|entry| {
-                entry
-                    .inspect_err(|err| warn!("strange entry: {err}"))
-                    .ok()
-                    .filter(|entry| {
-                        entry
-                            .file_type()
-                            .inspect_err(|err| warn!("cannot check file type: {err}"))
-                            .is_ok_and(|filetype| {
-                                if filetype.is_file() {
-                                    true
-                                } else {
-                                    warn!("non-file fact entry ignored: {:#?}", entry.path());
-                                    false
-                                }
-                            })
-                    })
-            })
-            .collect::<Vec<_>>()
-    }
-
-    #[must_use]
-    pub fn fact_ids(&self) -> Vec<FactId> {
-        self.fact_files()
-            .iter()
-            .map(|file| FactId::for_path(&file.path()))
-            .collect()
-    }
-
-    pub fn load_facts(&self) -> Result<Vec<Fact>, CatalogError> {
+    pub fn load_facts(&self) -> Result<Vec<(String, PathBuf, Fact)>, CatalogError> {
         Ok(self
-            .fact_files()
-            .iter()
-            .flat_map(|entry| {
-                self.load_fact_for_path(&entry.path())
-                    .inspect_err(|err| warn!("failed to load fact {:#?}: {}", entry.path(), err))
+            .load_fact_index()?
+            .into_entries()
+            .into_iter()
+            .map(|(label, filename)| {
+                let path = self.facts_dir_path().join(&filename);
+                self.load_fact_for_path(&path)
+                    .map(|fact| (label, path, fact))
             })
-            .collect::<Vec<_>>())
+            .collect::<Result<Vec<_>, _>>()?)
     }
 
     pub fn load_fact_for_path(&self, path: &Path) -> Result<Fact, FactError> {
@@ -63,56 +24,24 @@ impl Catalog {
             return Err(FactError::PathNotFound(path.to_path_buf()));
         }
 
-        let mut fact: Fact = serde_json::from_str(&fs::read_to_string(path)?)?;
-        *fact.id_mut() = FactId::for_path(path);
-
-        Ok(fact)
+        Ok(serde_json::from_slice(std::fs::read(path)?.as_slice())?)
     }
 
-    pub fn load_fact_for_id(&self, id: &FactId) -> Result<Fact, FactError> {
-        self.load_fact_for_path(&self.fact_file_path(id))
+    pub fn fact_id_for_label(index: &FactIndex, label: &str) -> Result<String, CatalogError> {
+        index
+            .id_for_label(label)
+            .ok_or_else(|| CatalogError::LabelNotInIndex(label.to_string()))
     }
 
-    pub fn save_fact(&self, fact: &Fact) -> Result<(), FactError> {
-        let path = self.fact_file_path(fact.id());
-
-        if !path.try_exists()? {
-            return Err(FactError::PathNotFound(path));
-        }
-
-        write_fact(&path, fact)?;
-
-        Ok(())
+    pub fn label_for_fact_id(index: &FactIndex, fact_id: &str) -> Result<String, CatalogError> {
+        index
+            .label_for_id(fact_id)
+            .ok_or_else(|| CatalogError::IdNotInIndex(fact_id.to_string()))
     }
 
-    pub fn add_fact(&self, fact: &Fact) -> Result<(), FactError> {
-        let path = self.fact_file_path(fact.id());
-
-        if path.try_exists()? {
-            return Err(FactError::PathAlreadyExists(path));
-        }
-
-        write_fact(&path, fact)?;
-
-        Ok(())
+    pub fn load_fact_for_label(&self, label: &str) -> Result<Fact, CatalogError> {
+        Ok(self.load_fact_for_path(
+            &self.fact_file_path(&Self::fact_id_for_label(&self.load_fact_index()?, label)?),
+        )?)
     }
-
-    pub fn remove_fact(&self, id: &FactId) -> Result<(), CatalogError> {
-        let path = self.fact_file_path(id);
-
-        if !path.try_exists()? {
-            return Err(FactError::PathNotFound(path).into());
-        }
-
-        info!("removing fact at {path:?}");
-        fs::remove_file(path)?;
-
-        Ok(())
-    }
-}
-
-fn write_fact(path: &Path, fact: &Fact) -> Result<(), FactError> {
-    info!("writing fact at {path:?}");
-    fs::write(path, serde_json::to_vec_pretty(fact)?)?;
-    Ok(())
 }

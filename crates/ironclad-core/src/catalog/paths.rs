@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::{catalog::catalog::Catalog, fact::id::FactId};
+use crate::catalog::catalog::Catalog;
 
 impl Catalog {
     #[must_use]
@@ -19,8 +19,13 @@ impl Catalog {
     }
 
     #[must_use]
-    pub fn fact_file_path(&self, id: &FactId) -> PathBuf {
-        self.facts_dir_path().join(id.to_string())
+    pub fn fact_index_file_path(&self) -> PathBuf {
+        self.dir().join("index.json")
+    }
+
+    #[must_use]
+    pub fn fact_file_path(&self, fact_id: &str) -> PathBuf {
+        self.facts_dir_path().join(fact_id)
     }
 
     #[must_use]

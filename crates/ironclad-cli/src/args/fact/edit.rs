@@ -3,12 +3,12 @@ use clap::Args;
 /// Edit a fact.
 #[derive(Args)]
 pub(crate) struct EditFactArgs {
-    /// ID of fact to edit.
-    pub(crate) fact_id: String,
+    /// Fact to edit.
+    pub(crate) label: String,
 
-    /// Change the fact's ID.
+    /// Reassign the fact to a new label.
     #[arg(long)]
-    pub(crate) id: Option<String>,
+    pub(crate) relabel: Option<String>,
 
     /// Change the description.
     #[arg(long)]

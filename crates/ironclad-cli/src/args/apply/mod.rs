@@ -1,17 +1,16 @@
 use clap::{ArgGroup, Args};
 use clap_stdin::{FileOrStdin, FileOrStdout};
-use ironclad_core::fact::id::FactId;
 
 /// Upgrade a snapshot with batches.
 #[derive(Args)]
 #[command(group(
     ArgGroup::new("selection")
-        .args(["fact_id", "all"])
+        .args(["label", "all"])
         .required(true)
 ))]
 pub(crate) struct ApplyArgs {
-    /// ID of fact to apply.
-    pub(crate) fact_id: Vec<FactId>,
+    /// Fact to apply.
+    pub(crate) label: Vec<String>,
 
     /// Apply everything.
     #[arg(short, long)]

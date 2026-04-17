@@ -4,8 +4,8 @@ use clap_stdin::FileOrStdin;
 /// Show comparison between two snapshots.
 #[derive(Args)]
 pub(crate) struct DiffArgs {
-    /// ID of fact whose samples to inspect.
-    pub(crate) fact_id: Option<String>,
+    /// Fact whose samples to inspect.
+    pub(crate) label: Option<String>,
 
     /// Index of sample to show (starting from 1).
     pub(crate) index: Option<usize>,

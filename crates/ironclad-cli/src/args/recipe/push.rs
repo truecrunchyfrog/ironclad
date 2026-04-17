@@ -4,13 +4,13 @@ use clap_stdin::MaybeStdin;
 /// Add a step to a recipe.
 #[derive(Args)]
 pub(crate) struct PushRecipeArgs {
-    /// ID of fact.
-    pub(crate) fact_id: String,
+    /// Fact whose recipe to edit.
+    pub(crate) label: String,
 
     /// ID of operation.
     pub(crate) operation_id: String,
 
-    /// Options to pass to the operation in JSON, or '-' to read from stdin.
+    /// Options to pass to the operation in JSON. '-' for stdin.
     #[arg(short, long)]
     pub(crate) options: Option<MaybeStdin<String>>,
 

@@ -5,7 +5,7 @@ use std::{
 
 use console::style;
 use ironclad_core::{
-    fact::id::FactId,
+    catalog::Catalog,
     snapshot::{
         Snapshot,
         diff::{BatchDiff, SamplePresence},
@@ -35,8 +35,10 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
 
     if args.raw {
         println!("{}", serde_json::to_string_pretty(&diff)?);
-    } else if let Some(fact_id) = args.fact_id {
-        if let Some(batch_diff) = diff.remove(&FactId::from(fact_id)) {
+    } else if let Some(label) = args.label {
+        let fact_id = Catalog::fact_id_for_label(&catalog.load_fact_index()?, &label)?;
+
+        if let Some(batch_diff) = diff.remove(&fact_id) {
             for ((sample, presence), i) in batch_diff
                 .sample_diffs()
                 .into_iter()
@@ -84,8 +86,10 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
         }
     } else {
         for (fact_id, batch_diff) in &diff {
+            let label = Catalog::label_for_fact_id(&catalog.load_fact_index()?, fact_id)?;
+
             if !batch_diff.batches_equal() {
-                println!("{}", format_batch_diff(fact_id, batch_diff));
+                println!("{}", format_batch_diff(&label, batch_diff));
             }
         }
     }
@@ -93,7 +97,7 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn format_batch_diff(fact_id: &FactId, diff: &BatchDiff) -> String {
+fn format_batch_diff(label: &str, diff: &BatchDiff) -> String {
     let status = match (diff.before(), diff.after()) {
         (None, Some(_)) => style("new").green(),
         (Some(_), None) => style("old").red(),
@@ -110,5 +114,5 @@ fn format_batch_diff(fact_id: &FactId, diff: &BatchDiff) -> String {
             .as_slice(),
     );
 
-    format!("{status} {dirtiness} {fact_id}")
+    format!("{status} {dirtiness} {label}")
 }

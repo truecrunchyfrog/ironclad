@@ -2,12 +2,10 @@ use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{fact::id::FactId, recipe::Recipe};
+use crate::recipe::Recipe;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Fact {
-    #[serde(skip)]
-    id: FactId,
     description: Option<String>,
     recipe: Recipe,
     cache_lifespan: Duration,
@@ -15,27 +13,12 @@ pub struct Fact {
 
 impl Fact {
     #[must_use]
-    pub fn new(
-        id: FactId,
-        description: Option<String>,
-        cache_lifespan: Duration,
-        recipe: Recipe,
-    ) -> Self {
+    pub fn new(description: Option<String>, cache_lifespan: Duration, recipe: Recipe) -> Self {
         Self {
-            id,
             description,
             recipe,
             cache_lifespan,
         }
-    }
-
-    #[must_use]
-    pub fn id(&self) -> &FactId {
-        &self.id
-    }
-
-    pub fn id_mut(&mut self) -> &mut FactId {
-        &mut self.id
     }
 
     #[must_use]

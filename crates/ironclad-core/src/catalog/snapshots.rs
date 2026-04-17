@@ -12,13 +12,13 @@ impl Catalog {
         let facts = self.load_facts()?;
 
         let batches = facts
-            .par_iter()
-            .map(|fact| {
+            .into_iter()
+            .map(|(label, path, fact)| {
                 Ok((
-                    fact.id().clone(),
+                    label.clone(),
                     match cache
                         .as_ref()
-                        .and_then(|snapshot| snapshot.entries().get(fact.id()))
+                        .and_then(|snapshot| snapshot.entries().get(path.to_str().unwrap()))
                     {
                         Some(entry) if entry.created().elapsed()? < *fact.cache_lifespan() => {
                             entry.clone()

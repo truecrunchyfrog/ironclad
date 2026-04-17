@@ -8,12 +8,6 @@ pub enum FactError {
     #[error("fact not found at {0}")]
     PathNotFound(PathBuf),
 
-    #[error("fact not found: {0}")]
-    NoSuchFactId(String),
-
-    #[error("ambiguous fact ID: {0}")]
-    AmbiguousFactId(String),
-
     #[error(transparent)]
     Json(#[from] serde_json::Error),
 

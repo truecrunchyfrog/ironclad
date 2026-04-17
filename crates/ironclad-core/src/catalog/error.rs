@@ -13,8 +13,17 @@ pub enum CatalogError {
     #[error("path already exists, but is not a directory: {0}")]
     PathNotDirectory(PathBuf),
 
+    #[error("fact label not in index: {0}")]
+    LabelNotInIndex(String),
+
+    #[error("fact ID not in index: {0}")]
+    IdNotInIndex(String),
+
     #[error("an operation does not exist by such ID: {0}")]
     OperationNotFound(String),
+
+    #[error(transparent)]
+    StripPrefix(#[from] std::path::StripPrefixError),
 
     #[error(transparent)]
     Fact(#[from] FactError),

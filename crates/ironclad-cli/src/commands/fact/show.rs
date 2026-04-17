@@ -1,10 +1,14 @@
-use ironclad_core::fact::id::FactId;
+use ironclad_core::catalog::Catalog;
 
 use crate::{args::fact::show::ShowFactArgs, config::Config, helper::resolve_catalog};
 
 pub(crate) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-    let fact = catalog.load_fact_for_id(&FactId::from(args.fact_id))?;
+
+    let index = catalog.load_fact_index()?;
+    let fact_id = Catalog::fact_id_for_label(&index, &args.label)?;
+    let path = catalog.fact_file_path(&fact_id);
+    let fact = catalog.load_fact_for_path(&path)?;
 
     match args {
         ShowFactArgs { raw: true, .. } => {
@@ -12,17 +16,16 @@ pub(crate) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<(
         }
 
         ShowFactArgs { path: true, .. } => {
-            println!("{}", catalog.fact_file_path(fact.id()).to_string_lossy());
+            println!("{}", path.to_string_lossy());
         }
 
         _ => {
             println!(
-                "{}\ndescription: {}\nsteps: {}",
-                fact.id(),
+                "{}\n{fact_id}\n{path:?}\n{}",
+                args.label,
                 fact.description()
                     .clone()
-                    .unwrap_or_else(|| String::from("none")),
-                fact.recipe().steps().len()
+                    .unwrap_or_else(|| String::from("no description"))
             );
         }
     }

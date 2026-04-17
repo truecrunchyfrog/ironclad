@@ -3,10 +3,10 @@ use clap::Args;
 /// Evaluate a recipe.
 #[derive(Args)]
 pub(crate) struct EvalRecipeArgs {
-    /// ID of fact.
-    pub(crate) fact_id: String,
+    /// Label of fact.
+    pub(crate) label: String,
 
-    /// Show the output of these steps.
+    /// Show the output of this step.
     #[arg(short, long)]
     pub(crate) show: Option<Vec<usize>>,
 
@@ -14,7 +14,7 @@ pub(crate) struct EvalRecipeArgs {
     #[arg(short = 'a', long, conflicts_with = "show")]
     pub(crate) show_all: bool,
 
-    /// Only evaluate these steps.
+    /// Only evaluate this step.
     #[arg(short, long)]
     pub(crate) indices: Option<Vec<usize>>,
 }

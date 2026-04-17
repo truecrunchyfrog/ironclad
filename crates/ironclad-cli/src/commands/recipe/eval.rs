@@ -1,11 +1,11 @@
 use anyhow::anyhow;
-use ironclad_core::{fact::id::FactId, sample::Sample};
+use ironclad_core::sample::Sample;
 
 use crate::{args::recipe::eval::EvalRecipeArgs, config::Config, helper::resolve_catalog, ui};
 
 pub(super) fn dispatch(_config: &Config, args: EvalRecipeArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-    let fact = catalog.load_fact_for_id(&FactId::from(args.fact_id))?;
+    let fact = catalog.load_fact_for_label(&args.label)?;
 
     let step_len = fact.recipe().steps().len();
 

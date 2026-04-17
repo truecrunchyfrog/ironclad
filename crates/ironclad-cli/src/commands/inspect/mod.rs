@@ -4,12 +4,14 @@ use std::{
 };
 
 use console::style;
-use ironclad_core::{fact::id::FactId, snapshot::Snapshot};
+use ironclad_core::{catalog::Catalog, snapshot::Snapshot};
 
 use crate::{args::inspect::InspectArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
+
+    let index = catalog.load_fact_index()?;
 
     let snapshot = serde_json::from_reader::<Box<dyn Read>, Snapshot>(match args.snapshot {
         Some(file_or_stdin) => Box::new(file_or_stdin.into_reader()?),
@@ -20,8 +22,10 @@ pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()
 
     if args.raw {
         println!("{}", serde_json::to_string_pretty(&snapshot)?);
-    } else if let Some(fact_id) = args.fact_id {
-        if let Some(batch) = snapshot.into_entries().remove(&FactId::from(fact_id)) {
+    } else if let Some(label) = args.label {
+        let fact_id = Catalog::fact_id_for_label(&index, &label)?;
+
+        if let Some(batch) = snapshot.into_entries().remove(&fact_id) {
             for (sample, i) in batch
                 .into_samples()
                 .into_iter()
@@ -60,8 +64,10 @@ pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()
         }
     } else {
         for (fact_id, batch) in snapshot.into_entries() {
+            let label = Catalog::label_for_fact_id(&index, &fact_id)?;
+
             println!(
-                "{fact_id}: {}: {}",
+                "{label}: {}: {}",
                 humantime::format_rfc3339_seconds(*batch.created()),
                 batch.samples().len(),
             );

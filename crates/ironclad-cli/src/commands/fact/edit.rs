@@ -1,12 +1,17 @@
 use std::time::Duration;
 
-use ironclad_core::fact::id::FactId;
+use anyhow::anyhow;
+use ironclad_core::catalog::Catalog;
 
 use crate::{args::fact::edit::EditFactArgs, config::Config, helper::resolve_catalog};
 
 pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-    let mut fact = catalog.load_fact_for_id(&FactId::from(args.fact_id))?;
+
+    let mut index = catalog.load_fact_index()?;
+    let fact_id = Catalog::fact_id_for_label(&index, &args.label)?;
+    let path = catalog.fact_file_path(&fact_id);
+    let mut fact = catalog.load_fact_for_path(&path)?;
 
     if let Some(description) = args.description {
         *fact.description_mut() = Some(description);
@@ -24,18 +29,23 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
         *fact.cache_lifespan_mut() = Duration::ZERO;
     }
 
-    if let Some(new_id) = args.id {
-        let old_id = fact.id();
-        let new_id: FactId = new_id.into();
+    if let Some(new_label) = &args.relabel {
+        let entries = index.entries_mut();
 
-        catalog.remove_fact(old_id)?;
-        *fact.id_mut() = new_id.clone();
-        catalog.add_fact(&fact)?;
-    } else {
-        catalog.save_fact(&fact)?;
+        entries
+            .remove(&args.label)
+            .expect("fact label should exist as index entry");
+
+        if entries.insert(new_label.clone(), fact_id).is_some() {
+            return Err(anyhow!("new label already indexed"));
+        }
+
+        catalog.save_fact_index(&index)?;
     }
 
-    println!("{}", fact.id());
+    std::fs::write(path, serde_json::to_vec_pretty(&fact)?)?;
+
+    println!("{}", args.relabel.unwrap_or(args.label));
 
     Ok(())
 }
