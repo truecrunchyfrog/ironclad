@@ -5,6 +5,5 @@
 - configuring secrets and using env vars for operations
 - improve op documentation
 - move logic from cli to core
-- ulid for id, editable unique labels, indexing
 - remove fact TTL?
 - github action

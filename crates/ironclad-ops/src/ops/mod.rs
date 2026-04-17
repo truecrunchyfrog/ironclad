@@ -9,12 +9,11 @@ mod text_lines;
 mod text_replace;
 mod text_split;
 mod text_tag;
-// mod text_filter;
+// mod text_filter; TODO
 mod html_attribute;
 mod html_find;
 mod html_inner_html;
 mod html_inner_text;
-// TODO Tree-sitter?
 
 pub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {
     vec![
