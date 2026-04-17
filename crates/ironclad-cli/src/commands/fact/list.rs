@@ -4,10 +4,10 @@ pub(crate) fn dispatch(_config: &Config, args: ListFactArgs) -> anyhow::Result<(
     let catalog = resolve_catalog()?;
     let facts = catalog.load_facts()?;
 
-    for (label, path, fact) in facts {
+    for (label, _path, fact) in facts {
         if args.verbose {
             println!(
-                "{label}: {path:?}: {}",
+                "{label}: {}",
                 fact.description()
                     .clone()
                     .unwrap_or_else(|| String::from("-"))
