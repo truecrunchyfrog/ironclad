@@ -20,3 +20,4 @@ console = "0.16.2"
 ironclad-ops = { version = "0.1.0", path = "../ironclad-ops" }
 figment = { version = "0.10.19", features = ["env", "json"] }
 clap-stdin = "0.8.1"
+ulid = "1.2.1"

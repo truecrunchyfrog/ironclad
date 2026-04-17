@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use anyhow::anyhow;
 use ironclad_core::fact::Fact;
+use ulid::Ulid;
 
 use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalog};
 
@@ -15,7 +16,7 @@ pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()
         Default::default(),
     );
 
-    let fact_id = String::new(); // TODO
+    let fact_id = Ulid::new().to_string();
 
     let path = catalog.fact_file_path(&fact_id);
 
