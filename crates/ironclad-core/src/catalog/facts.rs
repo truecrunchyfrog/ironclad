@@ -11,8 +11,8 @@ impl Catalog {
             .load_fact_index()?
             .into_entries()
             .into_iter()
-            .map(|(label, filename)| {
-                let path = self.facts_dir_path().join(&filename);
+            .map(|(label, fact_id)| {
+                let path = self.fact_file_path(&fact_id);
                 self.load_fact_for_path(&path)
                     .map(|fact| (label, path, fact))
             })
