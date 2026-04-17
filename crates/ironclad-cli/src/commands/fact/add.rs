@@ -24,7 +24,7 @@ pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()
         let mut index = catalog.load_fact_index()?;
         let entries = index.entries_mut();
         if entries.insert(label.clone(), fact_id.clone()).is_some() {
-            return Err(anyhow!("label already indexed"));
+            return Err(anyhow!("label '{label}' already indexed"));
         }
         catalog.save_fact_index(&index)?;
     }

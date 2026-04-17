@@ -32,13 +32,13 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
     if let Some(new_label) = &args.relabel {
         let entries = index.entries_mut();
 
+        if entries.insert(new_label.clone(), fact_id).is_some() {
+            return Err(anyhow!("label '{new_label}' already indexed"));
+        }
+
         entries
             .remove(&args.label)
             .expect("fact label should exist as index entry");
-
-        if entries.insert(new_label.clone(), fact_id).is_some() {
-            return Err(anyhow!("new label already indexed"));
-        }
 
         catalog.save_fact_index(&index)?;
     }
