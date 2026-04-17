@@ -2,5 +2,4 @@ pub(crate) mod add;
 pub(crate) mod edit;
 pub(crate) mod list;
 pub(crate) mod remove;
-pub(crate) mod reuse;
 pub(crate) mod show;
