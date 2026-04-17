@@ -25,7 +25,9 @@ impl Catalog {
 
     #[must_use]
     pub fn fact_file_path(&self, fact_id: &str) -> PathBuf {
-        self.facts_dir_path().join(fact_id)
+        self.facts_dir_path()
+            .join(fact_id)
+            .with_added_extension("json")
     }
 
     #[must_use]
