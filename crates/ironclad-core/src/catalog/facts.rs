@@ -6,7 +6,7 @@ use crate::{
 };
 
 impl Catalog {
-    pub fn load_facts(&self) -> Result<Vec<(String, PathBuf, Fact)>, CatalogError> {
+    pub fn load_facts(&self) -> Result<Vec<(String, String, PathBuf, Fact)>, CatalogError> {
         Ok(self
             .load_fact_index()?
             .into_entries()
@@ -14,7 +14,7 @@ impl Catalog {
             .map(|(label, fact_id)| {
                 let path = self.fact_file_path(&fact_id);
                 self.load_fact_for_path(&path)
-                    .map(|fact| (label, path, fact))
+                    .map(|fact| (label, fact_id, path, fact))
             })
             .collect::<Result<Vec<_>, _>>()?)
     }

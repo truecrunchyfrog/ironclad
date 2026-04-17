@@ -13,9 +13,9 @@ impl Catalog {
 
         let batches = facts
             .into_iter()
-            .map(|(label, path, fact)| {
+            .map(|(_label, fact_id, path, fact)| {
                 Ok((
-                    label.clone(),
+                    fact_id.clone(),
                     match cache
                         .as_ref()
                         .and_then(|snapshot| snapshot.entries().get(path.to_str().unwrap()))
