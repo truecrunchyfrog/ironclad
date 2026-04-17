@@ -6,6 +6,10 @@ pub(crate) struct EditFactArgs {
     /// Fact to edit.
     pub(crate) label: String,
 
+    /// Open fact in $EDITOR.
+    #[arg(short, long)]
+    pub(crate) raw: bool,
+
     /// Reassign the fact to a new label.
     #[arg(long)]
     pub(crate) relabel: Option<String>,

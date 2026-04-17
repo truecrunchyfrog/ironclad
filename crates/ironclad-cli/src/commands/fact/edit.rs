@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{process::Command, time::Duration};
 
 use anyhow::anyhow;
 use ironclad_core::catalog::Catalog;
@@ -11,6 +11,14 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
     let mut index = catalog.load_fact_index()?;
     let fact_id = Catalog::fact_id_for_label(&index, &args.label)?;
     let path = catalog.fact_file_path(&fact_id);
+
+    if args.raw {
+        Command::new(std::env::var("EDITOR")?)
+            .arg(path.to_str().unwrap())
+            .status()?;
+        return Ok(());
+    }
+
     let mut fact = catalog.load_fact_for_path(&path)?;
 
     if let Some(description) = args.description {
