@@ -23,6 +23,6 @@ pub(crate) struct DiffArgs {
     pub(crate) baseline: Option<FileOrStdin>,
 
     /// Print the snapshot in its JSON format.
-    #[arg(short, long, conflicts_with = "fact_id")]
+    #[arg(short, long, conflicts_with = "label")]
     pub(crate) raw: bool,
 }
