@@ -60,6 +60,7 @@ pub(crate) enum Command {
     #[command(subcommand, name = "step")]
     Recipe(RecipeCommand),
 
+    #[command(alias = "r")]
     Resolve(ResolveArgs),
     #[command(alias = "i")]
     Inspect(InspectArgs),
