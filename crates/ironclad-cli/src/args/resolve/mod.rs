@@ -14,7 +14,7 @@ pub(crate) struct ResolveArgs {
 
     /// File to write snapshot to (default: catalog's candidate).
     #[arg(short, long)]
-    pub(crate) destination: Option<FileOrStdout>,
+    pub(crate) output: Option<FileOrStdout>,
 
     /// Don't redact facts marked as secret.
     #[arg(long)]

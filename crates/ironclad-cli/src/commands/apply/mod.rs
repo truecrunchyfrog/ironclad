@@ -32,7 +32,7 @@ pub(super) fn dispatch(_config: &Config, args: ApplyArgs) -> anyhow::Result<()> 
         )?)),
     })?;
 
-    let mut dest: Box<dyn Write> = match args.destination {
+    let mut dest: Box<dyn Write> = match args.output {
         Some(file_or_stdout) => Box::new(file_or_stdout.into_writer()?),
         None => Box::new(BufWriter::new(File::create(
             catalog.snapshot_baseline_file_path(),

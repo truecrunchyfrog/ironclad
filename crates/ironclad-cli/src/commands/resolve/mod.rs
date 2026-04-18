@@ -28,7 +28,7 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
         .collect::<anyhow::Result<_>>()?;
     let snapshot = catalog.capture_snapshot(facts, !args.no_redact)?;
 
-    let mut dest: Box<dyn Write> = match args.destination {
+    let mut dest: Box<dyn Write> = match args.output {
         Some(file_or_stdout) => Box::new(file_or_stdout.into_writer()?),
         None => Box::new(BufWriter::new(File::create(
             catalog.snapshot_candidate_file_path(),

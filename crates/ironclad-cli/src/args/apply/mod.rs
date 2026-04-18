@@ -26,5 +26,5 @@ pub(crate) struct ApplyArgs {
 
     /// File to write snapshot to (default: catalog's baseline).
     #[arg(short, long)]
-    pub(crate) destination: Option<FileOrStdout>,
+    pub(crate) output: Option<FileOrStdout>,
 }
