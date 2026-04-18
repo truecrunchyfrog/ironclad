@@ -52,9 +52,8 @@ impl Recipe {
     }
 
     pub fn eval(&self, catalog: &Catalog) -> Result<Vec<Sample>, RecipeError> {
-        Ok(self
-            .0
+        self.0
             .iter()
-            .try_fold(Vec::new(), |input, step| step.eval(catalog, input))?)
+            .try_fold(Vec::new(), |input, step| step.eval(catalog, input))
     }
 }

@@ -32,7 +32,7 @@ impl Catalog {
                                         "digest".to_string(),
                                         digest.clone(),
                                     )])),
-                                    format!("[redacted secret: {}]", digest),
+                                    format!("[redacted secret: {digest}]"),
                                 )
                             })
                             .collect()

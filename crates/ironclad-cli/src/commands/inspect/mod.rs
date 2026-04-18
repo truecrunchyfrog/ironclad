@@ -4,14 +4,12 @@ use std::{
 };
 
 use console::style;
-use ironclad_core::{catalog::Catalog, snapshot::Snapshot};
+use ironclad_core::snapshot::Snapshot;
 
 use crate::{args::inspect::InspectArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-
-    let index = catalog.load_fact_index()?;
 
     let snapshot = serde_json::from_reader::<Box<dyn Read>, Snapshot>(match args.snapshot {
         Some(file_or_stdin) => Box::new(file_or_stdin.into_reader()?),
