@@ -21,4 +21,12 @@ pub(crate) struct EditFactArgs {
     /// Remove the description.
     #[arg(long, conflicts_with = "description")]
     pub(crate) unset_description: bool,
+
+    /// Redact sample content when writing to a snapshot.
+    #[arg(long)]
+    pub(crate) secret: bool,
+
+    /// Don't redact sample content when writing to a snapshot.
+    #[arg(long, conflicts_with = "secret")]
+    pub(crate) no_secret: bool,
 }

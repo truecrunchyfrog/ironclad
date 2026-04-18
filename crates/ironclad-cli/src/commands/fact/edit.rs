@@ -29,6 +29,14 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
         *fact.description_mut() = None;
     }
 
+    if args.secret {
+        *fact.secret_mut() = true;
+    }
+
+    if args.no_secret {
+        *fact.secret_mut() = false;
+    }
+
     if let Some(new_label) = &args.relabel {
         let entries = index.entries_mut();
 

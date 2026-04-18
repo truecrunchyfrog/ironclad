@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     catalog::Catalog,
     recipe::{RecipeError, step::Step},
-    sample::batch::Batch,
+    sample::Sample,
 };
 
 #[derive(Serialize, Deserialize, Default, Debug)]
@@ -51,11 +51,10 @@ impl Recipe {
         }
     }
 
-    pub fn eval(&self, catalog: &Catalog) -> Result<Batch, RecipeError> {
-        Ok(Batch::new(
-            self.0
-                .iter()
-                .try_fold(Vec::new(), |input, step| step.eval(catalog, input))?,
-        ))
+    pub fn eval(&self, catalog: &Catalog) -> Result<Vec<Sample>, RecipeError> {
+        Ok(self
+            .0
+            .iter()
+            .try_fold(Vec::new(), |input, step| step.eval(catalog, input))?)
     }
 }

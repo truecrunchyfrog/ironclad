@@ -6,12 +6,17 @@ use crate::recipe::Recipe;
 pub struct Fact {
     description: Option<String>,
     steps: Recipe,
+    secret: bool,
 }
 
 impl Fact {
     #[must_use]
-    pub fn new(description: Option<String>, steps: Recipe) -> Self {
-        Self { description, steps }
+    pub fn new(description: Option<String>, steps: Recipe, secret: bool) -> Self {
+        Self {
+            description,
+            steps,
+            secret,
+        }
     }
 
     #[must_use]
@@ -30,5 +35,14 @@ impl Fact {
 
     pub fn steps_mut(&mut self) -> &mut Recipe {
         &mut self.steps
+    }
+
+    #[must_use]
+    pub fn secret(&self) -> bool {
+        self.secret
+    }
+
+    pub fn secret_mut(&mut self) -> &mut bool {
+        &mut self.secret
     }
 }

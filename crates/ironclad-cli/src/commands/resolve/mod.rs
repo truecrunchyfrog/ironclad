@@ -7,7 +7,7 @@ use crate::{args::resolve::ResolveArgs, config::Config, helper::resolve_catalog}
 
 pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-    let snapshot = catalog.capture_snapshot()?;
+    let snapshot = catalog.capture_snapshot(!args.no_redact)?;
 
     let mut dest: Box<dyn Write> = match args.destination {
         Some(file_or_stdout) => Box::new(file_or_stdout.into_writer()?),

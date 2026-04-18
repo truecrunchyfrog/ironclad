@@ -14,4 +14,8 @@ pub(crate) struct AddFactArgs {
     /// Describe the fact's purpose.
     #[arg(long)]
     pub(crate) description: Option<String>,
+
+    /// Redact sample content when writing to a snapshot.
+    #[arg(long)]
+    pub(crate) secret: bool,
 }

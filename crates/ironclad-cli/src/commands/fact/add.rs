@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use ironclad_core::fact::Fact;
+use ironclad_core::{fact::Fact, recipe::Recipe};
 use ulid::Ulid;
 
 use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalog};
@@ -7,7 +7,7 @@ use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalo
 pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
 
-    let fact = Fact::new(args.description, Default::default());
+    let fact = Fact::new(args.description, Recipe::default(), args.secret);
 
     let fact_id = Ulid::new().to_string();
 

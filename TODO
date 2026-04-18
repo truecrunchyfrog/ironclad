@@ -4,7 +4,6 @@
 - registry as variable instead of global static
 - specifying instance
 - inserting fact batch content into options "@my-tracker"
-- "secret" fact: hashes the batch content before inserting into snapshot
 - improve op documentation
 - move logic from cli to core
 - skippable facts omitted from resolves
