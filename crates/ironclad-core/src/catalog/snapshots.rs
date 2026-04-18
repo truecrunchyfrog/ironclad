@@ -6,19 +6,21 @@ use sha2::{Digest, Sha256};
 
 use crate::{
     catalog::{Catalog, error::CatalogError},
+    fact::Fact,
     sample::{Trace, batch::Batch},
     snapshot::Snapshot,
 };
 
 impl Catalog {
-    pub fn capture_snapshot(&self, redact_secrets: bool) -> Result<Snapshot, CatalogError> {
-        // TODO facts as argument instead
-        let facts = self.load_facts()?;
-
+    pub fn capture_snapshot(
+        &self,
+        facts: Vec<(String, Fact)>,
+        redact_secrets: bool,
+    ) -> Result<Snapshot, CatalogError> {
         Ok(Snapshot::new(HashMap::from_par_iter(
             facts
                 .into_iter()
-                .map(|(_label, fact_id, _path, fact)| {
+                .map(|(label, fact)| {
                     let samples = fact.steps().eval(self)?;
                     let batch = Batch::new(if fact.secret() && redact_secrets {
                         samples
@@ -37,7 +39,7 @@ impl Catalog {
                     } else {
                         samples
                     });
-                    Ok((fact_id, batch))
+                    Ok((label, batch))
                 })
                 .collect::<Result<Vec<_>, CatalogError>>()?
                 // TODO to par or not to par?

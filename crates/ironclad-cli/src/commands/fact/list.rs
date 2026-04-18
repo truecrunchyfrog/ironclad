@@ -2,10 +2,13 @@ use crate::{args::fact::list::ListFactArgs, config::Config, helper::resolve_cata
 
 pub(crate) fn dispatch(_config: &Config, args: ListFactArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-    let facts = catalog.load_facts()?;
 
-    for (label, _fact_id, _path, fact) in facts {
+    let index = catalog.load_fact_index()?;
+
+    for (label, fact_id) in index.into_entries() {
         if args.verbose {
+            let fact = catalog.load_fact_for_path(&catalog.fact_file_path(&fact_id))?;
+
             println!(
                 "{label}: {}",
                 fact.description()

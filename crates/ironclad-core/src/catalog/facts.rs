@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use crate::{
     catalog::{FactIndex, catalog::Catalog, error::CatalogError},
@@ -6,19 +6,6 @@ use crate::{
 };
 
 impl Catalog {
-    pub fn load_facts(&self) -> Result<Vec<(String, String, PathBuf, Fact)>, CatalogError> {
-        Ok(self
-            .load_fact_index()?
-            .into_entries()
-            .into_iter()
-            .map(|(label, fact_id)| {
-                let path = self.fact_file_path(&fact_id);
-                self.load_fact_for_path(&path)
-                    .map(|fact| (label, fact_id, path, fact))
-            })
-            .collect::<Result<Vec<_>, _>>()?)
-    }
-
     pub fn load_fact_for_path(&self, path: &Path) -> Result<Fact, FactError> {
         if !path.try_exists()? {
             return Err(FactError::PathNotFound(path.to_path_buf()));
