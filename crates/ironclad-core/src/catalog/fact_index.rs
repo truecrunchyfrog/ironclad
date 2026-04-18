@@ -7,15 +7,24 @@ use crate::catalog::{Catalog, error::CatalogError};
 #[derive(Serialize, Deserialize)]
 pub struct FactIndex(HashMap<String, String>);
 
+impl Default for FactIndex {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FactIndex {
+    #[must_use]
     pub fn new() -> Self {
         Self(HashMap::new())
     }
 
+    #[must_use]
     pub fn into_entries(self) -> HashMap<String, String> {
         self.0
     }
 
+    #[must_use]
     pub fn entries(&self) -> &HashMap<String, String> {
         &self.0
     }
