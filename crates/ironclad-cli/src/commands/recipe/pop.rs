@@ -11,11 +11,11 @@ pub(super) fn dispatch(_config: &Config, args: PopRecipeArgs) -> anyhow::Result<
     let path = catalog.fact_file_path(&fact_id);
     let mut fact = catalog.load_fact_for_path(&path)?;
 
-    if fact.recipe().steps().is_empty() {
+    if fact.steps().steps().is_empty() {
         return Err(anyhow!("empty recipe"));
     }
 
-    let removed_step = fact.recipe_mut().remove(args.index)?;
+    let removed_step = fact.steps_mut().remove(args.index)?;
 
     std::fs::write(path, serde_json::to_vec_pretty(&fact)?)?;
 

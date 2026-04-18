@@ -19,7 +19,7 @@ pub(super) fn dispatch(_config: &Config, args: PushRecipeArgs) -> anyhow::Result
 
     let step = Step::new(args.operation_id, options);
 
-    fact.recipe_mut().add(args.index, step)?;
+    fact.steps_mut().add(args.index, step)?;
 
     std::fs::write(path, serde_json::to_vec_pretty(&fact)?)?;
 

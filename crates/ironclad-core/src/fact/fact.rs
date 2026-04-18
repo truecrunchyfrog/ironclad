@@ -5,16 +5,13 @@ use crate::recipe::Recipe;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Fact {
     description: Option<String>,
-    recipe: Recipe,
+    steps: Recipe,
 }
 
 impl Fact {
     #[must_use]
-    pub fn new(description: Option<String>, recipe: Recipe) -> Self {
-        Self {
-            description,
-            recipe,
-        }
+    pub fn new(description: Option<String>, steps: Recipe) -> Self {
+        Self { description, steps }
     }
 
     #[must_use]
@@ -27,11 +24,11 @@ impl Fact {
     }
 
     #[must_use]
-    pub fn recipe(&self) -> &Recipe {
-        &self.recipe
+    pub fn steps(&self) -> &Recipe {
+        &self.steps
     }
 
-    pub fn recipe_mut(&mut self) -> &mut Recipe {
-        &mut self.recipe
+    pub fn steps_mut(&mut self) -> &mut Recipe {
+        &mut self.steps
     }
 }

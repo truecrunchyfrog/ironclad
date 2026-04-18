@@ -13,7 +13,7 @@ impl Catalog {
 
         let batches = facts
             .into_iter()
-            .map(|(_label, fact_id, _path, fact)| Ok((fact_id.clone(), fact.recipe().eval(self)?)))
+            .map(|(_label, fact_id, _path, fact)| Ok((fact_id.clone(), fact.steps().eval(self)?)))
             .collect::<Result<Vec<_>, CatalogError>>()?;
 
         Ok(Snapshot::new(HashMap::from_par_iter(

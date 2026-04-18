@@ -7,10 +7,10 @@ pub(super) fn dispatch(_config: &Config, args: EvalRecipeArgs) -> anyhow::Result
     let catalog = resolve_catalog()?;
     let fact = catalog.load_fact_for_label(&args.label)?;
 
-    let step_len = fact.recipe().steps().len();
+    let step_len = fact.steps().steps().len();
 
     let eval_steps = fact
-        .recipe()
+        .steps()
         .steps()
         .iter()
         .zip(0..)
