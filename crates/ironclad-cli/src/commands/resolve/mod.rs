@@ -14,6 +14,11 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
     let facts = index
         .into_entries()
         .into_iter()
+        .filter(|(label, _)| match &args {
+            ResolveArgs { include, .. } if !include.is_empty() => include.contains(&label),
+            ResolveArgs { exclude, .. } if !exclude.is_empty() => !exclude.contains(&label),
+            _ => true,
+        })
         .map(|(label, fact_id)| -> anyhow::Result<(String, Fact)> {
             Ok((
                 label,
