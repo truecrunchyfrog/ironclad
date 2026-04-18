@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use anyhow::anyhow;
 use ironclad_core::fact::Fact;
 use ulid::Ulid;
@@ -9,12 +7,7 @@ use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalo
 pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
 
-    let fact = Fact::new(
-        args.description,
-        args.cache_lifespan
-            .map_or(Duration::ZERO, std::convert::Into::into),
-        Default::default(),
-    );
+    let fact = Fact::new(args.description, Default::default());
 
     let fact_id = Ulid::new().to_string();
 

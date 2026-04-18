@@ -7,7 +7,6 @@
 - "secret" fact: hashes the batch content before inserting into snapshot
 - improve op documentation
 - move logic from cli to core
-- remove fact TTL?
 - skippable facts omitted from resolves
 - resolve with cache, with max age
 - github action

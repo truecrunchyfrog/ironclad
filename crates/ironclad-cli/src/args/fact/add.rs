@@ -14,8 +14,4 @@ pub(crate) struct AddFactArgs {
     /// Describe the fact's purpose.
     #[arg(long)]
     pub(crate) description: Option<String>,
-
-    /// Specify the fact's cache lifespan for audits.
-    #[arg(long)]
-    pub(crate) cache_lifespan: Option<humantime::Duration>,
 }

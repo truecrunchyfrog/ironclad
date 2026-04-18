@@ -1,4 +1,4 @@
-use std::{process::Command, time::Duration};
+use std::process::Command;
 
 use anyhow::anyhow;
 use ironclad_core::catalog::Catalog;
@@ -27,14 +27,6 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
 
     if args.unset_description {
         *fact.description_mut() = None;
-    }
-
-    if let Some(cache_lifespan) = args.cache_lifespan {
-        *fact.cache_lifespan_mut() = cache_lifespan.into();
-    }
-
-    if args.unset_cache_lifespan {
-        *fact.cache_lifespan_mut() = Duration::ZERO;
     }
 
     if let Some(new_label) = &args.relabel {

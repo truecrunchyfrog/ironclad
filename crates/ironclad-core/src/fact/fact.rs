@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use serde::{Deserialize, Serialize};
 
 use crate::recipe::Recipe;
@@ -8,16 +6,14 @@ use crate::recipe::Recipe;
 pub struct Fact {
     description: Option<String>,
     recipe: Recipe,
-    cache_lifespan: Duration,
 }
 
 impl Fact {
     #[must_use]
-    pub fn new(description: Option<String>, cache_lifespan: Duration, recipe: Recipe) -> Self {
+    pub fn new(description: Option<String>, recipe: Recipe) -> Self {
         Self {
             description,
             recipe,
-            cache_lifespan,
         }
     }
 
@@ -37,14 +33,5 @@ impl Fact {
 
     pub fn recipe_mut(&mut self) -> &mut Recipe {
         &mut self.recipe
-    }
-
-    #[must_use]
-    pub fn cache_lifespan(&self) -> &Duration {
-        &self.cache_lifespan
-    }
-
-    pub fn cache_lifespan_mut(&mut self) -> &mut Duration {
-        &mut self.cache_lifespan
     }
 }

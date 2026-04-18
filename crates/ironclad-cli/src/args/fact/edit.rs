@@ -21,12 +21,4 @@ pub(crate) struct EditFactArgs {
     /// Remove the description.
     #[arg(long, conflicts_with = "description")]
     pub(crate) unset_description: bool,
-
-    /// Change the cache lifespan.
-    #[arg(long)]
-    pub(crate) cache_lifespan: Option<humantime::Duration>,
-
-    /// Remove the cache lifespan.
-    #[arg(long, conflicts_with = "cache_lifespan")]
-    pub(crate) unset_cache_lifespan: bool,
 }
