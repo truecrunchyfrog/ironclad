@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use hex::ToHex;
-use rayon::iter::{FromParallelIterator, IntoParallelRefIterator, ParallelIterator};
+use rayon::iter::{FromParallelIterator, IntoParallelIterator, ParallelIterator};
 use sha2::{Digest, Sha256};
 
 use crate::{
@@ -41,8 +41,8 @@ impl Catalog {
                 })
                 .collect::<Result<Vec<_>, CatalogError>>()?
                 // TODO to par or not to par?
-                .par_iter()
-                .map(|(fact_id, batch)| Ok((fact_id.clone(), batch.to_owned())))
+                .into_par_iter()
+                .map(|(fact_id, batch)| Ok((fact_id, batch)))
                 .collect::<Result<Vec<_>, CatalogError>>()?,
         )))
     }
