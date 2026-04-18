@@ -23,9 +23,7 @@ pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()
     if args.raw {
         println!("{}", serde_json::to_string_pretty(&snapshot)?);
     } else if let Some(label) = args.label {
-        let fact_id = Catalog::fact_id_for_label(&index, &label)?;
-
-        if let Some(batch) = snapshot.into_entries().remove(&fact_id) {
+        if let Some(batch) = snapshot.into_entries().remove(&label) {
             for (sample, i) in batch
                 .into_samples()
                 .into_iter()
@@ -63,9 +61,7 @@ pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()
             }
         }
     } else {
-        for (fact_id, batch) in snapshot.into_entries() {
-            let label = Catalog::label_for_fact_id(&index, &fact_id)?;
-
+        for (label, batch) in snapshot.into_entries() {
             println!(
                 "{label}: {}: {}",
                 humantime::format_rfc3339_seconds(*batch.created()),
