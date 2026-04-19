@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 use crate::{
     catalog::Catalog,
@@ -11,12 +10,12 @@ use crate::{
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Step {
     operation_id: String,
-    options: Value,
+    options: serde_json::Value,
 }
 
 impl Step {
     #[must_use]
-    pub fn new(operation_id: String, options: Value) -> Self {
+    pub fn new(operation_id: String, options: serde_json::Value) -> Self {
         Self {
             operation_id,
             options,
@@ -29,7 +28,7 @@ impl Step {
     }
 
     #[must_use]
-    pub fn options(&self) -> &Value {
+    pub fn options(&self) -> &serde_json::Value {
         &self.options
     }
 
