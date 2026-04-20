@@ -2,6 +2,7 @@ use ironclad_core::operation::Operation;
 
 mod head_file_text;
 mod head_net_http;
+mod head_run;
 mod json_find;
 mod slice;
 mod text_find;
@@ -19,6 +20,7 @@ pub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {
     vec![
         ("head.file.text", head_file_text::HeadFileText.into()),
         ("head.net.http", head_net_http::HeadNetHttp.into()),
+        ("run", head_run::HeadRun.into()),
         ("slice", slice::Slice.into()),
         ("text.find", text_find::TextFind.into()),
         ("text.split", text_split::TextSplit.into()),
