@@ -1,5 +1,3 @@
-use std::io::{Read, stdin};
-
 use ironclad_core::{registry, sample::Sample};
 
 use crate::{args::operation::eval::EvalOperationArgs, config::Config, helper::resolve_catalog};
@@ -14,13 +12,11 @@ pub(super) fn dispatch(_config: &Config, args: EvalOperationArgs) -> anyhow::Res
 
     let operation = registry::resolve_op(&args.operation_id)?;
 
-    let input = if args.head {
-        Vec::new()
-    } else {
-        let mut buf = Vec::new();
-        stdin().read_to_end(&mut buf)?;
-        serde_json::from_slice::<Vec<Sample>>(buf.as_slice())?
-    };
+    let input = args
+        .input
+        .map(|input| serde_json::from_str::<Vec<Sample>>(&input))
+        .transpose()?
+        .unwrap_or_default();
 
     let output = operation.eval(&catalog, input, options)?;
 
