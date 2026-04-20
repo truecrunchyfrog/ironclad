@@ -9,6 +9,17 @@ use crate::{
 #[derive(Serialize, Deserialize, Default, Debug)]
 pub struct Recipe(Vec<Step>);
 
+pub enum RecipeProgressEvent<'a> {
+    BeforeEvaluateStep {
+        step: &'a Step,
+        input: &'a Vec<Sample>,
+    },
+    AfterEvaluateStep {
+        step: &'a Step,
+        output: &'a Vec<Sample>,
+    },
+}
+
 impl Recipe {
     #[must_use]
     pub fn new(steps: Vec<Step>) -> Self {
@@ -51,9 +62,22 @@ impl Recipe {
         }
     }
 
-    pub fn eval(&self, catalog: &Catalog) -> Result<Vec<Sample>, RecipeError> {
-        self.0
-            .iter()
-            .try_fold(Vec::new(), |input, step| step.eval(catalog, input))
+    pub fn eval<F: FnMut(RecipeProgressEvent)>(
+        &self,
+        catalog: &Catalog,
+        mut on_progress: F,
+    ) -> Result<Vec<Sample>, RecipeError> {
+        self.0.iter().try_fold(Vec::new(), |input, step| {
+            on_progress(RecipeProgressEvent::BeforeEvaluateStep {
+                step: &step,
+                input: &input,
+            });
+            let samples = step.eval(catalog, input)?;
+            on_progress(RecipeProgressEvent::AfterEvaluateStep {
+                step: &step,
+                output: &samples,
+            });
+            Ok(samples)
+        })
     }
 }

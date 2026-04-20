@@ -9,3 +9,4 @@ mod snapshots;
 
 pub use catalog::Catalog;
 pub use fact_index::FactIndex;
+pub use snapshots::SnapshotProgressEvent;

@@ -3,7 +3,7 @@ use std::{
     io::{BufWriter, Write},
 };
 
-use ironclad_core::fact::Fact;
+use ironclad_core::{catalog::SnapshotProgressEvent, fact::Fact, recipe::RecipeProgressEvent};
 
 use crate::{args::resolve::ResolveArgs, config::Config, helper::resolve_catalog};
 
@@ -26,7 +26,25 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
             ))
         })
         .collect::<anyhow::Result<_>>()?;
-    let snapshot = catalog.capture_snapshot(facts, !args.no_redact)?;
+    let snapshot = catalog.capture_snapshot(facts, !args.no_redact, |update| match update {
+        SnapshotProgressEvent::BeforeEvaluateFact { label, fact: _fact } => eprintln!("-> {label}"),
+        SnapshotProgressEvent::AfterEvaluateFact {
+            label: _label,
+            fact: _fact,
+            output: samples,
+        } => eprintln!("\t<- {} samples", samples.len()),
+        SnapshotProgressEvent::Recipe(RecipeProgressEvent::BeforeEvaluateStep { step, input }) => {
+            eprintln!("\t-> {}", step.operation_id());
+            eprintln!("\t\t-> {} samples", input.len());
+            eprintln!("\t\t-> {}", step.options());
+        }
+        SnapshotProgressEvent::Recipe(RecipeProgressEvent::AfterEvaluateStep {
+            step: _step,
+            output,
+        }) => {
+            eprintln!("\t\t<- {} samples", output.len());
+        }
+    })?;
 
     let mut dest: Box<dyn Write> = match args.output {
         Some(file_or_stdout) => Box::new(file_or_stdout.into_writer()?),
