@@ -12,7 +12,7 @@ pub(crate) struct PushRecipeArgs {
 
     /// Options to pass to the operation in JSON. '-' for stdin.
     #[arg(short, long)]
-    pub(crate) options: Option<MaybeStdin<String>>,
+    pub(crate) options: Option<MaybeStdin<serde_json::Value>>,
 
     /// Insert at a position instead of at the end.
     #[arg(short, long)]

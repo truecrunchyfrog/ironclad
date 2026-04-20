@@ -13,5 +13,5 @@ pub(crate) struct EvalOperationArgs {
 
     /// Options to pass to the operation, in JSON.
     #[arg(short, long)]
-    pub(crate) options: Option<String>,
+    pub(crate) options: Option<MaybeStdin<serde_json::Value>>,
 }

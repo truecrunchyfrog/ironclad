@@ -1,3 +1,4 @@
+use clap_stdin::MaybeStdin;
 use ironclad_core::{registry, sample::Sample};
 
 use crate::{args::operation::eval::EvalOperationArgs, config::Config, helper::resolve_catalog};
@@ -5,10 +6,7 @@ use crate::{args::operation::eval::EvalOperationArgs, config::Config, helper::re
 pub(super) fn dispatch(_config: &Config, args: EvalOperationArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
 
-    let options = match args.options {
-        Some(serialized) => serde_json::from_str::<serde_json::Value>(&serialized)?,
-        None => serde_json::Value::Null,
-    };
+    let options = args.options.map(MaybeStdin::into_inner).unwrap_or_default();
 
     let operation = registry::resolve_op(&args.operation_id)?;
 

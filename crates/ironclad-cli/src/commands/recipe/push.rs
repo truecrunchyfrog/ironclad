@@ -1,3 +1,4 @@
+use clap_stdin::MaybeStdin;
 use ironclad_core::{catalog::Catalog, recipe::Step, registry};
 
 use crate::{args::recipe::push::PushRecipeArgs, config::Config, helper::resolve_catalog};
@@ -12,10 +13,7 @@ pub(super) fn dispatch(_config: &Config, args: PushRecipeArgs) -> anyhow::Result
 
     registry::resolve_op(&args.operation_id)?;
 
-    let options = match args.options {
-        Some(serialized) => serde_json::from_str::<serde_json::Value>(&serialized)?,
-        None => serde_json::Value::Null,
-    };
+    let options = args.options.map(MaybeStdin::into_inner).unwrap_or_default();
 
     let step = Step::new(args.operation_id, options);
 
