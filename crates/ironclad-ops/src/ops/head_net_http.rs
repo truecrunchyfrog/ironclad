@@ -49,8 +49,14 @@ impl TypedOperation for HeadNetHttp {
         let mut headers = HeaderMap::new();
         headers.insert(USER_AGENT, HeaderValue::from_str(&options.user_agent)?);
 
-        let response_text = client.get(options.url).headers(headers).send()?.text()?;
+        let response = client.get(options.url).headers(headers).send()?;
 
-        Ok(vec![Sample::new(Trace::new(HashMap::new()), response_text)])
+        Ok(vec![Sample::new(
+            Trace::new(HashMap::from([(
+                "http_status_code".to_string(),
+                response.status().as_u16().to_string(),
+            )])),
+            response.text()?,
+        )])
     }
 }
