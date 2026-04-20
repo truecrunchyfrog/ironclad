@@ -34,6 +34,12 @@ impl Step {
 
     pub fn eval(&self, catalog: &Catalog, input: Vec<Sample>) -> Result<Vec<Sample>, RecipeError> {
         let operation = registry::resolve_op(&self.operation_id)?;
-        Ok(operation.eval(catalog, input, self.options.clone())?)
+
+        operation
+            .eval(catalog, input, self.options.clone())
+            .map_err(|err| RecipeError::Operation {
+                operation_id: self.operation_id.clone(),
+                source: err,
+            })
     }
 }

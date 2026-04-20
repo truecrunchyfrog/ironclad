@@ -11,6 +11,9 @@ pub enum RecipeError {
     #[error(transparent)]
     Registry(#[from] RegistryError),
 
-    #[error(transparent)]
-    Operation(#[from] OperationError),
+    #[error("operation failed: {operation_id}: {source}")]
+    Operation {
+        operation_id: String,
+        source: OperationError,
+    },
 }
