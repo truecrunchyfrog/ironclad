@@ -6,7 +6,7 @@ use sha2::{Digest, Sha256};
 use crate::{
     catalog::{Catalog, error::CatalogError},
     fact::Fact,
-    sample::{Trace, batch::Batch},
+    sample::{Sample, Trace, batch::Batch},
     snapshot::Snapshot,
 };
 
@@ -22,19 +22,7 @@ impl Catalog {
                 .map(|(label, fact)| {
                     let samples = fact.steps().eval(self)?;
                     let batch = Batch::new(if fact.secret() && redact_secrets {
-                        samples
-                            .into_iter()
-                            .map(|sample| {
-                                let digest: String = Sha256::digest(sample.content()).encode_hex();
-                                sample.evolve(
-                                    Trace::new(HashMap::from([(
-                                        "digest".to_string(),
-                                        digest.clone(),
-                                    )])),
-                                    format!("[redacted secret: {digest}]"),
-                                )
-                            })
-                            .collect()
+                        samples.into_iter().map(redact_sample).collect()
                     } else {
                         samples
                     });
@@ -44,4 +32,12 @@ impl Catalog {
         ));
         Ok(snapshot)
     }
+}
+
+fn redact_sample(sample: Sample) -> Sample {
+    let digest: String = Sha256::digest(sample.content()).encode_hex();
+    sample.evolve(
+        Trace::new(HashMap::from([("digest".to_string(), digest.clone())])),
+        format!("[redacted secret: {digest}]"),
+    )
 }
