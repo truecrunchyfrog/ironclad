@@ -1,3 +1,6 @@
+- core tests
+- replace command 'step eval' with alias 'eval <label>' = 'resolve --include <label> --output -'
+- recipe -> steps?
 - context struct instead of passing config directly to command dispatchers
 - registry as variable instead of global static
 - specifying instance
