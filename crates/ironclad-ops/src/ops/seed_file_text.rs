@@ -8,7 +8,7 @@ use ironclad_core::{
 };
 use serde::Deserialize;
 
-pub(crate) struct HeadFileText;
+pub(crate) struct SeedFileText;
 
 #[derive(Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
@@ -25,7 +25,7 @@ pub(crate) enum Error {
     Glob(#[from] glob::GlobError),
 }
 
-impl TypedOperation for HeadFileText {
+impl TypedOperation for SeedFileText {
     type Options = Options;
     type Error = Error;
 

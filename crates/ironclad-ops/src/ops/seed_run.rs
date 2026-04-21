@@ -7,7 +7,7 @@ use ironclad_core::{
 };
 use serde::Deserialize;
 
-pub(crate) struct HeadRun;
+pub(crate) struct SeedRun;
 
 #[derive(Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
@@ -25,7 +25,7 @@ pub(crate) enum Error {
     FromUtf8(#[from] std::string::FromUtf8Error),
 }
 
-impl TypedOperation for HeadRun {
+impl TypedOperation for SeedRun {
     type Options = Options;
     type Error = Error;
 

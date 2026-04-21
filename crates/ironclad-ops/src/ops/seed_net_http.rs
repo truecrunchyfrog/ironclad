@@ -8,7 +8,7 @@ use ironclad_core::{
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use serde::Deserialize;
 
-pub(crate) struct HeadNetHttp;
+pub(crate) struct SeedNetHttp;
 
 #[derive(Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
@@ -31,7 +31,7 @@ pub(crate) enum Error {
     InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
 }
 
-impl TypedOperation for HeadNetHttp {
+impl TypedOperation for SeedNetHttp {
     type Options = Options;
     type Error = Error;
 
