@@ -1,10 +1,16 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
-use crate::recipe::Recipe;
+use crate::{fact::SampleExportEntry, recipe::Recipe};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Fact {
     description: Option<String>,
+    #[serde(default)]
+    import: Vec<String>,
+    #[serde(default)]
+    export: HashMap<String, SampleExportEntry>,
     steps: Recipe,
     #[serde(default)]
     secret: bool,
@@ -12,9 +18,17 @@ pub struct Fact {
 
 impl Fact {
     #[must_use]
-    pub fn new(description: Option<String>, steps: Recipe, secret: bool) -> Self {
+    pub fn new(
+        description: Option<String>,
+        import: Vec<String>,
+        export: HashMap<String, SampleExportEntry>,
+        steps: Recipe,
+        secret: bool,
+    ) -> Self {
         Self {
             description,
+            import,
+            export,
             steps,
             secret,
         }
