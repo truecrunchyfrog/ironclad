@@ -6,6 +6,7 @@ use crate::recipe::Recipe;
 pub struct Fact {
     description: Option<String>,
     steps: Recipe,
+    #[serde(default)]
     secret: bool,
 }
 
