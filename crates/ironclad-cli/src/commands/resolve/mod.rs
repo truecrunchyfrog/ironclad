@@ -31,8 +31,8 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
         SnapshotProgressEvent::AfterEvaluateFact {
             label: _label,
             fact: _fact,
-            output: samples,
-        } => eprintln!("\t<- {} samples", samples.len()),
+            output,
+        } => eprintln!("\t<- {} samples", output.len()),
         SnapshotProgressEvent::Recipe(RecipeProgressEvent::BeforeEvaluateStep { step, input }) => {
             eprintln!("\t-> {}", step.operation_id());
             eprintln!("\t\t-> {} samples", input.len());
@@ -43,6 +43,17 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
             output,
         }) => {
             eprintln!("\t\t<- {} samples", output.len());
+            if args.show_samples {
+                eprintln!(
+                    "{}",
+                    serde_json::to_string_pretty(output)
+                        .unwrap()
+                        .lines()
+                        .map(|line| format!("\t\t\t{line}"))
+                        .collect::<Vec<_>>()
+                        .join("\n")
+                );
+            }
         }
     })?;
 
