@@ -19,6 +19,19 @@ pub enum CatalogError {
     #[error("fact ID not in index: {0}")]
     IdNotInIndex(String),
 
+    #[error("import not found: {0}")]
+    ImportNotFound(String),
+
+    #[error(
+        "sample with trace {trace_key}={trace_value} to export as '{export_key}' not found when evaluating batch for fact {fact_label}"
+    )]
+    SampleToExportNotFound {
+        fact_label: String,
+        export_key: String,
+        trace_key: String,
+        trace_value: String,
+    },
+
     #[error("an operation does not exist by such ID: {0}")]
     OperationNotFound(String),
 

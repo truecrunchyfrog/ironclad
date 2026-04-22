@@ -45,7 +45,10 @@ impl TypedOperation for JsonFind {
                     "json_node_path".to_string(),
                     located_node.location().to_string(),
                 )])),
-                located_node.node().to_string(),
+                match located_node.node() {
+                    serde_json::Value::String(s) => s.clone(),
+                    otherwise => otherwise.to_string(),
+                },
             )
         }
 

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cmp::Ordering, collections::HashMap};
 
 use hex::ToHex;
 use sha2::{Digest, Sha256};
@@ -27,34 +27,85 @@ pub enum SnapshotProgressEvent<'a> {
 impl Catalog {
     pub fn capture_snapshot<F: FnMut(SnapshotProgressEvent)>(
         &self,
-        facts: Vec<(String, Fact)>,
+        mut facts: Vec<(String, Fact)>,
         redact_secrets: bool,
         mut on_progress: F,
     ) -> Result<Snapshot, CatalogError> {
+        facts.sort_by(|(_, a), (_, b)| {
+            if a.depends_on(b) {
+                Ordering::Greater
+            } else if b.depends_on(a) {
+                Ordering::Less
+            } else {
+                Ordering::Equal
+            }
+        });
+
         let snapshot = Snapshot::new(HashMap::from_iter(
             facts
                 .into_iter()
-                .map(|(label, fact)| {
-                    on_progress(SnapshotProgressEvent::BeforeEvaluateFact {
-                        label: &label,
-                        fact: &fact,
-                    });
-                    let samples = fact.steps().eval(self, |update| {
-                        on_progress(SnapshotProgressEvent::Recipe(update))
-                    })?;
-                    on_progress(SnapshotProgressEvent::AfterEvaluateFact {
-                        label: &label,
-                        fact: &fact,
-                        output: &samples,
-                    });
-                    let batch = Batch::new(if fact.secret() && redact_secrets {
-                        samples.into_iter().map(redact_sample).collect()
-                    } else {
-                        samples
-                    });
-                    Ok((label, batch))
-                })
-                .collect::<Result<Vec<_>, CatalogError>>()?,
+                .try_fold(
+                    (Vec::new(), HashMap::new()),
+                    |(mut snapshot_entries, mut exported_samples),
+                     (label, fact)|
+                     -> Result<_, CatalogError> {
+                        on_progress(SnapshotProgressEvent::BeforeEvaluateFact {
+                            label: &label,
+                            fact: &fact,
+                        });
+
+                        let imports = fact
+                            .imports()
+                            .iter()
+                            .map(|key| {
+                                exported_samples
+                                    .get(key)
+                                    .ok_or_else(|| CatalogError::ImportNotFound(key.clone()))
+                                    .map(|sample| (key, sample))
+                            })
+                            .collect::<Result<HashMap<_, _>, _>>()?;
+
+                        let samples = fact.steps().eval(self, &imports, |update| {
+                            on_progress(SnapshotProgressEvent::Recipe(update))
+                        })?;
+
+                        on_progress(SnapshotProgressEvent::AfterEvaluateFact {
+                            label: &label,
+                            fact: &fact,
+                            output: &samples,
+                        });
+
+                        let batch = Batch::new(if fact.secret() && redact_secrets {
+                            samples.into_iter().map(redact_sample).collect()
+                        } else {
+                            samples
+                        });
+
+                        for (key, entry) in fact.into_exports() {
+                            let value = batch
+                                .samples()
+                                .iter()
+                                .find(|sample| {
+                                    sample.traces().iter().any(|trace| {
+                                        trace.entries().get_key_value(&entry.trace_key)
+                                            == Some((&entry.trace_key, &entry.trace_value))
+                                    })
+                                })
+                                .ok_or_else(|| CatalogError::SampleToExportNotFound {
+                                    fact_label: label.clone(),
+                                    export_key: key.clone(),
+                                    trace_key: entry.trace_key,
+                                    trace_value: entry.trace_value,
+                                })?;
+                            exported_samples.insert(key, value.clone());
+                        }
+
+                        snapshot_entries.push((label, batch));
+
+                        Ok((snapshot_entries, exported_samples))
+                    },
+                )?
+                .0,
         ));
         Ok(snapshot)
     }

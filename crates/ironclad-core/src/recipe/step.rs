@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -7,7 +9,7 @@ use crate::{
     sample::Sample,
 };
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Step {
     operation_id: String,
     options: serde_json::Value,
@@ -30,6 +32,10 @@ impl Step {
     #[must_use]
     pub fn options(&self) -> &serde_json::Value {
         &self.options
+    }
+
+    pub fn options_mut(&mut self) -> &mut serde_json::Value {
+        &mut self.options
     }
 
     pub fn eval(&self, catalog: &Catalog, input: Vec<Sample>) -> Result<Vec<Sample>, RecipeError> {

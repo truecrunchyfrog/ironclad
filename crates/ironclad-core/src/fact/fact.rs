@@ -8,9 +8,9 @@ use crate::{fact::SampleExportEntry, recipe::Recipe};
 pub struct Fact {
     description: Option<String>,
     #[serde(default)]
-    import: Vec<String>,
+    imports: Vec<String>,
     #[serde(default)]
-    export: HashMap<String, SampleExportEntry>,
+    exports: HashMap<String, SampleExportEntry>,
     steps: Recipe,
     #[serde(default)]
     secret: bool,
@@ -20,15 +20,15 @@ impl Fact {
     #[must_use]
     pub fn new(
         description: Option<String>,
-        import: Vec<String>,
-        export: HashMap<String, SampleExportEntry>,
+        imports: Vec<String>,
+        exports: HashMap<String, SampleExportEntry>,
         steps: Recipe,
         secret: bool,
     ) -> Self {
         Self {
             description,
-            import,
-            export,
+            imports,
+            exports,
             steps,
             secret,
         }
@@ -59,5 +59,28 @@ impl Fact {
 
     pub fn secret_mut(&mut self) -> &mut bool {
         &mut self.secret
+    }
+
+    pub fn imports(&self) -> &Vec<String> {
+        &self.imports
+    }
+
+    pub fn into_imports(self) -> Vec<String> {
+        self.imports
+    }
+
+    pub fn exports(&self) -> &HashMap<String, SampleExportEntry> {
+        &self.exports
+    }
+
+    pub fn into_exports(self) -> HashMap<String, SampleExportEntry> {
+        self.exports
+    }
+
+    pub fn depends_on(&self, maybe_dependency: &Self) -> bool {
+        maybe_dependency
+            .exports
+            .keys()
+            .any(|key| self.imports.contains(key))
     }
 }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -29,6 +31,11 @@ impl Recipe {
     #[must_use]
     pub fn steps(&self) -> &[Step] {
         &self.0
+    }
+
+    #[must_use]
+    pub fn steps_mut(&mut self) -> &mut Vec<Step> {
+        &mut self.0
     }
 
     pub fn add(&mut self, index: Option<usize>, step: Step) -> Result<(), RecipeError> {
@@ -65,19 +72,47 @@ impl Recipe {
     pub fn eval<F: FnMut(RecipeProgressEvent)>(
         &self,
         catalog: &Catalog,
+        imports: &HashMap<&String, &Sample>,
         mut on_progress: F,
     ) -> Result<Vec<Sample>, RecipeError> {
         self.0.iter().try_fold(Vec::new(), |input, step| {
+            let mut step = step.clone();
+            let mut options = step.options_mut();
+            visit_json_strings_mut(&mut options, &mut |s| {
+                for (label, sample) in imports {
+                    *s = s.replace(&format!("$({label})"), sample.content());
+                }
+            });
+
             on_progress(RecipeProgressEvent::BeforeEvaluateStep {
                 step: &step,
                 input: &input,
             });
+
             let samples = step.eval(catalog, input)?;
             on_progress(RecipeProgressEvent::AfterEvaluateStep {
                 step: &step,
                 output: &samples,
             });
+
             Ok(samples)
         })
+    }
+}
+
+fn visit_json_strings_mut<F: FnMut(&mut String)>(value: &mut serde_json::Value, f: &mut F) {
+    match value {
+        serde_json::Value::String(s) => f(s),
+        serde_json::Value::Array(array) => {
+            for item in array {
+                visit_json_strings_mut(item, f);
+            }
+        }
+        serde_json::Value::Object(map) => {
+            for (_, value) in map {
+                visit_json_strings_mut(value, f);
+            }
+        }
+        serde_json::Value::Null | serde_json::Value::Number(_) | serde_json::Value::Bool(_) => {}
     }
 }
