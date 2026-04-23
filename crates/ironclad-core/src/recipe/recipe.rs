@@ -12,11 +12,13 @@ use crate::{
 pub struct Recipe(Vec<Step>);
 
 pub enum RecipeProgressEvent<'a> {
-    BeforeEvaluateStep {
+    StepStarted {
+        index: usize,
         step: &'a Step,
         input: &'a Vec<Sample>,
     },
-    AfterEvaluateStep {
+    StepFinished {
+        index: usize,
         step: &'a Step,
         output: &'a Vec<Sample>,
     },
@@ -75,28 +77,33 @@ impl Recipe {
         imports: &HashMap<&String, &Sample>,
         mut on_progress: F,
     ) -> Result<Vec<Sample>, RecipeError> {
-        self.0.iter().try_fold(Vec::new(), |input, step| {
-            let mut step = step.clone();
-            let mut options = step.options_mut();
-            visit_json_strings_mut(&mut options, &mut |s| {
-                for (label, sample) in imports {
-                    *s = s.replace(&format!("$({label})"), sample.content());
-                }
-            });
+        self.0
+            .iter()
+            .zip(0..)
+            .try_fold(Vec::new(), |input, (step, index)| {
+                let mut step = step.clone();
+                let mut options = step.options_mut();
+                visit_json_strings_mut(&mut options, &mut |s| {
+                    for (label, sample) in imports {
+                        *s = s.replace(&format!("$({label})"), sample.content());
+                    }
+                });
 
-            on_progress(RecipeProgressEvent::BeforeEvaluateStep {
-                step: &step,
-                input: &input,
-            });
+                on_progress(RecipeProgressEvent::StepStarted {
+                    index,
+                    step: &step,
+                    input: &input,
+                });
 
-            let samples = step.eval(catalog, input)?;
-            on_progress(RecipeProgressEvent::AfterEvaluateStep {
-                step: &step,
-                output: &samples,
-            });
+                let samples = step.eval(catalog, input)?;
+                on_progress(RecipeProgressEvent::StepFinished {
+                    index,
+                    step: &step,
+                    output: &samples,
+                });
 
-            Ok(samples)
-        })
+                Ok(samples)
+            })
     }
 }
 

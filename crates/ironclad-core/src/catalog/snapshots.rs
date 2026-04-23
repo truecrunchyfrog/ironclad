@@ -12,16 +12,23 @@ use crate::{
 };
 
 pub enum SnapshotProgressEvent<'a> {
-    BeforeEvaluateFact {
+    FactStarted {
+        index: usize,
         label: &'a str,
         fact: &'a Fact,
     },
-    AfterEvaluateFact {
+    FactFinished {
+        index: usize,
         label: &'a str,
         fact: &'a Fact,
         output: &'a Vec<Sample>,
     },
-    Recipe(RecipeProgressEvent<'a>),
+    FactStep {
+        index: usize,
+        label: &'a str,
+        fact: &'a Fact,
+        inner: RecipeProgressEvent<'a>,
+    },
 }
 
 impl Catalog {
@@ -44,12 +51,14 @@ impl Catalog {
         let snapshot = Snapshot::new(HashMap::from_iter(
             facts
                 .into_iter()
+                .zip(0..)
                 .try_fold(
                     (Vec::new(), HashMap::new()),
                     |(mut snapshot_entries, mut exported_samples),
-                     (label, fact)|
+                     ((label, fact), index)|
                      -> Result<_, CatalogError> {
-                        on_progress(SnapshotProgressEvent::BeforeEvaluateFact {
+                        on_progress(SnapshotProgressEvent::FactStarted {
+                            index,
                             label: &label,
                             fact: &fact,
                         });
@@ -66,10 +75,16 @@ impl Catalog {
                             .collect::<Result<HashMap<_, _>, _>>()?;
 
                         let samples = fact.steps().eval(self, &imports, |update| {
-                            on_progress(SnapshotProgressEvent::Recipe(update))
+                            on_progress(SnapshotProgressEvent::FactStep {
+                                index,
+                                label: &label,
+                                fact: &fact,
+                                inner: update,
+                            })
                         })?;
 
-                        on_progress(SnapshotProgressEvent::AfterEvaluateFact {
+                        on_progress(SnapshotProgressEvent::FactFinished {
+                            index,
                             label: &label,
                             fact: &fact,
                             output: &samples,

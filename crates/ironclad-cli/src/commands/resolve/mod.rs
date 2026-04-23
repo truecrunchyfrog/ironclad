@@ -25,36 +25,33 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
                 catalog.load_fact_for_path(&catalog.fact_file_path(&fact_id))?,
             ))
         })
-        .collect::<anyhow::Result<_>>()?;
+        .collect::<anyhow::Result<Vec<_>>>()?;
+
+    let total = facts.len();
+
     let snapshot = catalog.capture_snapshot(facts, !args.no_redact, |update| match update {
-        SnapshotProgressEvent::BeforeEvaluateFact { label, fact: _fact } => eprintln!("-> {label}"),
-        SnapshotProgressEvent::AfterEvaluateFact {
-            label: _label,
-            fact: _fact,
-            output,
-        } => eprintln!("\t<- {} samples", output.len()),
-        SnapshotProgressEvent::Recipe(RecipeProgressEvent::BeforeEvaluateStep { step, input }) => {
-            eprintln!("\t-> {}", step.operation_id());
-            eprintln!("\t\t-> {} samples", input.len());
-            eprintln!("\t\t-> {}", step.options());
+        SnapshotProgressEvent::FactStep {
+            index,
+            label,
+            fact,
+            inner:
+                RecipeProgressEvent::StepStarted {
+                    index: step_index,
+                    step,
+                    ..
+                },
+            ..
+        } => {
+            eprint!(
+                "\r\x1b[2K{}/{total}: {label}: {}/{}: {}",
+                index + 1,
+                step_index + 1,
+                fact.steps().steps().len(),
+                step.operation_id()
+            );
+            let _ = std::io::stderr().flush();
         }
-        SnapshotProgressEvent::Recipe(RecipeProgressEvent::AfterEvaluateStep {
-            step: _step,
-            output,
-        }) => {
-            eprintln!("\t\t<- {} samples", output.len());
-            if args.show_samples {
-                eprintln!(
-                    "{}",
-                    serde_json::to_string_pretty(output)
-                        .unwrap()
-                        .lines()
-                        .map(|line| format!("\t\t\t{line}"))
-                        .collect::<Vec<_>>()
-                        .join("\n")
-                );
-            }
-        }
+        _ => (),
     })?;
 
     let mut dest: Box<dyn Write> = match args.output {

@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use anyhow::anyhow;
 use ironclad_core::sample::Sample;
 
