@@ -3,7 +3,6 @@
 - context struct instead of passing config directly to command dispatchers
 - registry as variable instead of global static
 - specifying instance
-- inserting fact batch content into options "@my-tracker"
 - improve op documentation
 - move logic from cli to core
 - skippable facts omitted from resolves
