@@ -1,4 +1,3 @@
-mod eval;
 mod list;
 mod pop;
 mod push;
@@ -9,7 +8,6 @@ pub(super) fn dispatch(config: &Config, command: RecipeCommand) -> anyhow::Resul
     match command {
         RecipeCommand::Add(args) => push::dispatch(config, args),
         RecipeCommand::Remove(args) => pop::dispatch(config, args),
-        RecipeCommand::Eval(args) => eval::dispatch(config, args),
         RecipeCommand::List(args) => list::dispatch(config, args),
     }
 }
