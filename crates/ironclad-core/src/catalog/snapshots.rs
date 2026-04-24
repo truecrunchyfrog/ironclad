@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, collections::HashMap};
+use std::collections::HashMap;
 
 use hex::ToHex;
 use sha2::{Digest, Sha256};
@@ -34,20 +34,10 @@ pub enum SnapshotProgressEvent<'a> {
 impl Catalog {
     pub fn capture_snapshot<F: FnMut(SnapshotProgressEvent)>(
         &self,
-        mut facts: Vec<(String, Fact)>,
+        facts: Vec<(String, Fact)>,
         redact_secrets: bool,
         mut on_progress: F,
     ) -> Result<Snapshot, CatalogError> {
-        facts.sort_by(|(_, a), (_, b)| {
-            if a.depends_on(b) {
-                Ordering::Greater
-            } else if b.depends_on(a) {
-                Ordering::Less
-            } else {
-                Ordering::Equal
-            }
-        });
-
         let snapshot = Snapshot::new(HashMap::from_iter(
             facts
                 .into_iter()
