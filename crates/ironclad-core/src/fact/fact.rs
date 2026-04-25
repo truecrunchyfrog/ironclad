@@ -76,11 +76,4 @@ impl Fact {
     pub fn into_exports(self) -> HashMap<String, SampleExportEntry> {
         self.exports
     }
-
-    pub fn depends_on(&self, maybe_dependency: &Self) -> bool {
-        maybe_dependency
-            .exports
-            .keys()
-            .any(|key| self.imports.contains(key))
-    }
 }

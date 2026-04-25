@@ -1,6 +1,9 @@
 use std::path::PathBuf;
 
-use crate::{fact::error::FactError, recipe::RecipeError};
+use crate::{
+    fact::{dependencies::SortDependenciesError, error::FactError},
+    recipe::RecipeError,
+};
 
 #[derive(thiserror::Error, Debug)]
 pub enum CatalogError {
@@ -34,6 +37,9 @@ pub enum CatalogError {
 
     #[error("an operation does not exist by such ID: {0}")]
     OperationNotFound(String),
+
+    #[error("unable to sort dependencies: {0}")]
+    SortDependenciesError(#[from] SortDependenciesError),
 
     #[error(transparent)]
     StripPrefix(#[from] std::path::StripPrefixError),

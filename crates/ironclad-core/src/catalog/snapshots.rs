@@ -5,7 +5,7 @@ use sha2::{Digest, Sha256};
 
 use crate::{
     catalog::{Catalog, error::CatalogError},
-    fact::LabeledFact,
+    fact::{LabeledFact, dependencies::sort_dependencies},
     recipe::RecipeProgressEvent,
     sample::{Sample, Trace, batch::Batch},
     snapshot::Snapshot,
@@ -35,6 +35,8 @@ impl Catalog {
         redact_secrets: bool,
         mut on_progress: F,
     ) -> Result<Snapshot, CatalogError> {
+        let facts = sort_dependencies(facts)?;
+
         let snapshot = Snapshot::new(HashMap::from_iter(
             facts
                 .into_iter()

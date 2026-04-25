@@ -1,3 +1,4 @@
+pub(crate) mod dependencies;
 pub(crate) mod error;
 mod fact;
 mod labeled_fact;
