@@ -12,31 +12,6 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
     let fact_id = Catalog::fact_id_for_label(&index, &args.label)?;
     let path = catalog.fact_file_path(&fact_id);
 
-    if args.raw {
-        Command::new(std::env::var("EDITOR")?)
-            .arg(path.to_str().unwrap())
-            .status()?;
-        return Ok(());
-    }
-
-    let mut fact = catalog.load_fact_for_path(&path)?;
-
-    if let Some(description) = args.description {
-        *fact.description_mut() = Some(description);
-    }
-
-    if args.unset_description {
-        *fact.description_mut() = None;
-    }
-
-    if args.secret {
-        *fact.secret_mut() = true;
-    }
-
-    if args.no_secret {
-        *fact.secret_mut() = false;
-    }
-
     if let Some(new_label) = &args.rename {
         let entries = index.entries_mut();
 
@@ -49,11 +24,13 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
             .expect("fact label should exist as index entry");
 
         catalog.save_fact_index(&index)?;
+
+        println!("{new_label}");
+    } else {
+        Command::new(std::env::var("EDITOR")?)
+            .arg(path.to_str().unwrap())
+            .status()?;
     }
-
-    std::fs::write(path, toml::to_string_pretty(&fact)?)?;
-
-    println!("{}", args.rename.unwrap_or(args.label));
 
     Ok(())
 }
