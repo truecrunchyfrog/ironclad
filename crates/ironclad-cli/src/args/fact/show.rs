@@ -1,6 +1,6 @@
 use clap::Args;
 
-/// Show details about a fact.
+/// Show a fact.
 #[derive(Args)]
 pub(crate) struct ShowFactArgs {
     /// Fact to show.

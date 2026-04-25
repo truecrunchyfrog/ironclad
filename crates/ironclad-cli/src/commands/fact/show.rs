@@ -10,20 +10,10 @@ pub(crate) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<(
     let path = catalog.fact_file_path(&fact_id);
     let fact = catalog.load_fact_for_path(&path)?;
 
-    match args {
-        ShowFactArgs { path: true, .. } => {
-            println!("{}", path.to_string_lossy());
-        }
-
-        _ => {
-            println!(
-                "{}\n{fact_id}\n{path:?}\n{}",
-                args.label,
-                fact.description()
-                    .clone()
-                    .unwrap_or_else(|| String::from("no description"))
-            );
-        }
+    if args.path {
+        println!("{}", path.to_string_lossy());
+    } else {
+        println!("{}", fact.description().clone().unwrap_or_default());
     }
 
     Ok(())
