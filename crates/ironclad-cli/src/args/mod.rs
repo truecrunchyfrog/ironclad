@@ -5,7 +5,6 @@ pub(crate) mod diff;
 pub(crate) mod fact;
 pub(crate) mod inspect;
 pub(crate) mod operation;
-pub(crate) mod recipe;
 pub(crate) mod resolve;
 
 use clap::{Parser, Subcommand};
@@ -22,7 +21,6 @@ use crate::{
         },
         inspect::InspectArgs,
         operation::OperationCommand,
-        recipe::RecipeCommand,
         resolve::ResolveArgs,
     },
     config::Config,
@@ -56,9 +54,6 @@ pub(crate) enum Command {
 
     #[command(subcommand, name = "op")]
     Operation(OperationCommand),
-
-    #[command(subcommand, name = "step")]
-    Recipe(RecipeCommand),
 
     #[command(alias = "r")]
     Resolve(ResolveArgs),
