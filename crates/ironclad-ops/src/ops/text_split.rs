@@ -20,6 +20,12 @@ pub(crate) enum Options {
     OnTextInclusive { text: String },
 }
 
+impl Default for Options {
+    fn default() -> Self {
+        Self::AtIndex(0)
+    }
+}
+
 #[derive(thiserror::Error, Debug)]
 pub(crate) enum Error {}
 

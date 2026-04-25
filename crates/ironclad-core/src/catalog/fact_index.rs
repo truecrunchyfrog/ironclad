@@ -53,7 +53,7 @@ impl FactIndex {
 
 impl Catalog {
     pub fn load_fact_index(&self) -> Result<FactIndex, CatalogError> {
-        Ok(serde_json::from_slice(
+        Ok(toml::from_slice(
             std::fs::read(self.fact_index_file_path())?.as_slice(),
         )?)
     }
@@ -61,7 +61,7 @@ impl Catalog {
     pub fn save_fact_index(&self, fact_index: &FactIndex) -> Result<(), CatalogError> {
         Ok(std::fs::write(
             self.fact_index_file_path(),
-            serde_json::to_vec_pretty(fact_index)?,
+            toml::to_string_pretty(fact_index)?,
         )?)
     }
 }

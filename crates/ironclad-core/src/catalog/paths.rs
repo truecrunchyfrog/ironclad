@@ -20,14 +20,14 @@ impl Catalog {
 
     #[must_use]
     pub fn fact_index_file_path(&self) -> PathBuf {
-        self.dir().join("index.json")
+        self.dir().join("index.toml")
     }
 
     #[must_use]
     pub fn fact_file_path(&self, fact_id: &str) -> PathBuf {
         self.facts_dir_path()
             .join(fact_id)
-            .with_added_extension("json")
+            .with_added_extension("toml")
     }
 
     #[must_use]

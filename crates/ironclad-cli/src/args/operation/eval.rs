@@ -11,7 +11,7 @@ pub(crate) struct EvalOperationArgs {
     #[arg(short, long)]
     pub(crate) input: Option<MaybeStdin<String>>,
 
-    /// Options to pass to the operation, in JSON.
+    /// Options to pass to the operation, in TOML.
     #[arg(short, long)]
-    pub(crate) options: Option<MaybeStdin<serde_json::Value>>,
+    pub(crate) options: Option<MaybeStdin<toml::Value>>,
 }

@@ -9,7 +9,7 @@ use std::{env::home_dir, process::ExitCode};
 
 use figment::{
     Figment,
-    providers::{Env, Format, Json, Serialized},
+    providers::{Env, Format, Serialized, Toml},
 };
 use ironclad_ops::register_ops;
 
@@ -39,7 +39,7 @@ fn start() -> anyhow::Result<()> {
         .or_else(|| home_dir().map(|home_dir| home_dir.join(".config/ironclad/config.json")));
 
     if let Some(file) = config_file {
-        figment_builder = figment_builder.merge(Json::file(file));
+        figment_builder = figment_builder.merge(Toml::file(file));
     }
 
     let config: Config = figment_builder.extract()?;

@@ -12,7 +12,7 @@ use crate::tag::tag::TagRule;
 
 pub(crate) struct TextTag;
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     tag: String,

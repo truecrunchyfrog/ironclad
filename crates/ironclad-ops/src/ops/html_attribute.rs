@@ -12,7 +12,7 @@ use crate::fragment_error::FragmentError;
 
 pub(crate) struct HtmlAttribute;
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     attribute: String,

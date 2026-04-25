@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 pub(crate) struct Slice;
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     drop: Option<usize>,

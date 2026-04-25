@@ -4,8 +4,11 @@ pub enum OperationError {
     Json(#[from] serde_json::Error),
 
     #[error(transparent)]
-    Io(#[from] std::io::Error),
+    TomlDe(#[from] toml::de::Error),
 
     #[error(transparent)]
+    Io(#[from] std::io::Error),
+
+    #[error("operation: {0}")]
     Other(#[from] Box<dyn std::error::Error + Send + Sync>),
 }

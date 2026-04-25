@@ -10,7 +10,7 @@ use serde::Deserialize;
 
 pub(crate) struct SeedNetHttp;
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     url: String,

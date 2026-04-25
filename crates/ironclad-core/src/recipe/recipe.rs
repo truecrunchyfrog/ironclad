@@ -82,8 +82,7 @@ impl Recipe {
             .zip(0..)
             .try_fold(Vec::new(), |input, (step, index)| {
                 let mut step = step.clone();
-                let mut options = step.options_mut();
-                visit_json_strings_mut(&mut options, &mut |s| {
+                visit_toml_strings_mut(step.options_mut(), &mut |s| {
                     for (label, sample) in imports {
                         *s = s.replace(&format!("$({label})"), sample.content());
                     }
@@ -107,19 +106,22 @@ impl Recipe {
     }
 }
 
-fn visit_json_strings_mut<F: FnMut(&mut String)>(value: &mut serde_json::Value, f: &mut F) {
+fn visit_toml_strings_mut<F: FnMut(&mut String)>(value: &mut toml::Value, f: &mut F) {
     match value {
-        serde_json::Value::String(s) => f(s),
-        serde_json::Value::Array(array) => {
+        toml::Value::String(s) => f(s),
+        toml::Value::Array(array) => {
             for item in array {
-                visit_json_strings_mut(item, f);
+                visit_toml_strings_mut(item, f);
             }
         }
-        serde_json::Value::Object(map) => {
+        toml::Value::Table(map) => {
             for (_, value) in map {
-                visit_json_strings_mut(value, f);
+                visit_toml_strings_mut(value, f);
             }
         }
-        serde_json::Value::Null | serde_json::Value::Number(_) | serde_json::Value::Bool(_) => {}
+        toml::Value::Integer(_)
+        | toml::Value::Float(_)
+        | toml::Value::Boolean(_)
+        | toml::Value::Datetime(_) => {}
     }
 }

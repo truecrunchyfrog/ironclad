@@ -30,7 +30,7 @@ pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()
         catalog.save_fact_index(&index)?;
     }
 
-    std::fs::write(path, serde_json::to_vec_pretty(&fact)?)?;
+    std::fs::write(path, toml::to_string_pretty(&fact)?)?;
 
     println!("{}", args.label.unwrap_or(fact_id));
 

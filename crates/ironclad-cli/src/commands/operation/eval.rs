@@ -6,7 +6,7 @@ use crate::{args::operation::eval::EvalOperationArgs, config::Config, helper::re
 pub(super) fn dispatch(_config: &Config, args: EvalOperationArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
 
-    let options = args.options.map(MaybeStdin::into_inner).unwrap_or_default();
+    let options = args.options.map(MaybeStdin::into_inner);
 
     let operation = registry::resolve_op(&args.operation_id)?;
 

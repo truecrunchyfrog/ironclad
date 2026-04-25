@@ -40,10 +40,7 @@ fn populate_catalog_dir(catalog: &Catalog) -> Result<(), CatalogError> {
 
         let index_file_path = catalog.fact_index_file_path();
         info!("creating {index_file_path:#?}");
-        fs::write(
-            index_file_path,
-            serde_json::to_vec_pretty(&FactIndex::new())?,
-        )?;
+        fs::write(index_file_path, toml::to_string_pretty(&FactIndex::new())?)?;
 
         let facts_dir = catalog.facts_dir_path();
         info!("creating {facts_dir:#?}");

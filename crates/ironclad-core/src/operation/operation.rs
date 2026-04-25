@@ -9,12 +9,12 @@ pub trait Operation: Send + Sync {
         &self,
         catalog: &Catalog,
         input: Vec<Sample>,
-        options: serde_json::Value,
+        options: Option<toml::Value>,
     ) -> Result<Vec<Sample>, OperationError>;
 }
 
 pub trait TypedOperation: Send + Sync + 'static {
-    type Options: DeserializeOwned + Clone;
+    type Options: DeserializeOwned + Clone + Default;
     type Error: std::error::Error + Send + Sync;
 
     fn description(&self) -> &'static str;
@@ -52,13 +52,16 @@ impl<T: TypedOperation> Operation for TypedOperationAdapter<T> {
         &self,
         catalog: &Catalog,
         input: Vec<Sample>,
-        options: serde_json::Value,
+        options: Option<toml::Value>,
     ) -> Result<Vec<Sample>, OperationError> {
         self.0
             .eval_all(
                 catalog,
                 input,
-                serde_json::from_value::<T::Options>(options)?,
+                options
+                    .map(|value| value.try_into())
+                    .transpose()?
+                    .unwrap_or_default(),
             )
             .map_err(|err| OperationError::Other(Box::new(err)))
     }

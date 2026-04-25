@@ -11,7 +11,7 @@ use crate::text_selector::TextSelector;
 
 pub(crate) struct TextFind;
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     #[serde(flatten)]

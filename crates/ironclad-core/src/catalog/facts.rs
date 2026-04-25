@@ -11,7 +11,7 @@ impl Catalog {
             return Err(FactError::PathNotFound(path.to_path_buf()));
         }
 
-        Ok(serde_json::from_slice(std::fs::read(path)?.as_slice())?)
+        Ok(toml::from_slice(std::fs::read(path)?.as_slice())?)
     }
 
     pub fn fact_id_for_label(index: &FactIndex, label: &str) -> Result<String, CatalogError> {
