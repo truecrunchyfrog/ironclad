@@ -17,7 +17,7 @@ use crate::{
         diff::DiffArgs,
         fact::{
             add::AddFactArgs, edit::EditFactArgs, list::ListFactArgs, remove::RemoveFactArgs,
-            show::ShowFactArgs,
+            rename::RenameFactArgs, show::ShowFactArgs,
         },
         inspect::InspectArgs,
         operation::OperationCommand,
@@ -42,19 +42,17 @@ pub(crate) fn parse() -> Cli {
 #[derive(Subcommand)]
 pub(crate) enum Command {
     Init(InitCatalogArgs),
-
     Add(AddFactArgs),
     Edit(EditFactArgs),
+    Rename(RenameFactArgs),
     #[command(alias = "rm")]
     Remove(RemoveFactArgs),
     #[command(alias = "sh")]
     Show(ShowFactArgs),
     #[command(alias = "ls")]
     List(ListFactArgs),
-
     #[command(subcommand, name = "op")]
     Operation(OperationCommand),
-
     #[command(alias = "r")]
     Resolve(ResolveArgs),
     #[command(alias = "i")]

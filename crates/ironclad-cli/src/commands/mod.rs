@@ -14,6 +14,7 @@ pub(super) fn dispatch(config: &Config, command: Command) -> anyhow::Result<()> 
         Command::Init(args) => catalog::init::dispatch(config, args),
         Command::Add(args) => fact::add::dispatch(config, args),
         Command::Edit(args) => fact::edit::dispatch(config, args),
+        Command::Rename(args) => fact::rename::dispatch(config, args),
         Command::Remove(args) => fact::remove::dispatch(config, args),
         Command::Show(args) => fact::show::dispatch(config, args),
         Command::List(args) => fact::list::dispatch(config, args),
