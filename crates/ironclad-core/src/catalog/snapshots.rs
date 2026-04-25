@@ -5,7 +5,7 @@ use sha2::{Digest, Sha256};
 
 use crate::{
     catalog::{Catalog, error::CatalogError},
-    fact::Fact,
+    fact::LabeledFact,
     recipe::RecipeProgressEvent,
     sample::{Sample, Trace, batch::Batch},
     snapshot::Snapshot,
@@ -14,19 +14,16 @@ use crate::{
 pub enum SnapshotProgressEvent<'a> {
     FactStarted {
         index: usize,
-        label: &'a str,
-        fact: &'a Fact,
+        fact: &'a LabeledFact,
     },
     FactFinished {
         index: usize,
-        label: &'a str,
-        fact: &'a Fact,
+        fact: &'a LabeledFact,
         output: &'a Vec<Sample>,
     },
     FactStep {
         index: usize,
-        label: &'a str,
-        fact: &'a Fact,
+        fact: &'a LabeledFact,
         inner: RecipeProgressEvent<'a>,
     },
 }
@@ -34,7 +31,7 @@ pub enum SnapshotProgressEvent<'a> {
 impl Catalog {
     pub fn capture_snapshot<F: FnMut(SnapshotProgressEvent)>(
         &self,
-        facts: Vec<(String, Fact)>,
+        facts: Vec<LabeledFact>,
         redact_secrets: bool,
         mut on_progress: F,
     ) -> Result<Snapshot, CatalogError> {
@@ -45,13 +42,9 @@ impl Catalog {
                 .try_fold(
                     (Vec::new(), HashMap::new()),
                     |(mut snapshot_entries, mut exported_samples),
-                     ((label, fact), index)|
+                     (fact, index)|
                      -> Result<_, CatalogError> {
-                        on_progress(SnapshotProgressEvent::FactStarted {
-                            index,
-                            label: &label,
-                            fact: &fact,
-                        });
+                        on_progress(SnapshotProgressEvent::FactStarted { index, fact: &fact });
 
                         let imports = fact
                             .imports()
@@ -67,7 +60,6 @@ impl Catalog {
                         let samples = fact.steps().eval(self, &imports, |update| {
                             on_progress(SnapshotProgressEvent::FactStep {
                                 index,
-                                label: &label,
                                 fact: &fact,
                                 inner: update,
                             })
@@ -75,7 +67,6 @@ impl Catalog {
 
                         on_progress(SnapshotProgressEvent::FactFinished {
                             index,
-                            label: &label,
                             fact: &fact,
                             output: &samples,
                         });
@@ -86,7 +77,7 @@ impl Catalog {
                             samples
                         });
 
-                        for (key, entry) in fact.into_exports() {
+                        for (key, entry) in fact.fact.into_exports() {
                             let value = batch
                                 .samples()
                                 .iter()
@@ -97,7 +88,7 @@ impl Catalog {
                                     })
                                 })
                                 .ok_or_else(|| CatalogError::SampleToExportNotFound {
-                                    fact_label: label.clone(),
+                                    fact_label: fact.label.clone(),
                                     export_key: key.clone(),
                                     trace_key: entry.trace_key,
                                     trace_value: entry.trace_value,
@@ -105,7 +96,7 @@ impl Catalog {
                             exported_samples.insert(key, value.clone());
                         }
 
-                        snapshot_entries.push((label, batch));
+                        snapshot_entries.push((fact.label, batch));
 
                         Ok((snapshot_entries, exported_samples))
                     },

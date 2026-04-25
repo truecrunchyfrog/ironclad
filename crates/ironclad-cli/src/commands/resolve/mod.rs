@@ -3,7 +3,9 @@ use std::{
     io::{BufWriter, Write},
 };
 
-use ironclad_core::{catalog::SnapshotProgressEvent, fact::Fact, recipe::RecipeProgressEvent};
+use ironclad_core::{
+    catalog::SnapshotProgressEvent, fact::LabeledFact, recipe::RecipeProgressEvent,
+};
 
 use crate::{args::resolve::ResolveArgs, config::Config, helper::resolve_catalog};
 
@@ -19,11 +21,11 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
             ResolveArgs { exclude, .. } if !exclude.is_empty() => !exclude.contains(label),
             _ => true,
         })
-        .map(|(label, fact_id)| -> anyhow::Result<(String, Fact)> {
-            Ok((
+        .map(|(label, fact_id)| -> anyhow::Result<_> {
+            Ok(LabeledFact {
                 label,
-                catalog.load_fact_for_path(&catalog.fact_file_path(&fact_id))?,
-            ))
+                fact: catalog.load_fact_for_path(&catalog.fact_file_path(&fact_id))?,
+            })
         })
         .collect::<anyhow::Result<Vec<_>>>()?;
 
@@ -32,7 +34,6 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
     let snapshot = catalog.capture_snapshot(facts, !args.no_redact, |update| match update {
         SnapshotProgressEvent::FactStep {
             index,
-            label,
             fact,
             inner:
                 RecipeProgressEvent::StepStarted {
@@ -43,8 +44,9 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
             ..
         } => {
             eprint!(
-                "\r\x1b[2K{}/{total}: {label}: {}/{}: {}",
+                "\r\x1b[2K{}/{total}: {}: {}/{}: {}",
                 index + 1,
+                fact.label,
                 step_index + 1,
                 fact.steps().steps().len(),
                 step.operation_id()
