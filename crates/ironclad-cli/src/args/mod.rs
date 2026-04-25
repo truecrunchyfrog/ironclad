@@ -54,7 +54,7 @@ pub(crate) enum Command {
     #[command(alias = "ls")]
     List(ListFactArgs),
 
-    #[command(subcommand, alias = "op")]
+    #[command(subcommand, name = "op")]
     Operation(OperationCommand),
 
     #[command(subcommand, name = "step")]
