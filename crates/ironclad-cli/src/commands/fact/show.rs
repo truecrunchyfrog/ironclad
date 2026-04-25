@@ -11,10 +11,6 @@ pub(crate) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<(
     let fact = catalog.load_fact_for_path(&path)?;
 
     match args {
-        ShowFactArgs { raw: true, .. } => {
-            println!("{}", serde_json::to_string_pretty(&fact)?);
-        }
-
         ShowFactArgs { path: true, .. } => {
             println!("{}", path.to_string_lossy());
         }
