@@ -61,7 +61,7 @@ impl Fact {
         &mut self.secret
     }
 
-    pub fn imports(&self) -> &Vec<String> {
+    pub fn imports(&self) -> &[String] {
         &self.imports
     }
 
