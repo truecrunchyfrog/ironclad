@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs};
+use std::collections::HashMap;
 
 use glob::glob;
 use ironclad_core::{
@@ -60,7 +60,7 @@ impl TypedOperation for SeedFileText {
         let files = paths
             .into_iter()
             .filter_map(|path| {
-                fs::read_to_string(&path)
+                std::fs::read_to_string(&path)
                     .map(|text| {
                         Sample::new(
                             Trace::new(HashMap::from([(

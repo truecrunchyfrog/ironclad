@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::path::Path;
 
 use log::info;
 
@@ -25,11 +25,11 @@ fn populate_catalog_dir(catalog: &Catalog) -> Result<(), CatalogError> {
 
     {
         info!("creating {:#?}", catalog.dir());
-        fs::create_dir(catalog.dir())?;
+        std::fs::create_dir(catalog.dir())?;
 
         let gitignore_file_path = catalog.dir().join(".gitignore");
         info!("creating {gitignore_file_path:#?}");
-        fs::write(
+        std::fs::write(
             gitignore_file_path,
             catalog
                 .snapshot_candidate_file_path()
@@ -40,15 +40,15 @@ fn populate_catalog_dir(catalog: &Catalog) -> Result<(), CatalogError> {
 
         let index_file_path = catalog.fact_index_file_path();
         info!("creating {index_file_path:#?}");
-        fs::write(index_file_path, toml::to_string_pretty(&FactIndex::new())?)?;
+        std::fs::write(index_file_path, toml::to_string_pretty(&FactIndex::new())?)?;
 
         let facts_dir = catalog.facts_dir_path();
         info!("creating {facts_dir:#?}");
-        fs::create_dir(facts_dir)?;
+        std::fs::create_dir(facts_dir)?;
 
         let snapshots_dir = catalog.snapshots_dir_path();
         info!("creating {snapshots_dir:#?}");
-        fs::create_dir(snapshots_dir)?;
+        std::fs::create_dir(snapshots_dir)?;
     }
 
     Ok(())
