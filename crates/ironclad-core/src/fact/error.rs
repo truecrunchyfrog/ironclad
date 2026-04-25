@@ -2,10 +2,10 @@ use std::path::PathBuf;
 
 #[derive(thiserror::Error, Debug)]
 pub enum FactError {
-    #[error("fact already exists at {0}")]
+    #[error("fact already exists: {0}")]
     PathAlreadyExists(PathBuf),
 
-    #[error("fact not found at {0}")]
+    #[error("fact not found: {0}")]
     PathNotFound(PathBuf),
 
     #[error(transparent)]

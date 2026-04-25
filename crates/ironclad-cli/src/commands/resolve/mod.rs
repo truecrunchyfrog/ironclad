@@ -31,7 +31,9 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
 
     let total = facts.len();
 
-    let snapshot = catalog.capture_snapshot(facts, !args.no_redact, |update| match update {
+    eprint!("...");
+
+    let result_snapshot = catalog.capture_snapshot(facts, !args.no_redact, |update| match update {
         SnapshotProgressEvent::FactStep {
             index,
             fact,
@@ -54,7 +56,14 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
             let _ = std::io::stderr().flush();
         }
         _ => (),
-    })?;
+    });
+
+    eprint!("\r\x1b[2K");
+
+    let snapshot = match result_snapshot {
+        Ok(snapshot) => snapshot,
+        Err(err) => return Err(err.into()),
+    };
 
     let mut dest: Box<dyn Write> = match args.output {
         Some(file_or_stdout) => Box::new(file_or_stdout.into_writer()?),
