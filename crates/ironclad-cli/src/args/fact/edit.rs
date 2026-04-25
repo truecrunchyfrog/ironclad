@@ -12,7 +12,7 @@ pub(crate) struct EditFactArgs {
 
     /// Reassign the fact to a new label.
     #[arg(long)]
-    pub(crate) relabel: Option<String>,
+    pub(crate) rename: Option<String>,
 
     /// Change the description.
     #[arg(long)]

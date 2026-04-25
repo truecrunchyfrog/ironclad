@@ -37,7 +37,7 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
         *fact.secret_mut() = false;
     }
 
-    if let Some(new_label) = &args.relabel {
+    if let Some(new_label) = &args.rename {
         let entries = index.entries_mut();
 
         if entries.insert(new_label.clone(), fact_id).is_some() {
@@ -53,7 +53,7 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
 
     std::fs::write(path, toml::to_string_pretty(&fact)?)?;
 
-    println!("{}", args.relabel.unwrap_or(args.label));
+    println!("{}", args.rename.unwrap_or(args.label));
 
     Ok(())
 }
