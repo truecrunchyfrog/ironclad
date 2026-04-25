@@ -4,7 +4,6 @@ pub(crate) mod config;
 pub(crate) mod helper;
 mod logging;
 pub(crate) mod output;
-pub(crate) mod ui;
 
 use std::{env::home_dir, process::ExitCode};
 
@@ -20,7 +19,7 @@ fn main() -> ExitCode {
     match start() {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => {
-            ui::error(format!("{err}"));
+            eprintln!("fatal: {err}");
             ExitCode::FAILURE
         }
     }

@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use ironclad_core::catalog::Catalog;
 
-use crate::{args::recipe::pop::PopRecipeArgs, config::Config, helper::resolve_catalog, ui};
+use crate::{args::recipe::pop::PopRecipeArgs, config::Config, helper::resolve_catalog};
 
 pub(super) fn dispatch(_config: &Config, args: PopRecipeArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
@@ -19,11 +19,11 @@ pub(super) fn dispatch(_config: &Config, args: PopRecipeArgs) -> anyhow::Result<
 
     std::fs::write(path, serde_json::to_vec_pretty(&fact)?)?;
 
-    ui::info(format!(
+    eprintln!(
         "removed operation '{}' with options '{}'",
         removed_step.operation_id(),
         removed_step.options()
-    ));
+    );
 
     Ok(())
 }
