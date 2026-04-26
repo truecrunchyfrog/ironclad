@@ -10,12 +10,4 @@ pub(crate) struct AddFactArgs {
     /// Don't index the fact.
     #[arg(long)]
     pub(crate) no_index: bool,
-
-    /// Describe the fact's purpose.
-    #[arg(long)]
-    pub(crate) description: Option<String>,
-
-    /// Redact sample content when writing to a snapshot.
-    #[arg(long)]
-    pub(crate) secret: bool,
 }

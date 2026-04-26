@@ -11,6 +11,7 @@ pub struct Fact {
     imports: Vec<String>,
     #[serde(default)]
     exports: HashMap<String, SampleExportEntry>,
+    #[serde(default)]
     steps: Recipe,
     #[serde(default)]
     secret: bool,

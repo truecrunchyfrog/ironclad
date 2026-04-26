@@ -1,21 +1,10 @@
-use std::collections::HashMap;
-
 use anyhow::anyhow;
-use ironclad_core::{fact::Fact, recipe::Recipe};
 use ulid::Ulid;
 
 use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalog};
 
 pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()> {
     let catalog = resolve_catalog()?;
-
-    let fact = Fact::new(
-        args.description,
-        Vec::new(),
-        HashMap::new(),
-        Recipe::default(),
-        args.secret,
-    );
 
     let fact_id = Ulid::new().to_string();
 
@@ -30,7 +19,7 @@ pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()
         catalog.save_fact_index(&index)?;
     }
 
-    std::fs::write(path, toml::to_string_pretty(&fact)?)?;
+    std::fs::write(path, [])?;
 
     println!("{}", args.label.unwrap_or(fact_id));
 
