@@ -4,12 +4,9 @@ use std::{
 };
 
 use console::style;
-use ironclad_core::{
-    catalog::Catalog,
-    snapshot::{
-        Snapshot,
-        diff::{BatchDiff, SamplePresence},
-    },
+use ironclad_core::snapshot::{
+    Snapshot,
+    diff::{BatchDiff, SamplePresence},
 };
 
 use crate::{args::diff::DiffArgs, config::Config, helper::resolve_catalog, output};
@@ -36,9 +33,7 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
     if args.raw {
         println!("{}", serde_json::to_string_pretty(&diff)?);
     } else if let Some(label) = args.label {
-        let fact_id = Catalog::fact_id_for_label(&catalog.load_fact_index()?, &label)?;
-
-        if let Some(batch_diff) = diff.remove(&fact_id) {
+        if let Some(batch_diff) = diff.remove(&label) {
             for ((sample, presence), i) in batch_diff
                 .sample_diffs()
                 .into_iter()
@@ -85,9 +80,7 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
             }
         }
     } else {
-        for (fact_id, batch_diff) in &diff {
-            let label = Catalog::label_for_fact_id(&catalog.load_fact_index()?, fact_id)?;
-
+        for (label, batch_diff) in &diff {
             if !batch_diff.batches_equal() {
                 println!("{}", format_batch_diff(&label, batch_diff));
             }
