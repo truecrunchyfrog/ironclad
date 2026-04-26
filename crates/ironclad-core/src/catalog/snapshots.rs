@@ -35,6 +35,7 @@ impl Catalog {
         mut on_progress: F,
     ) -> Result<Snapshot, CatalogError> {
         let facts = sort_dependencies(facts)?;
+        validate_unique_export_keys(&facts)?;
 
         let snapshot = Snapshot::new(HashMap::from_iter(
             facts
@@ -107,6 +108,28 @@ impl Catalog {
         ));
         Ok(snapshot)
     }
+}
+
+fn validate_unique_export_keys(facts: &[LabeledFact]) -> Result<(), CatalogError> {
+    let mut fact_labels_by_export_key = HashMap::<String, Vec<String>>::new();
+
+    for fact in facts {
+        for key in fact.exports().keys() {
+            fact_labels_by_export_key
+                .entry(key.clone())
+                .or_default()
+                .push(fact.label.clone());
+        }
+    }
+
+    if let Some((key, fact_labels)) = fact_labels_by_export_key
+        .into_iter()
+        .find(|(_, fact_labels)| fact_labels.len() > 1)
+    {
+        return Err(CatalogError::DuplicateExportKey { key, fact_labels });
+    }
+
+    Ok(())
 }
 
 fn redact_sample(sample: Sample) -> Sample {

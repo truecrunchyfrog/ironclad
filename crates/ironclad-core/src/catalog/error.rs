@@ -25,6 +25,12 @@ pub enum CatalogError {
     #[error("import not found: {0}")]
     ImportNotFound(String),
 
+    #[error("duplicate export key '{key}' declared by facts: {fact_labels:?}")]
+    DuplicateExportKey {
+        key: String,
+        fact_labels: Vec<String>,
+    },
+
     #[error(
         "sample with trace {trace_key}={trace_value} to export as '{export_key}' not found when evaluating batch for fact {fact_label}"
     )]
