@@ -1,22 +1,24 @@
 use anyhow::bail;
 use ulid::Ulid;
 
-use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalog};
+use crate::{args::fact::add::AddFactArgs, config::Config, helper::CatalogSession};
 
 pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
+    let mut session = CatalogSession::open()?;
 
     let fact_id = Ulid::new().to_string();
 
-    let path = catalog.fact_file_path(&fact_id);
+    let path = session.catalog().fact_file_path(&fact_id);
 
     if let Some(label) = &args.label {
-        let mut index = catalog.load_fact_index()?;
-        let entries = index.entries_mut();
-        if entries.insert(label.clone(), fact_id.clone()).is_some() {
+        if session
+            .index_mut()
+            .insert(label.clone(), fact_id.clone())
+            .is_some()
+        {
             bail!("label '{label}' already indexed");
         }
-        catalog.save_fact_index(&index)?;
+        session.save_index()?;
     }
 
     std::fs::write(path, [])?;

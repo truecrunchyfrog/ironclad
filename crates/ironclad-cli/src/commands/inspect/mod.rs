@@ -1,23 +1,15 @@
-use std::{
-    fs::File,
-    io::{BufReader, Read},
-};
-
 use anyhow::anyhow;
 use console::style;
-use ironclad_core::snapshot::Snapshot;
 
-use crate::{args::inspect::InspectArgs, config::Config, helper::resolve_catalog};
+use crate::{
+    args::inspect::InspectArgs,
+    config::Config,
+    helper::{CatalogSession, SnapshotPath, read_snapshot},
+};
 
 pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
-
-    let snapshot = serde_json::from_reader::<Box<dyn Read>, Snapshot>(match args.snapshot {
-        Some(file_or_stdin) => Box::new(file_or_stdin.into_reader()?),
-        None => Box::new(BufReader::new(File::open(
-            catalog.snapshot_canon_file_path(),
-        )?)),
-    })?;
+    let session = CatalogSession::open()?;
+    let snapshot = read_snapshot(session.catalog(), args.snapshot, SnapshotPath::Canon)?;
 
     if args.raw {
         println!("{}", serde_json::to_string_pretty(&snapshot)?);

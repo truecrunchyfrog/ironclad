@@ -1,15 +1,13 @@
-use crate::{args::fact::list::ListFactArgs, config::Config, helper::resolve_catalog};
+use crate::{args::fact::list::ListFactArgs, config::Config, helper::CatalogSession};
 
 pub(crate) fn dispatch(_config: &Config, args: ListFactArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
+    let session = CatalogSession::open()?;
 
-    let index = catalog.load_fact_index()?;
-    let mut labeled_entries = index.into_entries().into_iter().collect::<Vec<_>>();
-    labeled_entries.sort_by(|a, b| a.0.cmp(&b.0));
-
-    for (label, fact_id) in &labeled_entries {
+    for (label, fact_id) in session.index().iter() {
         if args.verbose {
-            let fact = catalog.load_fact_for_path(&catalog.fact_file_path(fact_id))?;
+            let fact = session
+                .catalog()
+                .load_fact_for_path(&session.catalog().fact_file_path(fact_id))?;
 
             println!(
                 "{label}: {}",
