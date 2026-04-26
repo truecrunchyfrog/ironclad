@@ -10,7 +10,7 @@ Create a fact:
 $ ic add my-config
 ```
 
-Open your new fact in $EDITOR:
+Open your new fact in `$EDITOR`:
 ```bash
 $ ic edit my-config
 ```
