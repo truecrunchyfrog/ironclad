@@ -61,5 +61,6 @@ pub(crate) enum Command {
     Diff(DiffArgs),
     #[command(alias = "c")]
     Check(CheckArgs),
+    #[command(alias = "up")]
     Apply(ApplyArgs),
 }
