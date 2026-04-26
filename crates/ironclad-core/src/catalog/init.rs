@@ -2,7 +2,10 @@ use std::path::Path;
 
 use log::info;
 
-use crate::catalog::{catalog::Catalog, error::CatalogError, fact_index::FactIndex};
+use crate::{
+    catalog::{catalog::Catalog, error::CatalogError, fact_index::FactIndex},
+    snapshot::Snapshot,
+};
 
 impl Catalog {
     pub fn create_catalog(working_dir: &Path) -> Result<Catalog, CatalogError> {
@@ -49,6 +52,13 @@ fn populate_catalog_dir(catalog: &Catalog) -> Result<(), CatalogError> {
         let snapshots_dir = catalog.snapshots_dir_path();
         info!("creating {snapshots_dir:#?}");
         std::fs::create_dir(snapshots_dir)?;
+
+        let snapshot_canon_file_path = catalog.snapshot_canon_file_path();
+        info!("creating {snapshot_canon_file_path:#?}");
+        std::fs::write(
+            snapshot_canon_file_path,
+            serde_json::to_string_pretty(&Snapshot::default())?,
+        )?;
     }
 
     Ok(())
