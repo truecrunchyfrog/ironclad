@@ -6,10 +6,15 @@ use sha2::{Digest, Sha256};
 use crate::{
     catalog::{Catalog, error::CatalogError},
     fact::{LabeledFact, RecipeProgressEvent, dependencies::sort_dependencies},
+    operation::OperationContext,
     registry::Registry,
     sample::{Sample, Trace, batch::Batch},
     snapshot::Snapshot,
 };
+
+pub struct SnapshotEvaluator {
+    catalog: Catalog,
+}
 
 pub enum SnapshotProgressEvent<'a> {
     FactStarted {
@@ -28,7 +33,12 @@ pub enum SnapshotProgressEvent<'a> {
     },
 }
 
-impl Catalog {
+impl SnapshotEvaluator {
+    #[must_use]
+    pub fn new(catalog: Catalog) -> Self {
+        Self { catalog }
+    }
+
     pub fn capture_snapshot<F: FnMut(SnapshotProgressEvent)>(
         &self,
         registry: &Registry,
@@ -36,6 +46,7 @@ impl Catalog {
         redact_secrets: bool,
         mut on_progress: F,
     ) -> Result<Snapshot, CatalogError> {
+        let operation_context = OperationContext::with_catalog(self.catalog.clone());
         let facts = sort_dependencies(facts)?;
         validate_unique_export_keys(&facts)?;
 
@@ -61,13 +72,14 @@ impl Catalog {
                             })
                             .collect::<Result<HashMap<_, _>, _>>()?;
 
-                        let samples = fact.eval(registry, self, &imports, |update| {
-                            on_progress(SnapshotProgressEvent::FactStep {
-                                index,
-                                fact: &fact,
-                                inner: update,
-                            });
-                        })?;
+                        let samples =
+                            fact.eval(registry, &operation_context, &imports, |update| {
+                                on_progress(SnapshotProgressEvent::FactStep {
+                                    index,
+                                    fact: &fact,
+                                    inner: update,
+                                });
+                            })?;
 
                         on_progress(SnapshotProgressEvent::FactFinished {
                             index,

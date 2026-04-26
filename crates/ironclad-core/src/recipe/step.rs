@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::{catalog::Catalog, recipe::RecipeError, registry::Registry, sample::Sample};
+use crate::{operation::OperationContext, recipe::RecipeError, registry::Registry, sample::Sample};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Step {
@@ -36,7 +36,7 @@ impl Step {
     pub fn eval(
         &self,
         registry: &Registry,
-        catalog: &Catalog,
+        context: &OperationContext,
         imports: &HashMap<String, &Sample>,
         input: Vec<Sample>,
     ) -> Result<Vec<Sample>, RecipeError> {
@@ -44,7 +44,7 @@ impl Step {
         let options = resolve_imports(self.options.clone(), imports);
 
         operation
-            .eval(catalog, input, Some(options))
+            .eval(context, input, Some(options))
             .map_err(|err| RecipeError::Operation {
                 operation_id: self.operation_id.clone(),
                 source: err,

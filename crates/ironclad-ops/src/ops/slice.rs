@@ -1,6 +1,9 @@
 use std::ops::Range;
 
-use ironclad_core::{catalog::Catalog, operation::TypedOperation, sample::Sample};
+use ironclad_core::{
+    operation::{OperationContext, TypedOperation},
+    sample::Sample,
+};
 use serde::Deserialize;
 
 pub(crate) struct Slice;
@@ -25,7 +28,7 @@ impl TypedOperation for Slice {
 
     fn eval_all(
         &self,
-        _catalog: &Catalog,
+        _context: &OperationContext,
         input: Vec<Sample>,
         options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {

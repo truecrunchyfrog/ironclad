@@ -1,8 +1,7 @@
 use std::{collections::HashMap, process::Command};
 
 use ironclad_core::{
-    catalog::Catalog,
-    operation::TypedOperation,
+    operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
 use serde::Deserialize;
@@ -42,13 +41,13 @@ impl TypedOperation for SeedRun {
 
     fn eval_all(
         &self,
-        catalog: &Catalog,
+        context: &OperationContext,
         _input: Vec<Sample>,
         options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {
         let program = options.program;
         let output = Command::new(&program)
-            .current_dir(catalog.container_dir_path())
+            .current_dir(context.working_dir())
             .args(options.args)
             .output()?;
 

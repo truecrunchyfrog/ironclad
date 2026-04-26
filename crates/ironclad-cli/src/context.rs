@@ -1,5 +1,6 @@
 use ironclad_core::{
-    catalog::{Catalog, CatalogSession},
+    catalog::{CatalogRepository, CatalogSession},
+    operation::OperationContext,
     registry::Registry,
 };
 
@@ -30,20 +31,20 @@ impl Context {
         )?)
     }
 
-    pub(crate) fn catalog(&self) -> anyhow::Result<Catalog> {
-        let cwd = std::env::current_dir()?;
-        Ok(match self.config.catalog_dir.as_deref() {
-            Some(path) => Catalog::open_at_path(path)?,
-            None => Catalog::find_for_working_dir(&cwd)?,
-        })
+    pub(crate) fn catalog_repository(&self) -> anyhow::Result<CatalogRepository> {
+        Ok(CatalogRepository::open(
+            &std::env::current_dir()?,
+            self.config.catalog_dir.as_deref(),
+        )?)
     }
 
-    pub(crate) fn execution_catalog(&self) -> anyhow::Result<Catalog> {
+    pub(crate) fn operation_context(&self) -> anyhow::Result<OperationContext> {
         let cwd = std::env::current_dir()?;
-        Ok(match self.config.catalog_dir.as_deref() {
-            Some(path) => Catalog::open_at_path(path)?,
-            None => Catalog::find_for_working_dir(&cwd)
-                .unwrap_or_else(|_| Catalog::for_container_dir(&cwd)),
+        let repository = CatalogRepository::open(&cwd, self.config.catalog_dir.as_deref()).ok();
+
+        Ok(match repository {
+            Some(repository) => OperationContext::with_catalog(repository.catalog().clone()),
+            None => OperationContext::for_working_dir(cwd),
         })
     }
 }

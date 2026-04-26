@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use ironclad_core::{
-    catalog::Catalog,
-    operation::TypedOperation,
+    operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
 use scraper::Element;
@@ -21,7 +20,7 @@ impl TypedOperation for HtmlInnerText {
 
     fn eval_each(
         &self,
-        _catalog: &Catalog,
+        _context: &OperationContext,
         input: Sample,
         _options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {

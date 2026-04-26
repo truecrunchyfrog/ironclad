@@ -1,15 +1,12 @@
 use anyhow::anyhow;
 use console::style;
+use ironclad_core::catalog::SnapshotFile;
 
-use crate::{
-    args::inspect::InspectArgs,
-    context::Context,
-    helper::{SnapshotPath, read_snapshot},
-};
+use crate::{args::inspect::InspectArgs, context::Context, helper::read_snapshot};
 
 pub(super) fn dispatch(context: &Context, args: InspectArgs) -> anyhow::Result<()> {
-    let catalog = context.catalog()?;
-    let snapshot = read_snapshot(&catalog, args.snapshot, SnapshotPath::Canon)?;
+    let repository = context.catalog_repository()?;
+    let snapshot = read_snapshot(&repository, args.snapshot, SnapshotFile::Canon)?;
 
     if args.raw {
         println!("{}", serde_json::to_string_pretty(&snapshot)?);

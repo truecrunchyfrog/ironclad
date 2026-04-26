@@ -4,7 +4,7 @@ use ironclad_core::sample::Sample;
 use crate::{args::operation::eval::EvalOperationArgs, context::Context};
 
 pub(super) fn dispatch(context: &Context, args: EvalOperationArgs) -> anyhow::Result<()> {
-    let catalog = context.execution_catalog()?;
+    let operation_context = context.operation_context()?;
 
     let options = args.options.map(MaybeStdin::into_inner);
 
@@ -16,7 +16,7 @@ pub(super) fn dispatch(context: &Context, args: EvalOperationArgs) -> anyhow::Re
         .transpose()?
         .unwrap_or_default();
 
-    let output = operation.eval(&catalog, input, options)?;
+    let output = operation.eval(&operation_context, input, options)?;
 
     println!("{}", serde_json::to_string_pretty(&output)?);
 

@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    catalog::Catalog,
     fact::SampleExportEntry,
+    operation::OperationContext,
     recipe::{RecipeError, Step},
     registry::Registry,
     sample::Sample,
@@ -91,7 +91,7 @@ impl Fact {
     pub fn eval<F: FnMut(RecipeProgressEvent)>(
         &self,
         registry: &Registry,
-        catalog: &Catalog,
+        context: &OperationContext,
         imports: &HashMap<String, &Sample>,
         mut on_progress: F,
     ) -> Result<Vec<Sample>, RecipeError> {
@@ -105,7 +105,7 @@ impl Fact {
                     input: &input,
                 });
 
-                let samples = step.eval(registry, catalog, imports, input)?;
+                let samples = step.eval(registry, context, imports, input)?;
                 on_progress(RecipeProgressEvent::StepFinished {
                     index,
                     step,

@@ -2,8 +2,7 @@ use std::{collections::HashMap, path::PathBuf};
 
 use glob::glob;
 use ironclad_core::{
-    catalog::Catalog,
-    operation::TypedOperation,
+    operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
 use serde::Deserialize;
@@ -48,11 +47,11 @@ impl TypedOperation for SeedFileText {
 
     fn eval_all(
         &self,
-        catalog: &Catalog,
+        context: &OperationContext,
         _input: Vec<Sample>,
         options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {
-        let base_path = catalog.container_dir_path();
+        let base_path = context.working_dir();
 
         let paths = options
             .files
@@ -80,7 +79,7 @@ impl TypedOperation for SeedFileText {
                 Ok(Sample::new(
                     Trace::new(HashMap::from([(
                         String::from("path"),
-                        path.strip_prefix(&base_path)
+                        path.strip_prefix(base_path)
                             .map_err(|_| Error::PathOutsideCatalogContainer { path: path.clone() })?
                             .to_string_lossy()
                             .to_string(),

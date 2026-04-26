@@ -6,7 +6,7 @@ pub(crate) fn dispatch(context: &Context, args: ListFactArgs) -> anyhow::Result<
     for (label, fact_id) in session.index().iter() {
         if args.verbose {
             let fact = session
-                .catalog()
+                .repository()
                 .load_fact_for_path(&session.catalog().fact_file_path(fact_id))?;
 
             println!(

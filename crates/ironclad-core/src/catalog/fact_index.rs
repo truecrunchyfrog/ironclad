@@ -2,8 +2,6 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::catalog::{Catalog, error::CatalogError};
-
 #[derive(Serialize, Deserialize)]
 pub struct FactIndex(BTreeMap<String, String>);
 
@@ -63,20 +61,5 @@ impl FactIndex {
 
     pub fn contains_label(&self, label: &str) -> bool {
         self.0.contains_key(label)
-    }
-}
-
-impl Catalog {
-    pub fn load_fact_index(&self) -> Result<FactIndex, CatalogError> {
-        Ok(toml::from_slice(
-            std::fs::read(self.fact_index_file_path())?.as_slice(),
-        )?)
-    }
-
-    pub fn save_fact_index(&self, fact_index: &FactIndex) -> Result<(), CatalogError> {
-        Ok(std::fs::write(
-            self.fact_index_file_path(),
-            toml::to_string_pretty(fact_index)?,
-        )?)
     }
 }

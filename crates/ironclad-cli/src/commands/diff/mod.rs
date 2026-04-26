@@ -1,18 +1,16 @@
 use anyhow::anyhow;
 use console::style;
-use ironclad_core::snapshot::diff::{BatchDiff, SamplePresence};
-
-use crate::{
-    args::diff::DiffArgs,
-    context::Context,
-    helper::{SnapshotPath, read_snapshot},
-    output,
+use ironclad_core::{
+    catalog::SnapshotFile,
+    snapshot::diff::{BatchDiff, SamplePresence},
 };
 
+use crate::{args::diff::DiffArgs, context::Context, helper::read_snapshot, output};
+
 pub(super) fn dispatch(context: &Context, args: DiffArgs) -> anyhow::Result<()> {
-    let catalog = context.catalog()?;
-    let proposal = read_snapshot(&catalog, args.proposal, SnapshotPath::Actual)?;
-    let baseline = read_snapshot(&catalog, args.baseline, SnapshotPath::Canon)?;
+    let repository = context.catalog_repository()?;
+    let proposal = read_snapshot(&repository, args.proposal, SnapshotFile::Actual)?;
+    let baseline = read_snapshot(&repository, args.baseline, SnapshotFile::Canon)?;
 
     let mut diff = proposal.diff(&baseline);
 
