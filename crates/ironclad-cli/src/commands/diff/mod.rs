@@ -82,7 +82,7 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
     } else {
         for (label, batch_diff) in &diff {
             if !batch_diff.batches_equal() {
-                println!("{}", format_batch_diff(&label, batch_diff));
+                println!("{}", format_batch_diff(label, batch_diff));
             }
         }
     }

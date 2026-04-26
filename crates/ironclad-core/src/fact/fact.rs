@@ -67,18 +67,22 @@ impl Fact {
         &mut self.secret
     }
 
+    #[must_use]
     pub fn imports(&self) -> &[String] {
         &self.imports
     }
 
+    #[must_use]
     pub fn into_imports(self) -> Vec<String> {
         self.imports
     }
 
+    #[must_use]
     pub fn exports(&self) -> &HashMap<String, SampleExportEntry> {
         &self.exports
     }
 
+    #[must_use]
     pub fn into_exports(self) -> HashMap<String, SampleExportEntry> {
         self.exports
     }

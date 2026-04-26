@@ -55,8 +55,8 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
 
     eprint!("...");
 
-    let result_snapshot = catalog.capture_snapshot(facts, !no_redact, |update| match update {
-        SnapshotProgressEvent::FactStep {
+    let result_snapshot = catalog.capture_snapshot(facts, !no_redact, |update| {
+        if let SnapshotProgressEvent::FactStep {
             index,
             fact,
             inner:
@@ -66,10 +66,12 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
                     ..
                 },
             ..
-        } => {
+        } = update
+        {
             eprint!(
-                "\r\x1b[2K{}/{total}: {}: {}/{}: {}",
+                "\r\x1b[2K{}/{}: {}: {}/{}: {}",
                 index + 1,
+                total,
                 fact.label,
                 step_index + 1,
                 fact.steps().len(),
@@ -77,7 +79,6 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
             );
             let _ = std::io::stderr().flush();
         }
-        _ => (),
     });
 
     eprint!("\r\x1b[2K");

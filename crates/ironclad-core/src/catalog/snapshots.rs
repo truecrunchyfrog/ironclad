@@ -63,7 +63,7 @@ impl Catalog {
                                 index,
                                 fact: &fact,
                                 inner: update,
-                            })
+                            });
                         })?;
 
                         on_progress(SnapshotProgressEvent::FactFinished {

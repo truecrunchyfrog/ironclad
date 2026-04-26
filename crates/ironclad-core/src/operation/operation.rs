@@ -59,7 +59,7 @@ impl<T: TypedOperation> Operation for TypedOperationAdapter<T> {
                 catalog,
                 input,
                 options
-                    .map(|value| value.try_into())
+                    .map(toml::Value::try_into)
                     .transpose()?
                     .unwrap_or_default(),
             )
