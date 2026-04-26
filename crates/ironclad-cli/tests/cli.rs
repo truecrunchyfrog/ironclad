@@ -90,7 +90,89 @@ fn inspect_works_with_invalid_index_file() {
     );
 
     assert!(output.status.success(), "{:?}", output);
-    assert!(String::from_utf8_lossy(&output.stdout).contains("fact:"));
+    assert!(String::from_utf8_lossy(&output.stdout).contains("fact  1  "));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}
+
+#[test]
+fn inspect_summary_shows_fact_overview() {
+    let root = temp_path("inspect-summary");
+    let home = temp_path("home-inspect-summary");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let catalog = Catalog::create_catalog(&root).expect("create catalog");
+    let repository = CatalogRepository::new(catalog);
+    repository
+        .write_snapshot(
+            SnapshotFile::Canon,
+            &Snapshot::new(HashMap::from([
+                (
+                    "alpha".to_string(),
+                    Batch::new(vec![sample("one"), sample("two")]),
+                ),
+                ("beta".to_string(), Batch::new(vec![sample("three")])),
+            ])),
+        )
+        .expect("write canon");
+
+    let output = run_ic(
+        &root,
+        &home,
+        &[
+            "--catalog-dir",
+            repository.catalog().dir().to_str().expect("utf8"),
+            "inspect",
+        ],
+    );
+
+    assert!(output.status.success(), "{:?}", output);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("alpha  2  "));
+    assert!(stdout.contains("beta  1  "));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}
+
+#[test]
+fn inspect_detail_shows_structured_samples() {
+    let root = temp_path("inspect-detail");
+    let home = temp_path("home-inspect-detail");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let catalog = Catalog::create_catalog(&root).expect("create catalog");
+    let repository = CatalogRepository::new(catalog);
+    repository
+        .write_snapshot(
+            SnapshotFile::Canon,
+            &Snapshot::new(HashMap::from([(
+                "fact".to_string(),
+                Batch::new(vec![sample("single"), sample("multi\nline")]),
+            )])),
+        )
+        .expect("write canon");
+
+    let output = run_ic(
+        &root,
+        &home,
+        &[
+            "--catalog-dir",
+            repository.catalog().dir().to_str().expect("utf8"),
+            "inspect",
+            "fact",
+        ],
+    );
+
+    assert!(output.status.success(), "{:?}", output);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("fact\n\n1."));
+    assert!(stdout.contains("content: \"single\""));
+    assert!(stdout.contains("2."));
+    assert!(stdout.contains("content:\n<<<\nmulti\nline\n>>>"));
 
     fs::remove_dir_all(root).expect("cleanup root");
     fs::remove_dir_all(home).expect("cleanup home");

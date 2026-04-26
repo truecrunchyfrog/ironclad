@@ -1,6 +1,5 @@
 use anyhow::anyhow;
-use console::style;
-use ironclad_core::catalog::SnapshotFile;
+use ironclad_core::{catalog::SnapshotFile, sample::Sample};
 
 use crate::{args::inspect::InspectArgs, context::Context, helper::read_snapshot};
 
@@ -14,50 +13,60 @@ pub(super) fn dispatch(context: &Context, args: InspectArgs) -> anyhow::Result<(
         let batch = snapshot
             .into_batch(&label)
             .ok_or_else(|| anyhow!("label not found in snapshot: {label}"))?;
-        for (sample, i) in batch
-            .into_samples()
-            .into_iter()
-            .zip(1..)
-            .filter(|(_, i)| args.index.is_none_or(|only_show| only_show == *i))
-        {
-            let exclusive = args.index.is_some();
-
-            if args.trace {
-                for trace in sample.traces() {
-                    println!(
-                        "trace: {}",
-                        trace
-                            .entries()
-                            .iter()
-                            .map(|(k, v)| format!("{k}={v}"))
-                            .collect::<Vec<_>>()
-                            .join(" ")
-                    );
-                }
-            }
-
-            if exclusive {
-                println!("{}", sample.into_content());
-            } else {
-                println!(
-                    "{i:2}: {}",
-                    if i % 2 == 0 {
-                        style(sample.into_content()).black().on_white()
-                    } else {
-                        style(sample.into_content()).black().on_yellow()
-                    }
-                );
-            }
-        }
+        let samples = batch.into_samples();
+        render_detail(&label, &samples, args.trace);
     } else {
-        for (label, batch) in snapshot.into_sorted_entries() {
-            println!(
-                "{label}: {}: {}",
-                humantime::format_rfc3339_seconds(*batch.created()),
-                batch.samples().len(),
-            );
-        }
+        render_summary(snapshot);
     }
 
     Ok(())
+}
+
+fn render_summary(snapshot: ironclad_core::snapshot::Snapshot) {
+    for (label, batch) in snapshot.into_sorted_entries() {
+        println!(
+            "{}  {}  {}",
+            label,
+            batch.samples().len(),
+            humantime::format_rfc3339_seconds(*batch.created()),
+        );
+    }
+}
+
+fn render_detail(label: &str, samples: &[Sample], show_trace: bool) {
+    println!("{label}");
+    println!();
+
+    for (index, sample) in samples.iter().enumerate() {
+        println!("{}.", index + 1);
+
+        if show_trace {
+            for trace in sample.traces() {
+                let mut entries = trace.entries().iter().collect::<Vec<_>>();
+                entries.sort_by(|a, b| a.0.cmp(b.0));
+                println!(
+                    "trace: {}",
+                    entries
+                        .into_iter()
+                        .map(|(k, v)| format!("{k}={v}"))
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                );
+            }
+        }
+
+        print_sample(sample);
+        println!();
+    }
+}
+
+fn print_sample(sample: &Sample) {
+    if sample.content().contains('\n') {
+        println!("content:");
+        println!("<<<");
+        println!("{}", sample.content());
+        println!(">>>");
+    } else {
+        println!("content: {:?}", sample.content());
+    }
 }
