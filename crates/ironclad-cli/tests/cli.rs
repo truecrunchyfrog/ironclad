@@ -165,6 +165,114 @@ fn diff_missing_label_fails_clearly() {
 }
 
 #[test]
+fn diff_summary_shows_fact_level_changes() {
+    let root = temp_path("diff-summary");
+    let home = temp_path("home-diff-summary");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let catalog = Catalog::create_catalog(&root).expect("create catalog");
+    let repository = CatalogRepository::new(catalog.clone());
+    repository
+        .write_snapshot(
+            SnapshotFile::Canon,
+            &Snapshot::new(HashMap::from([
+                (
+                    "alpha".to_string(),
+                    Batch::new(vec![sample("same"), sample("gone")]),
+                ),
+                ("beta".to_string(), Batch::new(vec![sample("remove-me")])),
+            ])),
+        )
+        .expect("write canon");
+    repository
+        .write_snapshot(
+            SnapshotFile::Actual,
+            &Snapshot::new(HashMap::from([
+                (
+                    "alpha".to_string(),
+                    Batch::new(vec![sample("same"), sample("new")]),
+                ),
+                ("gamma".to_string(), Batch::new(vec![sample("arrived")])),
+            ])),
+        )
+        .expect("write actual");
+
+    let output = run_ic(
+        &root,
+        &home,
+        &[
+            "--catalog-dir",
+            catalog.dir().to_str().expect("utf8"),
+            "diff",
+        ],
+    );
+
+    assert!(output.status.success(), "{:?}", output);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("changed  -1 +1  alpha"));
+    assert!(stdout.contains("removed  -1 +0  beta"));
+    assert!(stdout.contains("new  -0 +1  gamma"));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}
+
+#[test]
+fn diff_detail_shows_structured_before_after_records() {
+    let root = temp_path("diff-detail");
+    let home = temp_path("home-diff-detail");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let catalog = Catalog::create_catalog(&root).expect("create catalog");
+    let repository = CatalogRepository::new(catalog.clone());
+    repository
+        .write_snapshot(
+            SnapshotFile::Canon,
+            &Snapshot::new(HashMap::from([(
+                "fact".to_string(),
+                Batch::new(vec![sample("same"), sample("old")]),
+            )])),
+        )
+        .expect("write canon");
+    repository
+        .write_snapshot(
+            SnapshotFile::Actual,
+            &Snapshot::new(HashMap::from([(
+                "fact".to_string(),
+                Batch::new(vec![sample("same"), sample("new"), sample("multi\nline")]),
+            )])),
+        )
+        .expect("write actual");
+
+    let output = run_ic(
+        &root,
+        &home,
+        &[
+            "--catalog-dir",
+            catalog.dir().to_str().expect("utf8"),
+            "diff",
+            "fact",
+        ],
+    );
+
+    assert!(output.status.success(), "{:?}", output);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("fact\n\n1. unchanged"));
+    assert!(stdout.contains("before: \"same\""));
+    assert!(stdout.contains("2. removed"));
+    assert!(stdout.contains("before: \"old\""));
+    assert!(stdout.contains("3. added"));
+    assert!(stdout.contains("after: \"new\""));
+    assert!(stdout.contains("4. added"));
+    assert!(stdout.contains("after:\n<<<\nmulti\nline\n>>>"));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}
+
+#[test]
 fn show_accepts_fact_id_selector() {
     let root = temp_path("show-fact-id");
     let home = temp_path("home-show-fact-id");

@@ -13,11 +13,31 @@ pub struct BatchDiff {
     after: Option<Batch>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum SamplePresence {
-    OnlyBefore,
-    OnlyAfter,
-    Both,
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BatchStatus {
+    New,
+    Removed,
+    Changed,
+    Unchanged,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SampleChangeKind {
+    Removed,
+    Added,
+    Unchanged,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ChangeCounts {
+    pub removed: usize,
+    pub added: usize,
+}
+
+pub struct SampleChange<'a> {
+    kind: SampleChangeKind,
+    before: Option<&'a Sample>,
+    after: Option<&'a Sample>,
 }
 
 impl BatchDiff {
@@ -37,7 +57,36 @@ impl BatchDiff {
     }
 
     #[must_use]
-    pub fn sample_diffs(&self) -> Vec<(&Sample, SamplePresence)> {
+    pub fn status(&self) -> BatchStatus {
+        match (self.before(), self.after()) {
+            (None, Some(_)) => BatchStatus::New,
+            (Some(_), None) => BatchStatus::Removed,
+            (Some(_), Some(_)) if self.batches_equal() => BatchStatus::Unchanged,
+            (Some(_), Some(_)) => BatchStatus::Changed,
+            (None, None) => BatchStatus::Unchanged,
+        }
+    }
+
+    #[must_use]
+    pub fn change_counts(&self) -> ChangeCounts {
+        self.sample_changes().into_iter().fold(
+            ChangeCounts {
+                removed: 0,
+                added: 0,
+            },
+            |mut counts, change| {
+                match change.kind() {
+                    SampleChangeKind::Removed => counts.removed += 1,
+                    SampleChangeKind::Added => counts.added += 1,
+                    SampleChangeKind::Unchanged => {}
+                }
+                counts
+            },
+        )
+    }
+
+    #[must_use]
+    pub fn sample_changes(&self) -> Vec<SampleChange<'_>> {
         let samples_before = self.before.as_ref().map(Batch::samples).unwrap_or_default();
         let samples_after = self.after.as_ref().map(Batch::samples).unwrap_or_default();
 
@@ -45,29 +94,56 @@ impl BatchDiff {
         let mut matched_after = vec![false; samples_after.len()];
 
         for sample in samples_before {
-            let presence = if let Some(index) =
-                samples_after
-                    .iter()
-                    .enumerate()
-                    .find_map(|(index, candidate)| {
-                        (!matched_after[index] && candidate == sample).then_some(index)
-                    }) {
+            if let Some(index) = samples_after
+                .iter()
+                .enumerate()
+                .find_map(|(index, candidate)| {
+                    (!matched_after[index] && candidate == sample).then_some(index)
+                })
+            {
                 matched_after[index] = true;
-                SamplePresence::Both
+                result.push(SampleChange {
+                    kind: SampleChangeKind::Unchanged,
+                    before: Some(sample),
+                    after: Some(&samples_after[index]),
+                });
             } else {
-                SamplePresence::OnlyBefore
-            };
-
-            result.push((sample, presence));
+                result.push(SampleChange {
+                    kind: SampleChangeKind::Removed,
+                    before: Some(sample),
+                    after: None,
+                });
+            }
         }
 
         for (index, sample) in samples_after.iter().enumerate() {
             if !matched_after[index] {
-                result.push((sample, SamplePresence::OnlyAfter));
+                result.push(SampleChange {
+                    kind: SampleChangeKind::Added,
+                    before: None,
+                    after: Some(sample),
+                });
             }
         }
 
         result
+    }
+}
+
+impl<'a> SampleChange<'a> {
+    #[must_use]
+    pub fn kind(&self) -> SampleChangeKind {
+        self.kind
+    }
+
+    #[must_use]
+    pub fn before(&self) -> Option<&'a Sample> {
+        self.before
+    }
+
+    #[must_use]
+    pub fn after(&self) -> Option<&'a Sample> {
+        self.after
     }
 }
 
@@ -117,7 +193,10 @@ mod tests {
 
     use crate::{
         sample::{Sample, Trace, batch::Batch},
-        snapshot::Snapshot,
+        snapshot::{
+            Snapshot,
+            diff::{BatchStatus, SampleChangeKind},
+        },
     };
 
     fn sample(content: &str) -> Sample {
@@ -152,10 +231,29 @@ mod tests {
         )]));
 
         let diff = after.diff(&before);
-        let sample_diffs = diff["fact"].sample_diffs();
+        let sample_diffs = diff["fact"].sample_changes();
 
         assert_eq!(sample_diffs.len(), 2);
-        assert_eq!(sample_diffs[0].1, super::SamplePresence::Both);
-        assert_eq!(sample_diffs[1].1, super::SamplePresence::OnlyAfter);
+        assert_eq!(sample_diffs[0].kind(), SampleChangeKind::Unchanged);
+        assert_eq!(sample_diffs[1].kind(), SampleChangeKind::Added);
+    }
+
+    #[test]
+    fn reports_batch_status_and_change_counts() {
+        let before = Snapshot::new(HashMap::from([(
+            "fact".to_string(),
+            Batch::new(vec![sample("alpha"), sample("beta")]),
+        )]));
+        let after = Snapshot::new(HashMap::from([(
+            "fact".to_string(),
+            Batch::new(vec![sample("alpha"), sample("gamma")]),
+        )]));
+
+        let diff = after.diff(&before);
+        let batch_diff = &diff["fact"];
+
+        assert_eq!(batch_diff.status(), BatchStatus::Changed);
+        assert_eq!(batch_diff.change_counts().removed, 1);
+        assert_eq!(batch_diff.change_counts().added, 1);
     }
 }

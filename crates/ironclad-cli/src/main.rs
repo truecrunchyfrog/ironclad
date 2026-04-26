@@ -4,7 +4,6 @@ pub(crate) mod config;
 mod context;
 pub(crate) mod helper;
 mod logging;
-pub(crate) mod output;
 
 use std::{env::home_dir, process::ExitCode};
 
