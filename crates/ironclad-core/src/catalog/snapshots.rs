@@ -57,7 +57,7 @@ impl Catalog {
                                 exported_samples
                                     .get(key)
                                     .ok_or_else(|| CatalogError::ImportNotFound(key.clone()))
-                                    .map(|sample| (key, sample))
+                                    .map(|sample| (key.clone(), sample))
                             })
                             .collect::<Result<HashMap<_, _>, _>>()?;
 

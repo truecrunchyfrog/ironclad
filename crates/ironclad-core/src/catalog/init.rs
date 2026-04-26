@@ -9,7 +9,7 @@ use crate::{
 
 impl Catalog {
     pub fn create_catalog(working_dir: &Path) -> Result<Catalog, CatalogError> {
-        let catalog = Catalog::new(Catalog::catalog_dir_path(working_dir));
+        let catalog = Catalog::new(Catalog::resolve_catalog_dir_path(working_dir));
 
         populate_catalog_dir(&catalog)?;
 
@@ -62,4 +62,38 @@ fn populate_catalog_dir(catalog: &Catalog) -> Result<(), CatalogError> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use crate::catalog::Catalog;
+
+    fn temp_path(name: &str) -> std::path::PathBuf {
+        let mut path = std::env::temp_dir();
+        path.push(format!(
+            "ironclad-test-{name}-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("time")
+                .as_nanos()
+        ));
+        path
+    }
+
+    #[test]
+    fn create_catalog_accepts_direct_catalog_dir_path() {
+        let root = temp_path("init-direct-dir");
+        let catalog_dir = root.join(".ironclad");
+        fs::create_dir_all(&root).expect("mkdir root");
+
+        let catalog = Catalog::create_catalog(&catalog_dir).expect("create catalog");
+
+        assert_eq!(catalog.dir(), catalog_dir);
+        assert!(catalog.fact_index_file_path().exists());
+
+        fs::remove_dir_all(root).expect("cleanup");
+    }
 }

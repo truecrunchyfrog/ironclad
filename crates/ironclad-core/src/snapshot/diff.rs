@@ -92,6 +92,23 @@ impl Snapshot {
             )
         }))
     }
+
+    #[must_use]
+    pub fn sorted_diff<'a>(&'a self, before: &'a Self) -> Vec<(&'a String, BatchDiff)> {
+        let mut diff = self.diff(before).into_iter().collect::<Vec<_>>();
+        diff.sort_by(|a, b| a.0.cmp(&b.0));
+        diff.into_iter()
+            .map(|(label, diff)| {
+                let label_ref = self
+                    .entries()
+                    .get_key_value(&label)
+                    .map(|(key, _)| key)
+                    .or_else(|| before.entries().get_key_value(&label).map(|(key, _)| key))
+                    .expect("diff label should exist in one snapshot");
+                (label_ref, diff)
+            })
+            .collect()
+    }
 }
 
 #[cfg(test)]

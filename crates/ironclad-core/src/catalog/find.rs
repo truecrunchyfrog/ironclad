@@ -4,11 +4,7 @@ use crate::catalog::{Catalog, error::CatalogError};
 
 impl Catalog {
     pub fn open_at_path(path: &Path) -> Result<Catalog, CatalogError> {
-        let catalog_dir = if path.file_name().is_some_and(|name| name == ".ironclad") {
-            path.to_path_buf()
-        } else {
-            Catalog::catalog_dir_path(path)
-        };
+        let catalog_dir = Catalog::resolve_catalog_dir_path(path);
 
         if !catalog_dir.try_exists()? {
             return Err(CatalogError::PathNotFound(catalog_dir));

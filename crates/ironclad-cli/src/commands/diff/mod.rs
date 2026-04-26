@@ -10,9 +10,9 @@ use crate::{
 };
 
 pub(super) fn dispatch(context: &Context, args: DiffArgs) -> anyhow::Result<()> {
-    let session = context.catalog_session()?;
-    let proposal = read_snapshot(session.catalog(), args.proposal, SnapshotPath::Actual)?;
-    let baseline = read_snapshot(session.catalog(), args.baseline, SnapshotPath::Canon)?;
+    let catalog = context.catalog()?;
+    let proposal = read_snapshot(&catalog, args.proposal, SnapshotPath::Actual)?;
+    let baseline = read_snapshot(&catalog, args.baseline, SnapshotPath::Canon)?;
 
     let mut diff = proposal.diff(&baseline);
 
@@ -67,13 +67,9 @@ pub(super) fn dispatch(context: &Context, args: DiffArgs) -> anyhow::Result<()> 
             }
         }
     } else {
-        let mut labels = diff.keys().collect::<Vec<_>>();
-        labels.sort();
-
-        for label in labels {
-            let batch_diff = &diff[label];
+        for (label, batch_diff) in proposal.sorted_diff(&baseline) {
             if !batch_diff.batches_equal() {
-                println!("{}", format_batch_diff(label, batch_diff));
+                println!("{}", format_batch_diff(label, &batch_diff));
             }
         }
     }

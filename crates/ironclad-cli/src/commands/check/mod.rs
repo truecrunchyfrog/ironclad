@@ -5,9 +5,9 @@ use crate::{
 };
 
 pub(super) fn dispatch(context: &Context, args: CheckArgs) -> anyhow::Result<()> {
-    let session = context.catalog_session()?;
-    let proposal = read_snapshot(session.catalog(), args.proposal, SnapshotPath::Actual)?;
-    let baseline = read_snapshot(session.catalog(), args.baseline, SnapshotPath::Canon)?;
+    let catalog = context.catalog()?;
+    let proposal = read_snapshot(&catalog, args.proposal, SnapshotPath::Actual)?;
+    let baseline = read_snapshot(&catalog, args.baseline, SnapshotPath::Canon)?;
 
     let diff = proposal.diff(&baseline);
 

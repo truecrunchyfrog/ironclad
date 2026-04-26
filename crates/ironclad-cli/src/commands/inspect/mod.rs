@@ -8,15 +8,14 @@ use crate::{
 };
 
 pub(super) fn dispatch(context: &Context, args: InspectArgs) -> anyhow::Result<()> {
-    let session = context.catalog_session()?;
-    let snapshot = read_snapshot(session.catalog(), args.snapshot, SnapshotPath::Canon)?;
+    let catalog = context.catalog()?;
+    let snapshot = read_snapshot(&catalog, args.snapshot, SnapshotPath::Canon)?;
 
     if args.raw {
         println!("{}", serde_json::to_string_pretty(&snapshot)?);
     } else if let Some(label) = args.label {
         let batch = snapshot
-            .into_entries()
-            .remove(&label)
+            .into_batch(&label)
             .ok_or_else(|| anyhow!("label not found in snapshot: {label}"))?;
         for (sample, i) in batch
             .into_samples()
@@ -54,10 +53,7 @@ pub(super) fn dispatch(context: &Context, args: InspectArgs) -> anyhow::Result<(
             }
         }
     } else {
-        let mut entries = snapshot.into_entries().into_iter().collect::<Vec<_>>();
-        entries.sort_by(|a, b| a.0.cmp(&b.0));
-
-        for (label, batch) in entries {
+        for (label, batch) in snapshot.into_sorted_entries() {
             println!(
                 "{label}: {}: {}",
                 humantime::format_rfc3339_seconds(*batch.created()),

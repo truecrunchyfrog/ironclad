@@ -92,30 +92,23 @@ impl Fact {
         &self,
         registry: &Registry,
         catalog: &Catalog,
-        imports: &HashMap<&String, &Sample>,
+        imports: &HashMap<String, &Sample>,
         mut on_progress: F,
     ) -> Result<Vec<Sample>, RecipeError> {
         self.steps
             .iter()
             .enumerate()
             .try_fold(Vec::new(), |input, (index, step)| {
-                let mut step = step.clone();
-                visit_toml_strings_mut(step.options_mut(), &mut |s| {
-                    for (label, sample) in imports {
-                        *s = s.replace(&format!("$({label})"), sample.content());
-                    }
-                });
-
                 on_progress(RecipeProgressEvent::StepStarted {
                     index,
-                    step: &step,
+                    step,
                     input: &input,
                 });
 
-                let samples = step.eval(registry, catalog, input)?;
+                let samples = step.eval(registry, catalog, imports, input)?;
                 on_progress(RecipeProgressEvent::StepFinished {
                     index,
-                    step: &step,
+                    step,
                     output: &samples,
                 });
 
@@ -135,24 +128,4 @@ pub enum RecipeProgressEvent<'a> {
         step: &'a Step,
         output: &'a Vec<Sample>,
     },
-}
-
-fn visit_toml_strings_mut<F: FnMut(&mut String)>(value: &mut toml::Value, f: &mut F) {
-    match value {
-        toml::Value::String(s) => f(s),
-        toml::Value::Array(array) => {
-            for item in array {
-                visit_toml_strings_mut(item, f);
-            }
-        }
-        toml::Value::Table(map) => {
-            for (_, value) in map {
-                visit_toml_strings_mut(value, f);
-            }
-        }
-        toml::Value::Integer(_)
-        | toml::Value::Float(_)
-        | toml::Value::Boolean(_)
-        | toml::Value::Datetime(_) => {}
-    }
 }

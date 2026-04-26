@@ -4,8 +4,22 @@ use crate::catalog::catalog::Catalog;
 
 impl Catalog {
     #[must_use]
+    pub fn resolve_catalog_dir_path(path: &Path) -> PathBuf {
+        if path.file_name().is_some_and(|name| name == ".ironclad") {
+            path.to_path_buf()
+        } else {
+            Self::catalog_dir_path(path)
+        }
+    }
+
+    #[must_use]
     pub fn catalog_dir_path(path: &Path) -> PathBuf {
         path.join(".ironclad")
+    }
+
+    #[must_use]
+    pub fn for_container_dir(path: &Path) -> Self {
+        Self::new(Self::catalog_dir_path(path))
     }
 
     #[must_use]

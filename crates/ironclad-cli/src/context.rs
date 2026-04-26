@@ -1,4 +1,7 @@
-use ironclad_core::{catalog::CatalogSession, registry::Registry};
+use ironclad_core::{
+    catalog::{Catalog, CatalogSession},
+    registry::Registry,
+};
 
 use crate::config::Config;
 
@@ -25,5 +28,22 @@ impl Context {
             &std::env::current_dir()?,
             self.config.catalog_dir.as_deref(),
         )?)
+    }
+
+    pub(crate) fn catalog(&self) -> anyhow::Result<Catalog> {
+        let cwd = std::env::current_dir()?;
+        Ok(match self.config.catalog_dir.as_deref() {
+            Some(path) => Catalog::open_at_path(path)?,
+            None => Catalog::find_for_working_dir(&cwd)?,
+        })
+    }
+
+    pub(crate) fn execution_catalog(&self) -> anyhow::Result<Catalog> {
+        let cwd = std::env::current_dir()?;
+        Ok(match self.config.catalog_dir.as_deref() {
+            Some(path) => Catalog::open_at_path(path)?,
+            None => Catalog::find_for_working_dir(&cwd)
+                .unwrap_or_else(|_| Catalog::for_container_dir(&cwd)),
+        })
     }
 }
