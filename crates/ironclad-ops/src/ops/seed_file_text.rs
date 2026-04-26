@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 use glob::glob;
 use ironclad_core::{
@@ -23,6 +23,13 @@ pub(crate) enum Error {
 
     #[error(transparent)]
     Glob(#[from] glob::GlobError),
+
+    #[error("failed to read file as UTF-8 text: {path}")]
+    ReadFile {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
 }
 
 impl TypedOperation for SeedFileText {
@@ -55,27 +62,28 @@ impl TypedOperation for SeedFileText {
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
             .flat_map(std::iter::Iterator::collect::<Vec<_>>)
-            .collect::<Result<Vec<_>, _>>()?;
+            .collect::<Result<Vec<_>, glob::GlobError>>()?;
 
         let files = paths
             .into_iter()
-            .filter_map(|path| {
-                std::fs::read_to_string(&path)
-                    .map(|text| {
-                        Sample::new(
-                            Trace::new(HashMap::from([(
-                                String::from("path"),
-                                path.strip_prefix(&base_path)
-                                    .expect("path is not relative to catalog container")
-                                    .to_string_lossy()
-                                    .to_string(),
-                            )])),
-                            text,
-                        )
-                    })
-                    .ok()
+            .map(|path| {
+                let text = std::fs::read_to_string(&path).map_err(|source| Error::ReadFile {
+                    path: path.clone(),
+                    source,
+                })?;
+
+                Ok(Sample::new(
+                    Trace::new(HashMap::from([(
+                        String::from("path"),
+                        path.strip_prefix(&base_path)
+                            .expect("path is not relative to catalog container")
+                            .to_string_lossy()
+                            .to_string(),
+                    )])),
+                    text,
+                ))
             })
-            .collect::<Vec<_>>();
+            .collect::<Result<Vec<_>, Error>>()?;
 
         Ok(files)
     }
