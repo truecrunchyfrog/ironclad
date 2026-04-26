@@ -16,15 +16,15 @@ pub(crate) struct ApplyArgs {
     #[arg(short, long)]
     pub(crate) all: bool,
 
-    /// Snapshot to be promoted (default: catalog's candidate).
+    /// Snapshot to be promoted (default: catalog's actual).
     #[arg(short, long)]
     pub(crate) promotion: Option<FileOrStdin>,
 
-    /// Snapshot which to apply the promotion into (default: catalog's baseline).
+    /// Snapshot which to apply the promotion into (default: catalog's canon).
     #[arg(short, long)]
     pub(crate) baseline: Option<FileOrStdin>,
 
-    /// File to write snapshot to (default: catalog's baseline).
+    /// File to write snapshot to (default: catalog's canon).
     #[arg(short, long)]
     pub(crate) output: Option<FileOrStdout>,
 }

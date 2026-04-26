@@ -36,12 +36,12 @@ impl Catalog {
     }
 
     #[must_use]
-    pub fn snapshot_baseline_file_path(&self) -> PathBuf {
-        self.snapshots_dir_path().join("baseline.json")
+    pub fn snapshot_canon_file_path(&self) -> PathBuf {
+        self.snapshots_dir_path().join("canon.json")
     }
 
     #[must_use]
-    pub fn snapshot_candidate_file_path(&self) -> PathBuf {
-        self.snapshots_dir_path().join("candidate.json")
+    pub fn snapshot_actual_file_path(&self) -> PathBuf {
+        self.snapshots_dir_path().join("actual.json")
     }
 }

@@ -14,11 +14,11 @@ pub(crate) struct DiffArgs {
     #[arg(short, long)]
     pub(crate) trace: bool,
 
-    /// Proposed snapshot (default: catalog's candidate).
+    /// Proposed snapshot (default: catalog's actual).
     #[arg(short, long)]
     pub(crate) proposal: Option<FileOrStdin>,
 
-    /// Older snapshot (default: catalog's baseline).
+    /// Baseline snapshot (default: catalog's canon).
     #[arg(short, long)]
     pub(crate) baseline: Option<FileOrStdin>,
 

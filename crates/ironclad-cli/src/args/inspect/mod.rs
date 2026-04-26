@@ -14,7 +14,7 @@ pub(crate) struct InspectArgs {
     #[arg(short, long, requires = "label")]
     pub(crate) trace: bool,
 
-    /// Snapshot to inspect (default: catalog's baseline).
+    /// Snapshot to inspect (default: catalog's canon).
     #[arg(short, long)]
     pub(crate) snapshot: Option<FileOrStdin>,
 
