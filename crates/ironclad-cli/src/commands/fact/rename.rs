@@ -1,4 +1,4 @@
-use anyhow::anyhow;
+use anyhow::bail;
 use ironclad_core::catalog::Catalog;
 
 use crate::{args::fact::rename::RenameFactArgs, config::Config, helper::resolve_catalog};
@@ -12,7 +12,7 @@ pub(crate) fn dispatch(_config: &Config, args: RenameFactArgs) -> anyhow::Result
     let entries = index.entries_mut();
 
     if entries.insert(args.new_label.clone(), fact_id).is_some() {
-        return Err(anyhow!("label '{}' already indexed", args.new_label));
+        bail!("label '{}' already indexed", args.new_label);
     }
 
     entries

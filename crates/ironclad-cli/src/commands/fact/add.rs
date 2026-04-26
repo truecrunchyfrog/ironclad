@@ -1,4 +1,4 @@
-use anyhow::anyhow;
+use anyhow::bail;
 use ulid::Ulid;
 
 use crate::{args::fact::add::AddFactArgs, config::Config, helper::resolve_catalog};
@@ -14,7 +14,7 @@ pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()
         let mut index = catalog.load_fact_index()?;
         let entries = index.entries_mut();
         if entries.insert(label.clone(), fact_id.clone()).is_some() {
-            return Err(anyhow!("label '{label}' already indexed"));
+            bail!("label '{label}' already indexed");
         }
         catalog.save_fact_index(&index)?;
     }
