@@ -36,7 +36,7 @@ fn start() -> anyhow::Result<()> {
         .extract::<Config>()?
         .config_file
         .clone()
-        .or_else(|| home_dir().map(|home_dir| home_dir.join(".config/ironclad/config.json")));
+        .or_else(|| home_dir().map(|home_dir| home_dir.join(".config/ironclad/config.toml")));
 
     if let Some(file) = config_file {
         figment_builder = figment_builder.merge(Toml::file(file));
