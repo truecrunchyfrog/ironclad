@@ -4,13 +4,13 @@ use ironclad_core::snapshot::diff::{BatchDiff, SamplePresence};
 
 use crate::{
     args::diff::DiffArgs,
-    config::Config,
-    helper::{CatalogSession, SnapshotPath, read_snapshot},
+    context::Context,
+    helper::{SnapshotPath, read_snapshot},
     output,
 };
 
-pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
-    let session = CatalogSession::open()?;
+pub(super) fn dispatch(context: &Context, args: DiffArgs) -> anyhow::Result<()> {
+    let session = context.catalog_session()?;
     let proposal = read_snapshot(session.catalog(), args.proposal, SnapshotPath::Actual)?;
     let baseline = read_snapshot(session.catalog(), args.baseline, SnapshotPath::Canon)?;
 

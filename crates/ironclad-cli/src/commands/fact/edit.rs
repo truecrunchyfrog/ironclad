@@ -2,10 +2,10 @@ use std::process::Command;
 
 use anyhow::{Context, anyhow, bail};
 
-use crate::{args::fact::edit::EditFactArgs, config::Config, helper::CatalogSession};
+use crate::{args::fact::edit::EditFactArgs, context::Context as CommandContext};
 
-pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<()> {
-    let session = CatalogSession::open()?;
+pub(crate) fn dispatch(context: &CommandContext, args: EditFactArgs) -> anyhow::Result<()> {
+    let session = context.catalog_session()?;
     let resolved = session.resolve_fact_ref(&args.selector)?;
     let path = session.catalog().fact_file_path(&resolved.fact_id);
     let editor = std::env::var("EDITOR").context("$EDITOR is not set")?;

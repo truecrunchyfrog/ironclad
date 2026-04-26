@@ -4,94 +4,11 @@ use std::{
 };
 
 use clap_stdin::{FileOrStdin, FileOrStdout};
-use ironclad_core::{
-    catalog::{Catalog, FactIndex},
-    fact::{Fact, LabeledFact},
-    snapshot::Snapshot,
-};
-
-pub(crate) struct CatalogSession {
-    catalog: Catalog,
-    index: FactIndex,
-}
-
-pub(crate) struct ResolvedFactRef {
-    pub(crate) selector: String,
-    pub(crate) fact_id: String,
-}
+use ironclad_core::{catalog::Catalog, snapshot::Snapshot};
 
 pub(crate) enum SnapshotPath {
     Actual,
     Canon,
-}
-
-impl CatalogSession {
-    pub(crate) fn open() -> anyhow::Result<Self> {
-        let catalog = Catalog::find_for_working_dir(&std::env::current_dir()?)?;
-        let index = catalog.load_fact_index()?;
-        Ok(Self { catalog, index })
-    }
-
-    pub(crate) fn catalog(&self) -> &Catalog {
-        &self.catalog
-    }
-
-    pub(crate) fn index(&self) -> &FactIndex {
-        &self.index
-    }
-
-    pub(crate) fn index_mut(&mut self) -> &mut FactIndex {
-        &mut self.index
-    }
-
-    pub(crate) fn save_index(&self) -> anyhow::Result<()> {
-        Ok(self.catalog.save_fact_index(&self.index)?)
-    }
-
-    pub(crate) fn resolve_fact_ref(&self, selector: &str) -> anyhow::Result<ResolvedFactRef> {
-        let fact_id = self
-            .catalog
-            .resolve_fact_id_in_index(&self.index, selector)?;
-
-        Ok(ResolvedFactRef {
-            selector: selector.to_string(),
-            fact_id,
-        })
-    }
-
-    pub(crate) fn load_fact(&self, fact_id: &str) -> anyhow::Result<Fact> {
-        Ok(self
-            .catalog
-            .load_fact_for_path(&self.catalog.fact_file_path(fact_id))?)
-    }
-
-    pub(crate) fn labeled_facts_including(
-        &self,
-        labels: &[String],
-    ) -> anyhow::Result<Vec<LabeledFact>> {
-        Ok(self
-            .catalog
-            .load_labeled_facts_including(&self.index, labels)?)
-    }
-
-    pub(crate) fn labeled_facts_excluding(
-        &self,
-        labels: &[String],
-    ) -> anyhow::Result<Vec<LabeledFact>> {
-        for label in labels {
-            if !self.index.contains_label(label) {
-                anyhow::bail!("absent from index: {label}");
-            }
-        }
-
-        Ok(self
-            .catalog
-            .load_labeled_facts_excluding(&self.index, labels)?)
-    }
-}
-
-pub(crate) fn resolve_catalog() -> anyhow::Result<Catalog> {
-    Ok(Catalog::find_for_working_dir(&std::env::current_dir()?)?)
 }
 
 pub(crate) fn read_snapshot(

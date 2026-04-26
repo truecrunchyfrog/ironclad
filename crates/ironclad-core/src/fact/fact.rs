@@ -6,6 +6,7 @@ use crate::{
     catalog::Catalog,
     fact::SampleExportEntry,
     recipe::{RecipeError, Step},
+    registry::Registry,
     sample::Sample,
 };
 
@@ -89,6 +90,7 @@ impl Fact {
 
     pub fn eval<F: FnMut(RecipeProgressEvent)>(
         &self,
+        registry: &Registry,
         catalog: &Catalog,
         imports: &HashMap<&String, &Sample>,
         mut on_progress: F,
@@ -110,7 +112,7 @@ impl Fact {
                     input: &input,
                 });
 
-                let samples = step.eval(catalog, input)?;
+                let samples = step.eval(registry, catalog, input)?;
                 on_progress(RecipeProgressEvent::StepFinished {
                     index,
                     step: &step,

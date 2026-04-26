@@ -3,12 +3,12 @@ use console::style;
 
 use crate::{
     args::inspect::InspectArgs,
-    config::Config,
-    helper::{CatalogSession, SnapshotPath, read_snapshot},
+    context::Context,
+    helper::{SnapshotPath, read_snapshot},
 };
 
-pub(super) fn dispatch(_config: &Config, args: InspectArgs) -> anyhow::Result<()> {
-    let session = CatalogSession::open()?;
+pub(super) fn dispatch(context: &Context, args: InspectArgs) -> anyhow::Result<()> {
+    let session = context.catalog_session()?;
     let snapshot = read_snapshot(session.catalog(), args.snapshot, SnapshotPath::Canon)?;
 
     if args.raw {

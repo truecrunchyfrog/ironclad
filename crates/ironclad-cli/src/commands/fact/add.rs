@@ -1,10 +1,10 @@
 use anyhow::bail;
 use ulid::Ulid;
 
-use crate::{args::fact::add::AddFactArgs, config::Config, helper::CatalogSession};
+use crate::{args::fact::add::AddFactArgs, context::Context};
 
-pub(crate) fn dispatch(_config: &Config, args: AddFactArgs) -> anyhow::Result<()> {
-    let mut session = CatalogSession::open()?;
+pub(crate) fn dispatch(context: &Context, args: AddFactArgs) -> anyhow::Result<()> {
+    let mut session = context.catalog_session()?;
 
     let fact_id = Ulid::new().to_string();
 

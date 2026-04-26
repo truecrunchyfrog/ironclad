@@ -1,9 +1,9 @@
 use anyhow::bail;
 
-use crate::{args::fact::rename::RenameFactArgs, config::Config, helper::CatalogSession};
+use crate::{args::fact::rename::RenameFactArgs, context::Context};
 
-pub(crate) fn dispatch(_config: &Config, args: RenameFactArgs) -> anyhow::Result<()> {
-    let mut session = CatalogSession::open()?;
+pub(crate) fn dispatch(context: &Context, args: RenameFactArgs) -> anyhow::Result<()> {
+    let mut session = context.catalog_session()?;
     let resolved = session.resolve_fact_ref(&args.selector)?;
 
     if session.index().id_for_label(&args.new_label) != Some(resolved.fact_id.as_str())

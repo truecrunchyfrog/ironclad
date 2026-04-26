@@ -1,11 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    catalog::Catalog,
-    recipe::RecipeError,
-    registry::{self},
-    sample::Sample,
-};
+use crate::{catalog::Catalog, recipe::RecipeError, registry::Registry, sample::Sample};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Step {
@@ -37,8 +32,13 @@ impl Step {
         &mut self.options
     }
 
-    pub fn eval(&self, catalog: &Catalog, input: Vec<Sample>) -> Result<Vec<Sample>, RecipeError> {
-        let operation = registry::resolve_op(&self.operation_id)?;
+    pub fn eval(
+        &self,
+        registry: &Registry,
+        catalog: &Catalog,
+        input: Vec<Sample>,
+    ) -> Result<Vec<Sample>, RecipeError> {
+        let operation = registry.resolve_op(&self.operation_id)?;
 
         operation
             .eval(catalog, input, Some(self.options.clone()))

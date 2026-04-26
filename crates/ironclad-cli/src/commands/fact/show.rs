@@ -1,7 +1,7 @@
-use crate::{args::fact::show::ShowFactArgs, config::Config, helper::CatalogSession};
+use crate::{args::fact::show::ShowFactArgs, context::Context};
 
-pub(crate) fn dispatch(_config: &Config, args: ShowFactArgs) -> anyhow::Result<()> {
-    let session = CatalogSession::open()?;
+pub(crate) fn dispatch(context: &Context, args: ShowFactArgs) -> anyhow::Result<()> {
+    let session = context.catalog_session()?;
     let resolved = session.resolve_fact_ref(&args.selector)?;
     let path = session.catalog().fact_file_path(&resolved.fact_id);
 

@@ -1,9 +1,6 @@
 pub mod error;
 
-use std::{
-    collections::HashMap,
-    sync::{Arc, OnceLock, RwLock},
-};
+use std::{collections::HashMap, sync::Arc};
 
 use log::{info, warn};
 
@@ -14,6 +11,13 @@ pub struct Registry {
 }
 
 impl Registry {
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            ops: HashMap::new(),
+        }
+    }
+
     #[must_use]
     pub fn ops(&self) -> &HashMap<String, Arc<dyn Operation>> {
         &self.ops
@@ -30,24 +34,17 @@ impl Registry {
 
         Ok(())
     }
+
+    pub fn resolve_op(&self, id: &str) -> Result<Arc<dyn Operation>, RegistryError> {
+        self.ops
+            .get(id)
+            .cloned()
+            .ok_or_else(|| RegistryError::OperationNotFound(id.to_string()))
+    }
 }
 
-static REGISTRY: OnceLock<RwLock<Registry>> = OnceLock::new();
-
-pub fn registry() -> &'static RwLock<Registry> {
-    REGISTRY.get_or_init(|| {
-        RwLock::new(Registry {
-            ops: HashMap::new(),
-        })
-    })
-}
-
-pub fn resolve_op(id: &str) -> Result<Arc<dyn Operation>, RegistryError> {
-    registry()
-        .read()
-        .unwrap()
-        .ops
-        .get(id)
-        .cloned()
-        .ok_or_else(|| RegistryError::OperationNotFound(id.to_string()))
+impl Default for Registry {
+    fn default() -> Self {
+        Self::new()
+    }
 }

@@ -3,12 +3,12 @@ use ironclad_core::snapshot::Snapshot;
 
 use crate::{
     args::apply::ApplyArgs,
-    config::Config,
-    helper::{CatalogSession, SnapshotPath, read_snapshot, write_snapshot},
+    context::Context,
+    helper::{SnapshotPath, read_snapshot, write_snapshot},
 };
 
-pub(super) fn dispatch(_config: &Config, args: ApplyArgs) -> anyhow::Result<()> {
-    let session = CatalogSession::open()?;
+pub(super) fn dispatch(context: &Context, args: ApplyArgs) -> anyhow::Result<()> {
+    let session = context.catalog_session()?;
     let promotion = read_snapshot(session.catalog(), args.promotion, SnapshotPath::Actual)?;
     let baseline = read_snapshot(session.catalog(), args.baseline, SnapshotPath::Canon)?;
 

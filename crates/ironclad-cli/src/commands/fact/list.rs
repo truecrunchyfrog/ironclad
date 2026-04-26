@@ -1,7 +1,7 @@
-use crate::{args::fact::list::ListFactArgs, config::Config, helper::CatalogSession};
+use crate::{args::fact::list::ListFactArgs, context::Context};
 
-pub(crate) fn dispatch(_config: &Config, args: ListFactArgs) -> anyhow::Result<()> {
-    let session = CatalogSession::open()?;
+pub(crate) fn dispatch(context: &Context, args: ListFactArgs) -> anyhow::Result<()> {
+    let session = context.catalog_session()?;
 
     for (label, fact_id) in session.index().iter() {
         if args.verbose {
