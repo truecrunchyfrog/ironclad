@@ -49,7 +49,12 @@ impl TypedOperation for SeedNetHttp {
         let mut headers = HeaderMap::new();
         headers.insert(USER_AGENT, HeaderValue::from_str(&options.user_agent)?);
 
-        let response_text = client.get(options.url).headers(headers).send()?.text()?;
+        let response_text = client
+            .get(options.url)
+            .headers(headers)
+            .send()?
+            .error_for_status()?
+            .text()?;
 
         Ok(vec![Sample::new(Trace::new(HashMap::new()), response_text)])
     }
