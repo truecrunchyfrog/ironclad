@@ -31,4 +31,19 @@ impl Catalog {
             &self.fact_file_path(&Self::fact_id_for_label(&self.load_fact_index()?, label)?),
         )?)
     }
+
+    pub fn resolve_fact_id(&self, selector: &str) -> Result<String, CatalogError> {
+        let index = self.load_fact_index()?;
+
+        if let Some(fact_id) = index.id_for_label(selector) {
+            return Ok(fact_id);
+        }
+
+        let path = self.fact_file_path(selector);
+        if path.try_exists()? {
+            return Ok(selector.to_string());
+        }
+
+        Err(CatalogError::FactNotFound(selector.to_string()))
+    }
 }

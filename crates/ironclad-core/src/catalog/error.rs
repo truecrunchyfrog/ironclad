@@ -22,6 +22,9 @@ pub enum CatalogError {
     #[error("fact ID not in index: {0}")]
     IdNotInIndex(String),
 
+    #[error("fact not found by label or ID: {0}")]
+    FactNotFound(String),
+
     #[error("import not found: {0}")]
     ImportNotFound(String),
 
