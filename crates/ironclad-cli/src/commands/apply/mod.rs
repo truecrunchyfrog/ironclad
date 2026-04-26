@@ -4,6 +4,7 @@ use std::{
     io::{BufReader, BufWriter, Read, Write},
 };
 
+use anyhow::anyhow;
 use ironclad_core::{sample::batch::Batch, snapshot::Snapshot};
 
 use crate::{args::apply::ApplyArgs, config::Config, helper::resolve_catalog};
@@ -32,10 +33,27 @@ pub(super) fn dispatch(_config: &Config, args: ApplyArgs) -> anyhow::Result<()> 
         )?)),
     };
 
-    let accepted_promotion = promotion
-        .into_entries()
-        .into_iter()
-        .filter(|(label, _)| args.all || args.label.contains(label));
+    let accepted_promotion = match args {
+        ApplyArgs { all: true, .. } => promotion.into_entries(),
+        ApplyArgs {
+            all: false,
+            label: labels,
+            ..
+        } => {
+            let mut entries = promotion.into_entries();
+            labels
+                .into_iter()
+                .map(|label| {
+                    let entry = entries
+                        .remove(&label)
+                        .ok_or_else(|| anyhow!("absent from proposal: {label}"))?;
+                    Ok((label, entry))
+                })
+                .collect::<anyhow::Result<Vec<_>>>()?
+                .into_iter()
+                .collect()
+        }
+    };
 
     let promoted_baseline = Snapshot::new(
         baseline

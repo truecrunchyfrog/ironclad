@@ -3,6 +3,7 @@ use std::{
     io::{BufWriter, Write},
 };
 
+use anyhow::anyhow;
 use ironclad_core::{
     catalog::SnapshotProgressEvent,
     fact::{LabeledFact, RecipeProgressEvent},
@@ -14,27 +15,47 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
     let catalog = resolve_catalog()?;
 
     let index = catalog.load_fact_index()?;
-    let facts = index
-        .into_entries()
-        .into_iter()
-        .filter(|(label, _)| match &args {
-            ResolveArgs { include, .. } if !include.is_empty() => include.contains(label),
-            ResolveArgs { exclude, .. } if !exclude.is_empty() => !exclude.contains(label),
-            _ => true,
-        })
-        .map(|(label, fact_id)| -> anyhow::Result<_> {
-            Ok(LabeledFact {
-                label,
-                fact: catalog.load_fact_for_path(&catalog.fact_file_path(&fact_id))?,
+
+    let no_redact = args.no_redact;
+
+    let facts = match args {
+        ResolveArgs { include, .. } if !include.is_empty() => include
+            .into_iter()
+            .map(|label| {
+                let fact = catalog.load_fact_for_path(
+                    &catalog.fact_file_path(
+                        &index
+                            .id_for_label(&label)
+                            .ok_or_else(|| anyhow!("absent from index: {label}"))?,
+                    ),
+                )?;
+                Ok(LabeledFact { label, fact })
             })
-        })
-        .collect::<anyhow::Result<Vec<_>>>()?;
+            .collect::<anyhow::Result<Vec<_>>>()?,
+        ResolveArgs { exclude, .. } => {
+            let mut entries = index.into_entries();
+            for label in exclude {
+                entries
+                    .remove(&label)
+                    .ok_or_else(|| anyhow!("absent from index: {label}"))?;
+            }
+            entries
+                .into_iter()
+                .map(|(label, fact_id)| {
+                    Ok(LabeledFact {
+                        label,
+                        fact: catalog.load_fact_for_path(&catalog.fact_file_path(&fact_id))?,
+                    })
+                })
+                .collect::<anyhow::Result<Vec<_>>>()?
+        }
+    };
 
     let total = facts.len();
 
     eprint!("...");
 
-    let result_snapshot = catalog.capture_snapshot(facts, !args.no_redact, |update| match update {
+    let result_snapshot = catalog.capture_snapshot(facts, !no_redact, |update| match update {
         SnapshotProgressEvent::FactStep {
             index,
             fact,
