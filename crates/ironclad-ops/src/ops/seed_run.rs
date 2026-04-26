@@ -12,6 +12,7 @@ pub(crate) struct SeedRun;
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     program: String,
+    #[serde(default)]
     args: Vec<String>,
 }
 
