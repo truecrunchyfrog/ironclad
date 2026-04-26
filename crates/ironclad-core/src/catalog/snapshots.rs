@@ -73,15 +73,10 @@ impl Catalog {
                             output: &samples,
                         });
 
-                        let batch = Batch::new(if fact.secret() && redact_secrets {
-                            samples.into_iter().map(redact_sample).collect()
-                        } else {
-                            samples
-                        });
+                        let should_redact = fact.secret() && redact_secrets;
 
                         for (key, entry) in fact.fact.into_exports() {
-                            let value = batch
-                                .samples()
+                            let value = samples
                                 .iter()
                                 .find(|sample| {
                                     sample.traces().iter().any(|trace| {
@@ -97,6 +92,12 @@ impl Catalog {
                                 })?;
                             exported_samples.insert(key, value.clone());
                         }
+
+                        let batch = Batch::new(if should_redact {
+                            samples.into_iter().map(redact_sample).collect()
+                        } else {
+                            samples
+                        });
 
                         snapshot_entries.push((fact.label, batch));
 
