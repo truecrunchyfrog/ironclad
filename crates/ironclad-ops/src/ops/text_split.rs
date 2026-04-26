@@ -4,11 +4,11 @@ use ironclad_core::{
     operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub(crate) struct TextSplit;
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub(crate) enum Options {
     #[serde(rename = "at_index")]

@@ -1,4 +1,4 @@
-use serde::de::DeserializeOwned;
+use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{
     operation::{OperationContext, OperationError},
@@ -7,6 +7,8 @@ use crate::{
 
 pub trait Operation: Send + Sync {
     fn description(&self) -> &'static str;
+
+    fn options_template(&self) -> Result<Option<toml::Value>, OperationError>;
 
     fn eval(
         &self,
@@ -17,7 +19,7 @@ pub trait Operation: Send + Sync {
 }
 
 pub trait TypedOperation: Send + Sync + 'static {
-    type Options: DeserializeOwned + Clone + Default;
+    type Options: DeserializeOwned + Serialize + Clone + Default;
     type Error: std::error::Error + Send + Sync;
 
     fn description(&self) -> &'static str;
@@ -49,6 +51,14 @@ struct TypedOperationAdapter<T: TypedOperation>(T);
 impl<T: TypedOperation> Operation for TypedOperationAdapter<T> {
     fn description(&self) -> &'static str {
         self.0.description()
+    }
+
+    fn options_template(&self) -> Result<Option<toml::Value>, OperationError> {
+        let value = toml::Value::try_from(T::Options::default())?;
+        Ok(match value {
+            toml::Value::Table(table) if table.is_empty() => None,
+            other => Some(other),
+        })
     }
 
     fn eval(

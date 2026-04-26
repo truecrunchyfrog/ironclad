@@ -4,11 +4,11 @@ use ironclad_core::{
     operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub(crate) struct SeedRun;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     program: String,

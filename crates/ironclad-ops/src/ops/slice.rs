@@ -4,11 +4,11 @@ use ironclad_core::{
     operation::{OperationContext, TypedOperation},
     sample::Sample,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub(crate) struct Slice;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     drop: Option<usize>,

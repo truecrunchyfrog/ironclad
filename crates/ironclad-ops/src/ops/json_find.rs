@@ -4,12 +4,12 @@ use ironclad_core::{
     operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json_path::{JsonPath, LocatedNode};
 
 pub(crate) struct JsonFind;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     path: JsonPath,

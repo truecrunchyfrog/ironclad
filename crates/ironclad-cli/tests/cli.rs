@@ -221,3 +221,42 @@ fn op_eval_runs_outside_catalog_for_catalog_free_operation() {
     fs::remove_dir_all(root).expect("cleanup root");
     fs::remove_dir_all(home).expect("cleanup home");
 }
+
+#[test]
+fn op_list_only_shows_ids() {
+    let root = temp_path("op-list");
+    let home = temp_path("home-op-list");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let output = run_ic(&root, &home, &["op", "list"]);
+
+    assert!(output.status.success(), "{:?}", output);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.lines().any(|line| line == "text.lines"));
+    assert!(stdout.lines().any(|line| line == "seed.run"));
+    assert!(!stdout.contains("Split lines into samples."));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}
+
+#[test]
+fn op_show_displays_description_and_options() {
+    let root = temp_path("op-show");
+    let home = temp_path("home-op-show");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let output = run_ic(&root, &home, &["op", "show", "seed.run"]);
+
+    assert!(output.status.success(), "{:?}", output);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("seed.run"));
+    assert!(stdout.contains("Execute a program."));
+    assert!(stdout.contains("program = \"\""));
+    assert!(stdout.contains("args = []"));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}

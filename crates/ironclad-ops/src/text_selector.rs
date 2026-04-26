@@ -1,7 +1,7 @@
 use regex::Regex;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 pub(crate) enum TextSelector {
     #[serde(rename = "text")]
     Plaintext(String),

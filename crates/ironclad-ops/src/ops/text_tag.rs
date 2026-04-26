@@ -5,13 +5,13 @@ use ironclad_core::{
     operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::tag::tag::TagRule;
 
 pub(crate) struct TextTag;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     tag: String,

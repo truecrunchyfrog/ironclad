@@ -5,13 +5,13 @@ use ironclad_core::{
     sample::{Sample, Trace},
 };
 use scraper::Element;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::fragment_error::FragmentError;
 
 pub(crate) struct HtmlAttribute;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     attribute: String,

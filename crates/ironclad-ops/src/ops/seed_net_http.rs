@@ -5,11 +5,11 @@ use ironclad_core::{
     sample::{Sample, Trace},
 };
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub(crate) struct SeedNetHttp;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     url: String,
