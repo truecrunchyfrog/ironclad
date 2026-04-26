@@ -9,7 +9,7 @@ use crate::{
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Step {
-    #[serde(rename = "id")]
+    #[serde(rename = "use")]
     operation_id: String,
     options: toml::Value,
 }
