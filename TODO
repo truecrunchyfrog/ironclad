@@ -2,10 +2,8 @@
 - more niche errors
 - context struct instead of passing config directly to command dispatchers
 - registry as variable instead of global static
-- specifying instance
-- improve op documentation
+- argument to override catalog directory to act upon
 - move logic from cli to core
-- skippable facts omitted from resolves
+- improve op documentation
 - resolve with cache, with max age
-- improved fact and index api
 - github action
