@@ -8,6 +8,7 @@ pub(crate) struct InspectArgs {
     pub(crate) label: Option<String>,
 
     /// Index of sample to show (starting from 1).
+    #[arg(requires = "label")]
     pub(crate) index: Option<usize>,
 
     /// Show trace.

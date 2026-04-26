@@ -37,5 +37,5 @@ pub(super) fn dispatch(_config: &Config, args: CheckArgs) -> anyhow::Result<()> 
 
     println!("{} ({unequal})", if unequal == 0 { "ok" } else { "drift" });
 
-    std::process::exit(unequal as i32);
+    std::process::exit(if unequal == 0 { 0 } else { 1 });
 }

@@ -3,6 +3,7 @@ use std::{
     io::{BufReader, Read},
 };
 
+use anyhow::anyhow;
 use console::style;
 use ironclad_core::snapshot::{
     Snapshot,
@@ -33,54 +34,59 @@ pub(super) fn dispatch(_config: &Config, args: DiffArgs) -> anyhow::Result<()> {
     if args.raw {
         println!("{}", serde_json::to_string_pretty(&diff)?);
     } else if let Some(label) = args.label {
-        if let Some(batch_diff) = diff.remove(&label) {
-            for ((sample, presence), i) in batch_diff
-                .sample_diffs()
-                .into_iter()
-                .zip(1..)
-                .filter(|(_, i)| args.index.is_none_or(|only_show| only_show == *i))
-            {
-                let exclusive = args.index.is_some();
+        let batch_diff = diff
+            .remove(&label)
+            .ok_or_else(|| anyhow!("label not found in compared snapshots: {label}"))?;
+        for ((sample, presence), i) in batch_diff
+            .sample_diffs()
+            .into_iter()
+            .zip(1..)
+            .filter(|(_, i)| args.index.is_none_or(|only_show| only_show == *i))
+        {
+            let exclusive = args.index.is_some();
 
-                if args.trace {
-                    for trace in sample.traces() {
-                        println!(
-                            "trace: {}",
-                            trace
-                                .entries()
-                                .iter()
-                                .map(|(k, v)| format!("{k}={v}"))
-                                .collect::<Vec<_>>()
-                                .join(" ")
-                        );
-                    }
-                }
-
-                if exclusive {
-                    println!("{}", sample.content());
-                } else {
+            if args.trace {
+                for trace in sample.traces() {
                     println!(
-                        "{i:2}: {}\n{}",
-                        match presence {
-                            SamplePresence::OnlyBefore => style("-").red(),
-                            SamplePresence::OnlyAfter => style("+").green(),
-                            SamplePresence::Both => style("=").blue(),
-                        },
-                        {
-                            let s = style(sample.content());
-
-                            match presence {
-                                SamplePresence::OnlyBefore => s.black().on_red(),
-                                SamplePresence::OnlyAfter => s.black().on_green(),
-                                SamplePresence::Both => s.black().on_blue(),
-                            }
-                        }
+                        "trace: {}",
+                        trace
+                            .entries()
+                            .iter()
+                            .map(|(k, v)| format!("{k}={v}"))
+                            .collect::<Vec<_>>()
+                            .join(" ")
                     );
                 }
             }
+
+            if exclusive {
+                println!("{}", sample.content());
+            } else {
+                println!(
+                    "{i:2}: {}\n{}",
+                    match presence {
+                        SamplePresence::OnlyBefore => style("-").red(),
+                        SamplePresence::OnlyAfter => style("+").green(),
+                        SamplePresence::Both => style("=").blue(),
+                    },
+                    {
+                        let s = style(sample.content());
+
+                        match presence {
+                            SamplePresence::OnlyBefore => s.black().on_red(),
+                            SamplePresence::OnlyAfter => s.black().on_green(),
+                            SamplePresence::Both => s.black().on_blue(),
+                        }
+                    }
+                );
+            }
         }
     } else {
-        for (label, batch_diff) in &diff {
+        let mut labels = diff.keys().collect::<Vec<_>>();
+        labels.sort();
+
+        for label in labels {
+            let batch_diff = &diff[label];
             if !batch_diff.batches_equal() {
                 println!("{}", format_batch_diff(label, batch_diff));
             }
