@@ -20,11 +20,11 @@ Create a pipeline for the fact:
 `.ironclad/facts/01KQ3EM5NBJAQHH5XKBJXDQHGQ.toml`
 ```toml
 [[steps]]
-id = "seed.file.text"
+use = "seed.file.text"
 options.files = ["config.json"]
 
 [[steps]]
-id = "json.find"
+use = "json.find"
 options.path = "$.*"
 ```
 
