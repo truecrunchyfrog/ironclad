@@ -11,7 +11,7 @@ pub(crate) struct ResolveArgs {
     #[arg(short = 'x', long, conflicts_with = "include")]
     pub(crate) exclude: Vec<String>,
 
-    /// File to write snapshot to (default: catalog's candidate).
+    /// File to write snapshot to (default: catalog's actual).
     #[arg(short, long)]
     pub(crate) output: Option<FileOrStdout>,
 
