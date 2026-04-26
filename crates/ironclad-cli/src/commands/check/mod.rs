@@ -1,28 +1,13 @@
-use std::{
-    fs::File,
-    io::{BufReader, Read},
+use crate::{
+    args::check::CheckArgs,
+    context::Context,
+    helper::{SnapshotPath, read_snapshot},
 };
 
-use ironclad_core::snapshot::Snapshot;
-
-use crate::{args::check::CheckArgs, config::Config, helper::resolve_catalog};
-
-pub(super) fn dispatch(_config: &Config, args: CheckArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
-
-    let proposal = serde_json::from_reader::<Box<dyn Read>, Snapshot>(match args.proposal {
-        Some(file_or_stdin) => Box::new(file_or_stdin.into_reader()?),
-        None => Box::new(BufReader::new(File::open(
-            catalog.snapshot_actual_file_path(),
-        )?)),
-    })?;
-
-    let baseline = serde_json::from_reader::<Box<dyn Read>, Snapshot>(match args.baseline {
-        Some(file_or_stdin) => Box::new(file_or_stdin.into_reader()?),
-        None => Box::new(BufReader::new(File::open(
-            catalog.snapshot_canon_file_path(),
-        )?)),
-    })?;
+pub(super) fn dispatch(context: &Context, args: CheckArgs) -> anyhow::Result<()> {
+    let catalog = context.catalog()?;
+    let proposal = read_snapshot(&catalog, args.proposal, SnapshotPath::Actual)?;
+    let baseline = read_snapshot(&catalog, args.baseline, SnapshotPath::Canon)?;
 
     let diff = proposal.diff(&baseline);
 
@@ -37,5 +22,5 @@ pub(super) fn dispatch(_config: &Config, args: CheckArgs) -> anyhow::Result<()> 
 
     println!("{} ({unequal})", if unequal == 0 { "ok" } else { "drift" });
 
-    std::process::exit(unequal as i32);
+    std::process::exit(if unequal == 0 { 0 } else { 1 });
 }

@@ -30,6 +30,12 @@ pub(crate) enum Error {
         #[source]
         source: std::io::Error,
     },
+
+    #[error("glob pattern path is not valid utf-8: {path}")]
+    NonUtf8GlobPatternPath { path: PathBuf },
+
+    #[error("matched file is outside catalog container: {path}")]
+    PathOutsideCatalogContainer { path: PathBuf },
 }
 
 impl TypedOperation for SeedFileText {
@@ -52,14 +58,13 @@ impl TypedOperation for SeedFileText {
             .files
             .iter()
             .map(|pattern| {
-                glob(
-                    base_path
-                        .join(pattern)
-                        .to_str()
-                        .expect("glob pattern does not appear to be UTF-8"),
-                )
+                let path = base_path.join(pattern);
+                let pattern = path
+                    .to_str()
+                    .ok_or_else(|| Error::NonUtf8GlobPatternPath { path: path.clone() })?;
+                glob(pattern).map_err(Error::from)
             })
-            .collect::<Result<Vec<_>, _>>()?
+            .collect::<Result<Vec<_>, Error>>()?
             .into_iter()
             .flat_map(std::iter::Iterator::collect::<Vec<_>>)
             .collect::<Result<Vec<_>, glob::GlobError>>()?;
@@ -76,7 +81,7 @@ impl TypedOperation for SeedFileText {
                     Trace::new(HashMap::from([(
                         String::from("path"),
                         path.strip_prefix(&base_path)
-                            .expect("path is not relative to catalog container")
+                            .map_err(|_| Error::PathOutsideCatalogContainer { path: path.clone() })?
                             .to_string_lossy()
                             .to_string(),
                     )])),

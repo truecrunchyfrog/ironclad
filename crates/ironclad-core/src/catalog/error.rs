@@ -7,22 +7,25 @@ use crate::{
 
 #[derive(thiserror::Error, Debug)]
 pub enum CatalogError {
-    #[error("no catalog found at {0}")]
+    #[error("catalog not found at {0}")]
     PathNotFound(PathBuf),
 
-    #[error("catalog already initialized at {0}")]
+    #[error("catalog already exists at {0}")]
     PathAlreadyExists(PathBuf),
 
-    #[error("path already exists, but is not a directory: {0}")]
+    #[error("catalog path is not a directory: {0}")]
     PathNotDirectory(PathBuf),
 
-    #[error("fact label not in index: {0}")]
+    #[error("fact label not found in catalog index: {0}")]
     LabelNotInIndex(String),
 
-    #[error("fact ID not in index: {0}")]
+    #[error("fact id not found in catalog index: {0}")]
     IdNotInIndex(String),
 
-    #[error("import not found: {0}")]
+    #[error("fact selector not found: {0}")]
+    FactNotFound(String),
+
+    #[error("fact import not found: {0}")]
     ImportNotFound(String),
 
     #[error("duplicate export key '{key}' declared by facts: {fact_labels:?}")]
@@ -41,7 +44,7 @@ pub enum CatalogError {
         trace_value: String,
     },
 
-    #[error("an operation does not exist by such ID: {0}")]
+    #[error("operation not registered: {0}")]
     OperationNotFound(String),
 
     #[error("unable to sort dependencies: {0}")]

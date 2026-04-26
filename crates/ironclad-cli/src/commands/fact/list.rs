@@ -1,13 +1,13 @@
-use crate::{args::fact::list::ListFactArgs, config::Config, helper::resolve_catalog};
+use crate::{args::fact::list::ListFactArgs, context::Context};
 
-pub(crate) fn dispatch(_config: &Config, args: ListFactArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
+pub(crate) fn dispatch(context: &Context, args: ListFactArgs) -> anyhow::Result<()> {
+    let session = context.catalog_session()?;
 
-    let index = catalog.load_fact_index()?;
-
-    for (label, fact_id) in index.into_entries() {
+    for (label, fact_id) in session.index().iter() {
         if args.verbose {
-            let fact = catalog.load_fact_for_path(&catalog.fact_file_path(&fact_id))?;
+            let fact = session
+                .catalog()
+                .load_fact_for_path(&session.catalog().fact_file_path(fact_id))?;
 
             println!(
                 "{label}: {}",

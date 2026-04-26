@@ -6,6 +6,7 @@ use sha2::{Digest, Sha256};
 use crate::{
     catalog::{Catalog, error::CatalogError},
     fact::{LabeledFact, RecipeProgressEvent, dependencies::sort_dependencies},
+    registry::Registry,
     sample::{Sample, Trace, batch::Batch},
     snapshot::Snapshot,
 };
@@ -30,6 +31,7 @@ pub enum SnapshotProgressEvent<'a> {
 impl Catalog {
     pub fn capture_snapshot<F: FnMut(SnapshotProgressEvent)>(
         &self,
+        registry: &Registry,
         facts: Vec<LabeledFact>,
         redact_secrets: bool,
         mut on_progress: F,
@@ -40,11 +42,11 @@ impl Catalog {
         let snapshot = Snapshot::new(HashMap::from_iter(
             facts
                 .into_iter()
-                .zip(0..)
+                .enumerate()
                 .try_fold(
                     (Vec::new(), HashMap::new()),
                     |(mut snapshot_entries, mut exported_samples),
-                     (fact, index)|
+                     (index, fact)|
                      -> Result<_, CatalogError> {
                         on_progress(SnapshotProgressEvent::FactStarted { index, fact: &fact });
 
@@ -55,11 +57,11 @@ impl Catalog {
                                 exported_samples
                                     .get(key)
                                     .ok_or_else(|| CatalogError::ImportNotFound(key.clone()))
-                                    .map(|sample| (key, sample))
+                                    .map(|sample| (key.clone(), sample))
                             })
                             .collect::<Result<HashMap<_, _>, _>>()?;
 
-                        let samples = fact.eval(self, &imports, |update| {
+                        let samples = fact.eval(registry, self, &imports, |update| {
                             on_progress(SnapshotProgressEvent::FactStep {
                                 index,
                                 fact: &fact,

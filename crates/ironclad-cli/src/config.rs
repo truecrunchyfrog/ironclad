@@ -10,4 +10,7 @@ pub(crate) struct Config {
 
     #[arg(long)]
     pub(crate) config_file: Option<PathBuf>,
+
+    #[arg(long)]
+    pub(crate) catalog_dir: Option<PathBuf>,
 }

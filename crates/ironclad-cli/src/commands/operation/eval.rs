@@ -1,14 +1,14 @@
 use clap_stdin::MaybeStdin;
-use ironclad_core::{registry, sample::Sample};
+use ironclad_core::sample::Sample;
 
-use crate::{args::operation::eval::EvalOperationArgs, config::Config, helper::resolve_catalog};
+use crate::{args::operation::eval::EvalOperationArgs, context::Context};
 
-pub(super) fn dispatch(_config: &Config, args: EvalOperationArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
+pub(super) fn dispatch(context: &Context, args: EvalOperationArgs) -> anyhow::Result<()> {
+    let catalog = context.execution_catalog()?;
 
     let options = args.options.map(MaybeStdin::into_inner);
 
-    let operation = registry::resolve_op(&args.operation_id)?;
+    let operation = context.registry().resolve_op(&args.operation_id)?;
 
     let input = args
         .input

@@ -1,6 +1,7 @@
 mod args;
 mod commands;
 pub(crate) mod config;
+mod context;
 pub(crate) mod helper;
 mod logging;
 pub(crate) mod output;
@@ -11,9 +12,10 @@ use figment::{
     Figment,
     providers::{Env, Format, Serialized, Toml},
 };
+use ironclad_core::registry::Registry;
 use ironclad_ops::register_ops;
 
-use crate::config::Config;
+use crate::{config::Config, context::Context};
 
 fn main() -> ExitCode {
     match start() {
@@ -46,9 +48,12 @@ fn start() -> anyhow::Result<()> {
 
     logging::init(&config);
 
-    register_ops()?;
+    let mut registry = Registry::new();
+    register_ops(&mut registry)?;
 
-    commands::dispatch(&config, cli.command)?;
+    let context = Context::new(config, registry);
+
+    commands::dispatch(&context, cli.command)?;
 
     Ok(())
 }

@@ -8,10 +8,11 @@ pub(crate) struct DiffArgs {
     pub(crate) label: Option<String>,
 
     /// Index of sample to show (starting from 1).
+    #[arg(requires = "label")]
     pub(crate) index: Option<usize>,
 
     /// Show trace.
-    #[arg(short, long)]
+    #[arg(short, long, requires = "label")]
     pub(crate) trace: bool,
 
     /// Proposed snapshot (default: catalog's actual).

@@ -1,25 +1,23 @@
 use anyhow::bail;
-use ironclad_core::catalog::Catalog;
 
-use crate::{args::fact::rename::RenameFactArgs, config::Config, helper::resolve_catalog};
+use crate::{args::fact::rename::RenameFactArgs, context::Context};
 
-pub(crate) fn dispatch(_config: &Config, args: RenameFactArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
+pub(crate) fn dispatch(context: &Context, args: RenameFactArgs) -> anyhow::Result<()> {
+    let mut session = context.catalog_session()?;
+    let resolved = session.resolve_fact_ref(&args.selector)?;
 
-    let mut index = catalog.load_fact_index()?;
-    let fact_id = Catalog::fact_id_for_label(&index, &args.label)?;
-
-    let entries = index.entries_mut();
-
-    if entries.insert(args.new_label.clone(), fact_id).is_some() {
+    if session.index().id_for_label(&args.new_label) != Some(resolved.fact_id.as_str())
+        && session.index().contains_label(&args.new_label)
+    {
         bail!("label '{}' already indexed", args.new_label);
     }
 
-    entries
-        .remove(&args.label)
-        .expect("fact label should exist as index entry");
+    session.index_mut().remove_fact_id(&resolved.fact_id);
+    session
+        .index_mut()
+        .insert(args.new_label.clone(), resolved.fact_id);
 
-    catalog.save_fact_index(&index)?;
+    session.save_index()?;
 
     println!("{}", args.new_label);
 

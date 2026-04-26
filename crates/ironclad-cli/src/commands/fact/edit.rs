@@ -2,16 +2,12 @@ use std::process::Command;
 
 use anyhow::{Context, anyhow, bail};
 
-use ironclad_core::catalog::Catalog;
+use crate::{args::fact::edit::EditFactArgs, context::Context as CommandContext};
 
-use crate::{args::fact::edit::EditFactArgs, config::Config, helper::resolve_catalog};
-
-pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
-
-    let index = catalog.load_fact_index()?;
-    let fact_id = Catalog::fact_id_for_label(&index, &args.label)?;
-    let path = catalog.fact_file_path(&fact_id);
+pub(crate) fn dispatch(context: &CommandContext, args: EditFactArgs) -> anyhow::Result<()> {
+    let session = context.catalog_session()?;
+    let resolved = session.resolve_fact_ref(&args.selector)?;
+    let path = session.catalog().fact_file_path(&resolved.fact_id);
     let editor = std::env::var("EDITOR").context("$EDITOR is not set")?;
     let argv = shlex::split(&editor).ok_or_else(|| anyhow!("failed to parse $EDITOR"))?;
 

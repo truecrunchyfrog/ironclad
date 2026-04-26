@@ -3,10 +3,9 @@ mod ops;
 mod tag;
 mod text_selector;
 
-use ironclad_core::registry::{self, error::RegistryError};
+use ironclad_core::registry::{Registry, error::RegistryError};
 
-pub fn register_ops() -> Result<(), RegistryError> {
-    let mut registry = registry::registry().write().unwrap();
+pub fn register_ops(registry: &mut Registry) -> Result<(), RegistryError> {
     for (id, op) in ops::operations() {
         registry.register_op(id.to_string(), op)?;
     }

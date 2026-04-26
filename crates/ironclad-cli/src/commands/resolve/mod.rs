@@ -1,85 +1,60 @@
-use std::{
-    fs::File,
-    io::{BufWriter, Write},
-};
+use std::io::Write;
 
-use anyhow::anyhow;
 use ironclad_core::{
-    catalog::SnapshotProgressEvent,
-    fact::{LabeledFact, RecipeProgressEvent},
+    catalog::{FactSelection, SnapshotProgressEvent},
+    fact::RecipeProgressEvent,
 };
 
-use crate::{args::resolve::ResolveArgs, config::Config, helper::resolve_catalog};
+use crate::{
+    args::resolve::ResolveArgs,
+    context::Context,
+    helper::{SnapshotPath, write_snapshot},
+};
 
-pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
-
-    let index = catalog.load_fact_index()?;
+pub(super) fn dispatch(context: &Context, args: ResolveArgs) -> anyhow::Result<()> {
+    let session = context.catalog_session()?;
 
     let no_redact = args.no_redact;
 
-    let facts = match args {
-        ResolveArgs { include, .. } if !include.is_empty() => include
-            .into_iter()
-            .map(|label| {
-                let fact = catalog.load_fact_for_path(
-                    &catalog.fact_file_path(
-                        &index
-                            .id_for_label(&label)
-                            .ok_or_else(|| anyhow!("absent from index: {label}"))?,
-                    ),
-                )?;
-                Ok(LabeledFact { label, fact })
-            })
-            .collect::<anyhow::Result<Vec<_>>>()?,
-        ResolveArgs { exclude, .. } => {
-            let mut entries = index.into_entries();
-            for label in exclude {
-                entries
-                    .remove(&label)
-                    .ok_or_else(|| anyhow!("absent from index: {label}"))?;
-            }
-            entries
-                .into_iter()
-                .map(|(label, fact_id)| {
-                    Ok(LabeledFact {
-                        label,
-                        fact: catalog.load_fact_for_path(&catalog.fact_file_path(&fact_id))?,
-                    })
-                })
-                .collect::<anyhow::Result<Vec<_>>>()?
-        }
+    let selection = match args {
+        ResolveArgs { include, .. } if !include.is_empty() => FactSelection::Include(include),
+        ResolveArgs { exclude, .. } if !exclude.is_empty() => FactSelection::Exclude(exclude),
+        _ => FactSelection::All,
     };
 
+    let facts = session.labeled_facts(selection)?;
     let total = facts.len();
 
     eprint!("...");
 
-    let result_snapshot = catalog.capture_snapshot(facts, !no_redact, |update| {
-        if let SnapshotProgressEvent::FactStep {
-            index,
-            fact,
-            inner:
-                RecipeProgressEvent::StepStarted {
-                    index: step_index,
-                    step,
+    let result_snapshot =
+        session
+            .catalog()
+            .capture_snapshot(context.registry(), facts, !no_redact, |update| {
+                if let SnapshotProgressEvent::FactStep {
+                    index,
+                    fact,
+                    inner:
+                        RecipeProgressEvent::StepStarted {
+                            index: step_index,
+                            step,
+                            ..
+                        },
                     ..
-                },
-            ..
-        } = update
-        {
-            eprint!(
-                "\r\x1b[2K{}/{}: {}: {}/{}: {}",
-                index + 1,
-                total,
-                fact.label,
-                step_index + 1,
-                fact.steps().len(),
-                step.operation_id()
-            );
-            let _ = std::io::stderr().flush();
-        }
-    });
+                } = update
+                {
+                    eprint!(
+                        "\r\x1b[2K{}/{}: {}: {}/{}: {}",
+                        index + 1,
+                        total,
+                        fact.label,
+                        step_index + 1,
+                        fact.steps().len(),
+                        step.operation_id()
+                    );
+                    let _ = std::io::stderr().flush();
+                }
+            });
 
     eprint!("\r\x1b[2K");
 
@@ -88,14 +63,12 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
         Err(err) => return Err(err.into()),
     };
 
-    let mut dest: Box<dyn Write> = match args.output {
-        Some(file_or_stdout) => Box::new(file_or_stdout.into_writer()?),
-        None => Box::new(BufWriter::new(File::create(
-            catalog.snapshot_actual_file_path(),
-        )?)),
-    };
-
-    dest.write(serde_json::to_vec_pretty(&snapshot)?.as_slice())?;
+    write_snapshot(
+        session.catalog(),
+        args.output,
+        SnapshotPath::Actual,
+        &snapshot,
+    )?;
 
     Ok(())
 }

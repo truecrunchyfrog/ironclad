@@ -1,19 +1,15 @@
-use ironclad_core::catalog::Catalog;
+use crate::{args::fact::remove::RemoveFactArgs, context::Context};
 
-use crate::{args::fact::remove::RemoveFactArgs, config::Config, helper::resolve_catalog};
+pub(crate) fn dispatch(context: &Context, args: RemoveFactArgs) -> anyhow::Result<()> {
+    let mut session = context.catalog_session()?;
+    let resolved = session.resolve_fact_ref(&args.selector)?;
 
-pub(crate) fn dispatch(_config: &Config, args: RemoveFactArgs) -> anyhow::Result<()> {
-    let catalog = resolve_catalog()?;
+    std::fs::remove_file(session.catalog().fact_file_path(&resolved.fact_id))?;
 
-    let mut index = catalog.load_fact_index()?;
-    let fact_id = Catalog::fact_id_for_label(&index, &args.label)?;
+    session.index_mut().remove_fact_id(&resolved.fact_id);
+    session.save_index()?;
 
-    std::fs::remove_file(catalog.fact_file_path(&fact_id))?;
-
-    index.entries_mut().remove(&args.label);
-    catalog.save_fact_index(&index)?;
-
-    println!("{}", args.label);
+    println!("{}", resolved.selector);
 
     Ok(())
 }
