@@ -11,9 +11,11 @@ pub(crate) fn dispatch(_config: &Config, args: EditFactArgs) -> anyhow::Result<(
     let fact_id = Catalog::fact_id_for_label(&index, &args.label)?;
     let path = catalog.fact_file_path(&fact_id);
 
-    Command::new(std::env::var("EDITOR")?)
-        .arg(path.to_str().unwrap())
-        .status()?;
-
-    Ok(())
+    std::process::exit(
+        Command::new(std::env::var("EDITOR")?)
+            .arg(path.to_str().unwrap())
+            .status()?
+            .code()
+            .unwrap_or(0),
+    );
 }
