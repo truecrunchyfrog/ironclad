@@ -82,7 +82,11 @@ fn inspect_works_with_invalid_index_file() {
     let output = run_ic(
         &root,
         &home,
-        &["--catalog-dir", root.to_str().expect("utf8"), "inspect"],
+        &[
+            "--catalog-dir",
+            catalog.dir().to_str().expect("utf8"),
+            "inspect",
+        ],
     );
 
     assert!(output.status.success(), "{:?}", output);
@@ -112,7 +116,11 @@ fn check_works_without_index_file() {
     let output = run_ic(
         &root,
         &home,
-        &["--catalog-dir", root.to_str().expect("utf8"), "check"],
+        &[
+            "--catalog-dir",
+            catalog.dir().to_str().expect("utf8"),
+            "check",
+        ],
     );
 
     assert!(output.status.success(), "{:?}", output);
@@ -143,7 +151,7 @@ fn diff_missing_label_fails_clearly() {
         &home,
         &[
             "--catalog-dir",
-            root.to_str().expect("utf8"),
+            repository.catalog().dir().to_str().expect("utf8"),
             "diff",
             "missing",
         ],
@@ -172,7 +180,7 @@ fn show_accepts_fact_id_selector() {
         &home,
         &[
             "--catalog-dir",
-            root.to_str().expect("utf8"),
+            catalog.dir().to_str().expect("utf8"),
             "show",
             fact_id,
             "--path",

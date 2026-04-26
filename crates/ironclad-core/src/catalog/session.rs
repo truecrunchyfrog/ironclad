@@ -160,8 +160,9 @@ mod tests {
         let root = temp_path("session-root");
         fs::create_dir_all(&root).expect("mkdir root");
         let catalog = Catalog::create_catalog(&root).expect("create catalog");
+        let catalog_dir = catalog.dir().to_path_buf();
 
-        let session = CatalogSession::open(&root, Some(&root)).expect("open session");
+        let session = CatalogSession::open(&root, Some(&catalog_dir)).expect("open session");
 
         assert_eq!(session.catalog().dir(), catalog.dir());
 
