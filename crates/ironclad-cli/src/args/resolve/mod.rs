@@ -18,8 +18,4 @@ pub(crate) struct ResolveArgs {
     /// Don't redact facts marked as secret.
     #[arg(long)]
     pub(crate) no_redact: bool,
-
-    /// Include samples in the progress output.
-    #[arg(short, long)]
-    pub(crate) show_samples: bool,
 }
