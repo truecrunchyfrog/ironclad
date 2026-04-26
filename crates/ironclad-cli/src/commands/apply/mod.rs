@@ -1,11 +1,10 @@
 use std::{
-    collections::HashMap,
     fs::File,
     io::{BufReader, BufWriter, Read, Write},
 };
 
-use anyhow::anyhow;
-use ironclad_core::{sample::batch::Batch, snapshot::Snapshot};
+use anyhow::bail;
+use ironclad_core::snapshot::Snapshot;
 
 use crate::{args::apply::ApplyArgs, config::Config, helper::resolve_catalog};
 
@@ -33,35 +32,31 @@ pub(super) fn dispatch(_config: &Config, args: ApplyArgs) -> anyhow::Result<()> 
         )?)),
     };
 
-    let accepted_promotion = match args {
-        ApplyArgs { all: true, .. } => promotion.into_entries(),
+    let promoted_baseline = match args {
+        ApplyArgs { all: true, .. } => promotion,
         ApplyArgs {
             all: false,
             label: labels,
             ..
         } => {
-            let mut entries = promotion.into_entries();
-            labels
-                .into_iter()
-                .map(|label| {
-                    let entry = entries
-                        .remove(&label)
-                        .ok_or_else(|| anyhow!("absent from proposal: {label}"))?;
-                    Ok((label, entry))
-                })
-                .collect::<anyhow::Result<Vec<_>>>()?
-                .into_iter()
-                .collect()
+            let mut baseline_entries = baseline.into_entries();
+            let mut promotion_entries = promotion.into_entries();
+
+            for label in labels {
+                if baseline_entries.remove(&label).is_none()
+                    && !promotion_entries.contains_key(&label)
+                {
+                    bail!("absent from proposal and baseline: {label}");
+                }
+
+                if let Some(entry) = promotion_entries.remove(&label) {
+                    baseline_entries.insert(label, entry);
+                }
+            }
+
+            Snapshot::new(baseline_entries)
         }
     };
-
-    let promoted_baseline = Snapshot::new(
-        baseline
-            .into_entries()
-            .into_iter()
-            .chain(accepted_promotion)
-            .collect::<HashMap<String, Batch>>(),
-    );
 
     dest.write(serde_json::to_vec_pretty(&promoted_baseline)?.as_slice())?;
 
