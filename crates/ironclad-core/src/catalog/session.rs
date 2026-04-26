@@ -3,6 +3,8 @@ use std::path::Path;
 use crate::{
     catalog::{Catalog, FactIndex, error::CatalogError},
     fact::{Fact, LabeledFact},
+    registry::Registry,
+    snapshot::Snapshot,
 };
 
 pub struct CatalogSession {
@@ -13,6 +15,12 @@ pub struct CatalogSession {
 pub struct ResolvedFactRef {
     pub selector: String,
     pub fact_id: String,
+}
+
+pub enum FactSelection {
+    All,
+    Include(Vec<String>),
+    Exclude(Vec<String>),
 }
 
 impl CatalogSession {
@@ -80,13 +88,46 @@ impl CatalogSession {
         self.catalog
             .load_labeled_facts_excluding(&self.index, labels)
     }
+
+    pub fn labeled_facts(
+        &self,
+        selection: FactSelection,
+    ) -> Result<Vec<LabeledFact>, CatalogError> {
+        match selection {
+            FactSelection::All => self.catalog.load_labeled_facts(&self.index),
+            FactSelection::Include(labels) => self.labeled_facts_including(&labels),
+            FactSelection::Exclude(labels) => self.labeled_facts_excluding(&labels),
+        }
+    }
+
+    pub fn capture_snapshot<F: FnMut(crate::catalog::SnapshotProgressEvent)>(
+        &self,
+        registry: &Registry,
+        selection: FactSelection,
+        redact_secrets: bool,
+        on_progress: F,
+    ) -> Result<Snapshot, CatalogError> {
+        self.catalog.capture_snapshot(
+            registry,
+            self.labeled_facts(selection)?,
+            redact_secrets,
+            on_progress,
+        )
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use std::{fs, path::Path};
 
-    use crate::catalog::{Catalog, CatalogSession, FactIndex};
+    use std::collections::HashMap;
+
+    use crate::{
+        catalog::{Catalog, CatalogSession, FactIndex, FactSelection, error::CatalogError},
+        operation::TypedOperation,
+        registry::Registry,
+        sample::{Sample, Trace},
+    };
 
     fn temp_path(name: &str) -> std::path::PathBuf {
         let mut path = std::env::temp_dir();
@@ -103,6 +144,10 @@ mod tests {
 
     fn write_fact(path: &Path) {
         fs::write(path, "description = \"x\"\n").expect("write fact");
+    }
+
+    fn write_fact_toml(path: &Path, content: &str) {
+        fs::write(path, content).expect("write fact");
     }
 
     #[test]
@@ -144,6 +189,97 @@ mod tests {
             session.resolve_fact_ref(fact_id).expect("by id").fact_id,
             fact_id
         );
+
+        fs::remove_dir_all(root).expect("cleanup");
+    }
+
+    struct SeedConst;
+
+    impl TypedOperation for SeedConst {
+        type Options = String;
+        type Error = std::convert::Infallible;
+
+        fn description(&self) -> &'static str {
+            "Emit a constant sample."
+        }
+
+        fn eval_all(
+            &self,
+            _catalog: &Catalog,
+            _input: Vec<Sample>,
+            options: Self::Options,
+        ) -> Result<Vec<Sample>, Self::Error> {
+            Ok(vec![Sample::new(
+                Trace::new(HashMap::from([("name".to_string(), options.clone())])),
+                options,
+            )])
+        }
+    }
+
+    #[test]
+    fn capture_snapshot_uses_injected_registry_and_exports() {
+        let root = temp_path("session-capture");
+        fs::create_dir_all(&root).expect("mkdir root");
+        let catalog = Catalog::create_catalog(&root).expect("create catalog");
+
+        let first_id = "01FIRSTFACTID00000000000000";
+        let second_id = "01SECONDFCTID00000000000000";
+
+        write_fact_toml(
+            &catalog.fact_file_path(first_id),
+            r#"
+exports.foo = { trace_key = "name", trace_value = "alpha" }
+
+[[steps]]
+use = "test.seed.const"
+options = "alpha"
+"#,
+        );
+        write_fact_toml(
+            &catalog.fact_file_path(second_id),
+            r#"
+imports = ["foo"]
+
+[[steps]]
+use = "test.seed.const"
+options = "$(foo)"
+"#,
+        );
+
+        let mut index = FactIndex::new();
+        index.insert("first".to_string(), first_id.to_string());
+        index.insert("second".to_string(), second_id.to_string());
+        catalog.save_fact_index(&index).expect("save index");
+
+        let session = CatalogSession::open(&root, None).expect("open session");
+        let mut registry = Registry::new();
+        registry
+            .register_op("test.seed.const".to_string(), SeedConst.into())
+            .expect("register op");
+
+        let snapshot = session
+            .capture_snapshot(&registry, FactSelection::All, false, |_| {})
+            .expect("capture snapshot");
+
+        assert_eq!(snapshot.entries()["first"].samples()[0].content(), "alpha");
+        assert_eq!(snapshot.entries()["second"].samples()[0].content(), "alpha");
+
+        fs::remove_dir_all(root).expect("cleanup");
+    }
+
+    #[test]
+    fn fact_selection_exclude_rejects_unknown_labels() {
+        let root = temp_path("session-selection");
+        fs::create_dir_all(&root).expect("mkdir root");
+        let _catalog = Catalog::create_catalog(&root).expect("create catalog");
+
+        let session = CatalogSession::open(&root, None).expect("open session");
+        let err = match session.labeled_facts(FactSelection::Exclude(vec!["missing".to_string()])) {
+            Ok(_) => panic!("missing label should fail"),
+            Err(err) => err,
+        };
+
+        assert!(matches!(err, CatalogError::LabelNotInIndex(label) if label == "missing"));
 
         fs::remove_dir_all(root).expect("cleanup");
     }

@@ -1,6 +1,9 @@
 use std::io::Write;
 
-use ironclad_core::{catalog::SnapshotProgressEvent, fact::RecipeProgressEvent};
+use ironclad_core::{
+    catalog::{FactSelection, SnapshotProgressEvent},
+    fact::RecipeProgressEvent,
+};
 
 use crate::{
     args::resolve::ResolveArgs,
@@ -13,13 +16,13 @@ pub(super) fn dispatch(context: &Context, args: ResolveArgs) -> anyhow::Result<(
 
     let no_redact = args.no_redact;
 
-    let facts = match args {
-        ResolveArgs { include, .. } if !include.is_empty() => {
-            session.labeled_facts_including(&include)?
-        }
-        ResolveArgs { exclude, .. } => session.labeled_facts_excluding(&exclude)?,
+    let selection = match args {
+        ResolveArgs { include, .. } if !include.is_empty() => FactSelection::Include(include),
+        ResolveArgs { exclude, .. } if !exclude.is_empty() => FactSelection::Exclude(exclude),
+        _ => FactSelection::All,
     };
 
+    let facts = session.labeled_facts(selection)?;
     let total = facts.len();
 
     eprint!("...");
