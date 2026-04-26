@@ -4,7 +4,8 @@ use std::{
 };
 
 use ironclad_core::{
-    catalog::SnapshotProgressEvent, fact::LabeledFact, recipe::RecipeProgressEvent,
+    catalog::SnapshotProgressEvent,
+    fact::{LabeledFact, RecipeProgressEvent},
 };
 
 use crate::{args::resolve::ResolveArgs, config::Config, helper::resolve_catalog};
@@ -50,7 +51,7 @@ pub(super) fn dispatch(_config: &Config, args: ResolveArgs) -> anyhow::Result<()
                 index + 1,
                 fact.label,
                 step_index + 1,
-                fact.steps().steps().len(),
+                fact.steps().len(),
                 step.operation_id()
             );
             let _ = std::io::stderr().flush();

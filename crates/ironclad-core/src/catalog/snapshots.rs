@@ -5,8 +5,7 @@ use sha2::{Digest, Sha256};
 
 use crate::{
     catalog::{Catalog, error::CatalogError},
-    fact::{LabeledFact, dependencies::sort_dependencies},
-    recipe::RecipeProgressEvent,
+    fact::{LabeledFact, RecipeProgressEvent, dependencies::sort_dependencies},
     sample::{Sample, Trace, batch::Batch},
     snapshot::Snapshot,
 };
@@ -59,7 +58,7 @@ impl Catalog {
                             })
                             .collect::<Result<HashMap<_, _>, _>>()?;
 
-                        let samples = fact.steps().eval(self, &imports, |update| {
+                        let samples = fact.eval(self, &imports, |update| {
                             on_progress(SnapshotProgressEvent::FactStep {
                                 index,
                                 fact: &fact,

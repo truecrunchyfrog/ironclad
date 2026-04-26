@@ -1,6 +1,5 @@
 - core tests
 - more niche errors
-- recipe -> steps?
 - context struct instead of passing config directly to command dispatchers
 - registry as variable instead of global static
 - specifying instance
