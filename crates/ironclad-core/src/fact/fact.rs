@@ -95,8 +95,8 @@ impl Fact {
     ) -> Result<Vec<Sample>, RecipeError> {
         self.steps
             .iter()
-            .zip(0..)
-            .try_fold(Vec::new(), |input, (step, index)| {
+            .enumerate()
+            .try_fold(Vec::new(), |input, (index, step)| {
                 let mut step = step.clone();
                 visit_toml_strings_mut(step.options_mut(), &mut |s| {
                     for (label, sample) in imports {

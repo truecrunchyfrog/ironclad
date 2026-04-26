@@ -40,11 +40,11 @@ impl Catalog {
         let snapshot = Snapshot::new(HashMap::from_iter(
             facts
                 .into_iter()
-                .zip(0..)
+                .enumerate()
                 .try_fold(
                     (Vec::new(), HashMap::new()),
                     |(mut snapshot_entries, mut exported_samples),
-                     (fact, index)|
+                     (index, fact)|
                      -> Result<_, CatalogError> {
                         on_progress(SnapshotProgressEvent::FactStarted { index, fact: &fact });
 
