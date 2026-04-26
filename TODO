@@ -7,4 +7,5 @@
 - move logic from cli to core
 - skippable facts omitted from resolves
 - resolve with cache, with max age
+- improved fact and index api
 - github action
