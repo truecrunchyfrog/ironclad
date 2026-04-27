@@ -1,5 +1,6 @@
 use ironclad_core::operation::Operation;
 
+mod compact;
 mod json_find;
 mod run;
 mod seed_file_text;
@@ -11,6 +12,7 @@ mod text_lines;
 mod text_replace;
 mod text_split;
 mod text_tag;
+mod trim;
 // mod text_filter; TODO
 mod html_attribute;
 mod html_find;
@@ -23,6 +25,7 @@ pub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {
         ("seed.net.http", seed_net_http::SeedNetHttp.into()),
         ("seed.run", seed_run::SeedRun.into()),
         ("run", run::Run.into()),
+        ("compact", compact::Compact.into()),
         ("html.attribute", html_attribute::HtmlAttribute.into()),
         ("html.find", html_find::HtmlFind.into()),
         ("html.inner.html", html_inner_html::HtmlInnerHtml.into()),
@@ -34,5 +37,6 @@ pub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {
         ("text.replace", text_replace::TextReplace.into()),
         ("text.split", text_split::TextSplit.into()),
         ("text.tag", text_tag::TextTag.into()),
+        ("trim", trim::Trim.into()),
     ]
 }
