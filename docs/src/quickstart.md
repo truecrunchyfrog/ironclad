@@ -1,66 +1,84 @@
 # Quickstart
 
-Set up an instance:
+This is the fastest route from “empty directory” to “first useful fact”.
+
+## 1. Initialize a catalog
+
 ```bash
-$ ic init
+ic init
 ```
 
-Create a fact:
+This creates `.ironclad/` in the current directory.
+
+## 2. Add a fact
+
 ```bash
-$ ic add my-config
+ic add tea-menu
 ```
 
-Open your new fact in `$EDITOR`:
+Ironclad prints either the label you chose or a raw fact ID if you created an unindexed fact.
+
+## 3. Open the fact
+
 ```bash
-$ ic edit my-config
+ic edit tea-menu
 ```
 
-Create a pipeline for the fact:
+Put a small pipeline in it:
 
-`.ironclad/facts/01KQ3EM5NBJAQHH5XKBJXDQHGQ.toml`
 ```toml
+description = "Track the teas currently advertised in the cafe window."
+
 [[steps]]
 use = "seed.file.text"
-options.files = ["config.json"]
+options.files = ["menu.txt"]
 
 [[steps]]
-use = "json.find"
-options.path = "$.*"
+use = "text.lines"
+
+[[steps]]
+use = "text.trim"
+
+[[steps]]
+use = "compact"
 ```
 
-`config.json`
-```json
-{
-  "api_key": "password",
-  "base_url": "https://192.168.0.1/api"
-}
+And add a file:
+
+```text
+Jasmine Green
+
+Smoked Earl Grey
+Ube Oolong
 ```
 
-Evaluate the pipeline:
+## 4. Resolve the current state
+
 ```bash
-$ ic resolve my-config --output - | jq '.config.samples'
-[
-  {
-    "traces": [
-      {
-        "path": "config.json"
-      },
-      {
-        "json_node_path": "$['api_key']"
-      }
-    ],
-    "content": "password"
-  },
-  {
-    "traces": [
-      {
-        "path": "config.json"
-      },
-      {
-        "json_node_path": "$['base_url']"
-      }
-    ],
-    "content": "https://192.168.0.1/api"
-  }
-]
+ic resolve tea-menu --output -
 ```
+
+You should see a snapshot containing three samples.
+
+## 5. Accept it as the baseline
+
+```bash
+ic apply tea-menu
+```
+
+If this is the first run, you can also approve everything:
+
+```bash
+ic apply --all
+```
+
+## 6. Review later changes
+
+```bash
+ic resolve
+ic diff
+ic inspect tea-menu
+ic check
+```
+
+At that point you have the full cycle: capture, compare, inspect, approve.
