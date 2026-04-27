@@ -37,6 +37,6 @@ pub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {
         ("text.replace", text_replace::TextReplace.into()),
         ("text.split", text_split::TextSplit.into()),
         ("text.tag", text_tag::TextTag.into()),
-        ("trim", trim::Trim.into()),
+        ("text.trim", trim::Trim.into()),
     ]
 }
