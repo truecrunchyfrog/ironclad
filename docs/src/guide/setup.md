@@ -1,18 +1,33 @@
 # Setup
 
-An Ironclad catalog is where you keep your facts, and the snapshots derived by those facts.
+Start in the directory you want Ironclad to observe and initialize a catalog:
 
-In your workspace root, initialize a catalog.
 ```bash
-$ ic init
+ic init
 ```
 
-This scaffolds the catalog (`.ironclad`) inside the working directory.
-```
-.ironclad
-├── facts
-└── index.toml
+That creates `.ironclad/` in the current directory.
+
+```text
+.ironclad/
+├── .gitignore
+├── facts/
+├── index.toml
+└── snapshots/
 ```
 
-- `facts` is a directory containing all of your facts.
-- `index.toml` is a file that links the files in `facts` with friendlier names.
+The usual habit is:
+- keep `.ironclad/` in the project root
+- keep the files you observe next to it in the same container directory
+
+That keeps relative paths in fact files simple and predictable.
+
+## Using an explicit catalog
+
+You can point commands at a specific catalog directory with `--catalog-dir`:
+
+```bash
+ic --catalog-dir /path/to/workspace/.ironclad inspect
+```
+
+Pass the `.ironclad/` path itself, not its parent.

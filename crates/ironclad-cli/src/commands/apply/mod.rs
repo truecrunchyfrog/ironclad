@@ -1,16 +1,17 @@
 use anyhow::bail;
+use ironclad_core::catalog::SnapshotFile;
 use ironclad_core::snapshot::Snapshot;
 
 use crate::{
     args::apply::ApplyArgs,
     context::Context,
-    helper::{SnapshotPath, read_snapshot, write_snapshot},
+    helper::{read_snapshot, write_snapshot},
 };
 
 pub(super) fn dispatch(context: &Context, args: ApplyArgs) -> anyhow::Result<()> {
     let session = context.catalog_session()?;
-    let promotion = read_snapshot(session.catalog(), args.promotion, SnapshotPath::Actual)?;
-    let baseline = read_snapshot(session.catalog(), args.baseline, SnapshotPath::Canon)?;
+    let promotion = read_snapshot(session.repository(), args.promotion, SnapshotFile::Actual)?;
+    let baseline = read_snapshot(session.repository(), args.baseline, SnapshotFile::Canon)?;
 
     let promoted_baseline = match args {
         ApplyArgs { all: true, .. } => promotion,
@@ -39,9 +40,9 @@ pub(super) fn dispatch(context: &Context, args: ApplyArgs) -> anyhow::Result<()>
     };
 
     write_snapshot(
-        session.catalog(),
+        session.repository(),
         args.output,
-        SnapshotPath::Canon,
+        SnapshotFile::Canon,
         &promoted_baseline,
     )?;
 

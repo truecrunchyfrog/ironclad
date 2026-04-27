@@ -1,17 +1,16 @@
 use std::collections::HashMap;
 
 use ironclad_core::{
-    catalog::Catalog,
-    operation::TypedOperation,
+    operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::text_selector::TextSelector;
 
 pub(crate) struct TextReplace;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     #[serde(flatten)]
@@ -33,7 +32,7 @@ impl TypedOperation for TextReplace {
 
     fn eval_each(
         &self,
-        _catalog: &Catalog,
+        _context: &OperationContext,
         input: Sample,
         options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {

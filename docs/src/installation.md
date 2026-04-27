@@ -1,13 +1,24 @@
 # Installation
 
-You can build and install Ironclad with [`cargo install`](https://doc.rust-lang.org/cargo/commands/cargo-install.html).
+You can install Ironclad with Cargo.
 
-## Using local source code
+## From local source
+
 ```bash
 cargo install --path crates/ironclad-cli
 ```
 
-## Using GitHub
+## From GitHub
+
 ```bash
 cargo install --git https://github.com/truecrunchyfrog/ironclad --branch master
 ```
+
+## Verify the install
+
+```bash
+ic --help
+ic op list
+```
+
+If `ic op list` prints a list of operation IDs, the CLI is installed and the built-in operations are registered.

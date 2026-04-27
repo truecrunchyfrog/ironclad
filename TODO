@@ -1,9 +1,3 @@
-- core tests
-- more niche errors
-- context struct instead of passing config directly to command dispatchers
-- registry as variable instead of global static
-- argument to override catalog directory to act upon
-- move logic from cli to core
 - improve op documentation
 - resolve with cache, with max age
 - github action

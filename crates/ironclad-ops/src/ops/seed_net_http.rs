@@ -1,16 +1,15 @@
 use std::collections::HashMap;
 
 use ironclad_core::{
-    catalog::Catalog,
-    operation::TypedOperation,
+    operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub(crate) struct SeedNetHttp;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     url: String,
@@ -41,7 +40,7 @@ impl TypedOperation for SeedNetHttp {
 
     fn eval_all(
         &self,
-        _catalog: &Catalog,
+        _context: &OperationContext,
         _input: Vec<Sample>,
         options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {

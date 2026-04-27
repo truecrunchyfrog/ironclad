@@ -1,14 +1,14 @@
 use std::path::Path;
 
 use crate::{
-    catalog::{Catalog, FactIndex, error::CatalogError},
+    catalog::{Catalog, CatalogRepository, FactIndex, SnapshotEvaluator, error::CatalogError},
     fact::{Fact, LabeledFact},
     registry::Registry,
     snapshot::Snapshot,
 };
 
 pub struct CatalogSession {
-    catalog: Catalog,
+    repository: CatalogRepository,
     index: FactIndex,
 }
 
@@ -25,17 +25,19 @@ pub enum FactSelection {
 
 impl CatalogSession {
     pub fn open(working_dir: &Path, catalog_dir: Option<&Path>) -> Result<Self, CatalogError> {
-        let catalog = match catalog_dir {
-            Some(path) => Catalog::open_at_path(path)?,
-            None => Catalog::find_for_working_dir(working_dir)?,
-        };
-        let index = catalog.load_fact_index()?;
-        Ok(Self { catalog, index })
+        let repository = CatalogRepository::open(working_dir, catalog_dir)?;
+        let index = repository.load_fact_index()?;
+        Ok(Self { repository, index })
     }
 
     #[must_use]
     pub fn catalog(&self) -> &Catalog {
-        &self.catalog
+        self.repository.catalog()
+    }
+
+    #[must_use]
+    pub fn repository(&self) -> &CatalogRepository {
+        &self.repository
     }
 
     #[must_use]
@@ -48,12 +50,12 @@ impl CatalogSession {
     }
 
     pub fn save_index(&self) -> Result<(), CatalogError> {
-        self.catalog.save_fact_index(&self.index)
+        self.repository.save_fact_index(&self.index)
     }
 
     pub fn resolve_fact_ref(&self, selector: &str) -> Result<ResolvedFactRef, CatalogError> {
         let fact_id = self
-            .catalog
+            .repository
             .resolve_fact_id_in_index(&self.index, selector)?;
         Ok(ResolvedFactRef {
             selector: selector.to_string(),
@@ -62,8 +64,8 @@ impl CatalogSession {
     }
 
     pub fn load_fact(&self, fact_id: &str) -> Result<Fact, CatalogError> {
-        self.catalog
-            .load_fact_for_path(&self.catalog.fact_file_path(fact_id))
+        self.repository
+            .load_fact_for_path(&self.catalog().fact_file_path(fact_id))
             .map_err(CatalogError::from)
     }
 
@@ -71,7 +73,7 @@ impl CatalogSession {
         &self,
         labels: &[String],
     ) -> Result<Vec<LabeledFact>, CatalogError> {
-        self.catalog
+        self.repository
             .load_labeled_facts_including(&self.index, labels)
     }
 
@@ -85,7 +87,7 @@ impl CatalogSession {
             }
         }
 
-        self.catalog
+        self.repository
             .load_labeled_facts_excluding(&self.index, labels)
     }
 
@@ -94,7 +96,7 @@ impl CatalogSession {
         selection: FactSelection,
     ) -> Result<Vec<LabeledFact>, CatalogError> {
         match selection {
-            FactSelection::All => self.catalog.load_labeled_facts(&self.index),
+            FactSelection::All => self.repository.load_labeled_facts(&self.index),
             FactSelection::Include(labels) => self.labeled_facts_including(&labels),
             FactSelection::Exclude(labels) => self.labeled_facts_excluding(&labels),
         }
@@ -107,7 +109,7 @@ impl CatalogSession {
         redact_secrets: bool,
         on_progress: F,
     ) -> Result<Snapshot, CatalogError> {
-        self.catalog.capture_snapshot(
+        SnapshotEvaluator::new(self.catalog().clone()).capture_snapshot(
             registry,
             self.labeled_facts(selection)?,
             redact_secrets,
@@ -123,8 +125,11 @@ mod tests {
     use std::collections::HashMap;
 
     use crate::{
-        catalog::{Catalog, CatalogSession, FactIndex, FactSelection, error::CatalogError},
-        operation::TypedOperation,
+        catalog::{
+            Catalog, CatalogRepository, CatalogSession, FactIndex, FactSelection,
+            error::CatalogError,
+        },
+        operation::{OperationContext, TypedOperation},
         registry::Registry,
         sample::{Sample, Trace},
     };
@@ -155,8 +160,9 @@ mod tests {
         let root = temp_path("session-root");
         fs::create_dir_all(&root).expect("mkdir root");
         let catalog = Catalog::create_catalog(&root).expect("create catalog");
+        let catalog_dir = catalog.dir().to_path_buf();
 
-        let session = CatalogSession::open(&root, Some(&root)).expect("open session");
+        let session = CatalogSession::open(&root, Some(&catalog_dir)).expect("open session");
 
         assert_eq!(session.catalog().dir(), catalog.dir());
 
@@ -171,13 +177,15 @@ mod tests {
 
         let fact_id = "01TESTFACTID00000000000000";
         write_fact(&catalog.fact_file_path(fact_id));
-        catalog
+        CatalogRepository::new(catalog.clone())
             .save_fact_index(&FactIndex::new())
             .expect("save empty index");
 
         let mut index = FactIndex::new();
         index.insert("fact".to_string(), fact_id.to_string());
-        catalog.save_fact_index(&index).expect("save index");
+        CatalogRepository::new(catalog.clone())
+            .save_fact_index(&index)
+            .expect("save index");
 
         let session = CatalogSession::open(&root, None).expect("open session");
 
@@ -205,7 +213,7 @@ mod tests {
 
         fn eval_all(
             &self,
-            _catalog: &Catalog,
+            _context: &OperationContext,
             _input: Vec<Sample>,
             options: Self::Options,
         ) -> Result<Vec<Sample>, Self::Error> {
@@ -249,7 +257,9 @@ options = "$(foo)"
         let mut index = FactIndex::new();
         index.insert("first".to_string(), first_id.to_string());
         index.insert("second".to_string(), second_id.to_string());
-        catalog.save_fact_index(&index).expect("save index");
+        CatalogRepository::new(catalog.clone())
+            .save_fact_index(&index)
+            .expect("save index");
 
         let session = CatalogSession::open(&root, None).expect("open session");
         let mut registry = Registry::new();

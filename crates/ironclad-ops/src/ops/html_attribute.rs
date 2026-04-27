@@ -1,18 +1,17 @@
 use std::collections::HashMap;
 
 use ironclad_core::{
-    catalog::Catalog,
-    operation::TypedOperation,
+    operation::{OperationContext, TypedOperation},
     sample::{Sample, Trace},
 };
 use scraper::Element;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::fragment_error::FragmentError;
 
 pub(crate) struct HtmlAttribute;
 
-#[derive(Deserialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Options {
     attribute: String,
@@ -28,7 +27,7 @@ impl TypedOperation for HtmlAttribute {
 
     fn eval_each(
         &self,
-        _catalog: &Catalog,
+        _context: &OperationContext,
         input: Sample,
         options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {

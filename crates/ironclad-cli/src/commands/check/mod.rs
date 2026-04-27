@@ -1,13 +1,11 @@
-use crate::{
-    args::check::CheckArgs,
-    context::Context,
-    helper::{SnapshotPath, read_snapshot},
-};
+use crate::{args::check::CheckArgs, context::Context, helper::read_snapshot};
+
+use ironclad_core::catalog::SnapshotFile;
 
 pub(super) fn dispatch(context: &Context, args: CheckArgs) -> anyhow::Result<()> {
-    let catalog = context.catalog()?;
-    let proposal = read_snapshot(&catalog, args.proposal, SnapshotPath::Actual)?;
-    let baseline = read_snapshot(&catalog, args.baseline, SnapshotPath::Canon)?;
+    let repository = context.catalog_repository()?;
+    let proposal = read_snapshot(&repository, args.proposal, SnapshotFile::Actual)?;
+    let baseline = read_snapshot(&repository, args.baseline, SnapshotFile::Canon)?;
 
     let diff = proposal.diff(&baseline);
 

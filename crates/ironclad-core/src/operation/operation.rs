@@ -1,39 +1,44 @@
-use serde::de::DeserializeOwned;
+use serde::{Serialize, de::DeserializeOwned};
 
-use crate::{catalog::Catalog, operation::OperationError, sample::Sample};
+use crate::{
+    operation::{OperationContext, OperationError},
+    sample::Sample,
+};
 
 pub trait Operation: Send + Sync {
     fn description(&self) -> &'static str;
 
+    fn options_template(&self) -> Result<Option<toml::Value>, OperationError>;
+
     fn eval(
         &self,
-        catalog: &Catalog,
+        context: &OperationContext,
         input: Vec<Sample>,
         options: Option<toml::Value>,
     ) -> Result<Vec<Sample>, OperationError>;
 }
 
 pub trait TypedOperation: Send + Sync + 'static {
-    type Options: DeserializeOwned + Clone + Default;
+    type Options: DeserializeOwned + Serialize + Clone + Default;
     type Error: std::error::Error + Send + Sync;
 
     fn description(&self) -> &'static str;
 
     fn eval_all(
         &self,
-        catalog: &Catalog,
+        context: &OperationContext,
         input: Vec<Sample>,
         options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {
         input.into_iter().try_fold(Vec::new(), |mut acc, sample| {
-            acc.extend(self.eval_each(catalog, sample, options.clone())?);
+            acc.extend(self.eval_each(context, sample, options.clone())?);
             Ok(acc)
         })
     }
 
     fn eval_each(
         &self,
-        #[allow(unused)] catalog: &Catalog,
+        #[allow(unused)] context: &OperationContext,
         input: Sample,
         #[allow(unused)] options: Self::Options,
     ) -> Result<Vec<Sample>, Self::Error> {
@@ -48,15 +53,23 @@ impl<T: TypedOperation> Operation for TypedOperationAdapter<T> {
         self.0.description()
     }
 
+    fn options_template(&self) -> Result<Option<toml::Value>, OperationError> {
+        let value = toml::Value::try_from(T::Options::default())?;
+        Ok(match value {
+            toml::Value::Table(table) if table.is_empty() => None,
+            other => Some(other),
+        })
+    }
+
     fn eval(
         &self,
-        catalog: &Catalog,
+        context: &OperationContext,
         input: Vec<Sample>,
         options: Option<toml::Value>,
     ) -> Result<Vec<Sample>, OperationError> {
         self.0
             .eval_all(
-                catalog,
+                context,
                 input,
                 options
                     .map(toml::Value::try_into)

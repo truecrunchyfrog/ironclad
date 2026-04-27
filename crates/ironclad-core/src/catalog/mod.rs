@@ -5,10 +5,12 @@ mod facts;
 mod find;
 mod init;
 mod paths;
+mod repository;
 mod session;
 mod snapshots;
 
 pub use catalog::Catalog;
 pub use fact_index::FactIndex;
+pub use repository::{CatalogRepository, SnapshotFile};
 pub use session::{CatalogSession, FactSelection, ResolvedFactRef};
-pub use snapshots::SnapshotProgressEvent;
+pub use snapshots::{SnapshotEvaluator, SnapshotProgressEvent};

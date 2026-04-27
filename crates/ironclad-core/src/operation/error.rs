@@ -6,6 +6,9 @@ pub enum OperationError {
     #[error("invalid operation options: {0}")]
     TomlDe(#[source] toml::de::Error),
 
+    #[error("unable to render operation options: {0}")]
+    TomlSer(#[source] toml::ser::Error),
+
     #[error("operation io error: {0}")]
     Io(#[source] std::io::Error),
 
@@ -22,6 +25,12 @@ impl From<serde_json::Error> for OperationError {
 impl From<toml::de::Error> for OperationError {
     fn from(value: toml::de::Error) -> Self {
         Self::TomlDe(value)
+    }
+}
+
+impl From<toml::ser::Error> for OperationError {
+    fn from(value: toml::ser::Error) -> Self {
+        Self::TomlSer(value)
     }
 }
 

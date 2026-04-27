@@ -1,17 +1,53 @@
 # Introduction
 
-{{#include ../../README.md:3:3}}
+Ironclad records and compares the assumptions your software depends on.
 
-Modern application software typically makes a lot of assumptions to work correctly.
-Some of these assumptions can be ensured using unit, integration, and end-to-end testing.
-However, more silent changes, such as discrete updates to documentation, is rarely covered by those tests.
+Tests catch many failures, but they do not usually notice when:
+- a vendor changes an HTTP response
+- a CLI tool starts printing one extra warning line
+- a config file gains a field you were not expecting
+- an internal dashboard moves the sentence you scrape every Monday morning
 
-Ironclad tracks what you rely on, and lets you know when it breaks your expectations.
+Ironclad turns those assumptions into facts, facts into snapshots, and snapshots into material you can review directly.
 
-## How it works
+## The basic rhythm
 
-The regular routine is:
-- The current state is evaluated.
-- Compare the current state to the baseline.
-- If different, the changes are reviewed by you.
-- If you approve the changes, they are promoted to the baseline.
+Most Ironclad workflows follow the same loop:
+
+1. Define one or more facts.
+2. Resolve the current state into a snapshot.
+3. Compare that snapshot with the approved snapshot.
+4. Review the drift.
+5. Apply the approved changes.
+
+The command loop is intentionally small. The main flexibility comes from the fact pipeline itself: read a file, fetch a page, split some text, extract the line that matters, and keep only that.
+
+## What Ironclad stores
+
+An Ironclad catalog lives in `.ironclad/` and usually contains:
+
+```text
+.ironclad/
+├── facts/
+├── index.toml
+└── snapshots/
+    ├── actual.json
+    └── canon.json
+```
+
+- `facts/` holds fact definitions.
+- `index.toml` maps friendly labels to fact IDs.
+- `snapshots/canon.json` is the approved snapshot.
+- `snapshots/actual.json` is the resolved snapshot.
+
+## Why this differs from plain diffing
+
+Ironclad does not only diff files. It diffs processed observations.
+
+That means you can compare:
+- the second JSON field inside a local file
+- the text inside a specific HTML node
+- the output of a command after trimming noise
+- a section of a file selected by tags
+
+The result is usually more targeted than watching an entire file and diffing every incidental change.

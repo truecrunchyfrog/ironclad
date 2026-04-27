@@ -4,17 +4,15 @@ use crate::catalog::{Catalog, error::CatalogError};
 
 impl Catalog {
     pub fn open_at_path(path: &Path) -> Result<Catalog, CatalogError> {
-        let catalog_dir = Catalog::resolve_catalog_dir_path(path);
-
-        if !catalog_dir.try_exists()? {
-            return Err(CatalogError::PathNotFound(catalog_dir));
+        if !path.try_exists()? {
+            return Err(CatalogError::PathNotFound(path.to_path_buf()));
         }
 
-        if !catalog_dir.is_dir() {
-            return Err(CatalogError::PathNotDirectory(catalog_dir));
+        if !path.is_dir() {
+            return Err(CatalogError::PathNotDirectory(path.to_path_buf()));
         }
 
-        Ok(Catalog::new(catalog_dir))
+        Ok(Catalog::new(path.to_path_buf()))
     }
 
     pub fn find_for_working_dir(working_dir: &Path) -> Result<Catalog, CatalogError> {
