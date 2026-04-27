@@ -12,7 +12,7 @@ mod text_lines;
 mod text_replace;
 mod text_split;
 mod text_tag;
-mod trim;
+mod text_trim;
 // mod text_filter; TODO
 mod html_attribute;
 mod html_find;
@@ -37,6 +37,6 @@ pub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {
         ("text.replace", text_replace::TextReplace.into()),
         ("text.split", text_split::TextSplit.into()),
         ("text.tag", text_tag::TextTag.into()),
-        ("text.trim", trim::Trim.into()),
+        ("text.trim", text_trim::TextTrim.into()),
     ]
 }

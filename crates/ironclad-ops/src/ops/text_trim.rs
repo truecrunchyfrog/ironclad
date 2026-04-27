@@ -5,12 +5,12 @@ use ironclad_core::{
     sample::{Sample, Trace},
 };
 
-pub(crate) struct Trim;
+pub(crate) struct TextTrim;
 
 #[derive(thiserror::Error, Debug)]
 pub(crate) enum Error {}
 
-impl TypedOperation for Trim {
+impl TypedOperation for TextTrim {
     type Options = ();
     type Error = Error;
 
@@ -40,11 +40,11 @@ mod tests {
         sample::{Sample, Trace},
     };
 
-    use super::Trim;
+    use super::TextTrim;
 
     #[test]
     fn trims_sample_content() {
-        let op = Trim;
+        let op = TextTrim;
         let context = OperationContext::for_working_dir(std::env::temp_dir());
         let input = Sample::new(Trace::new(HashMap::new()), String::from("  hello \n"));
 
