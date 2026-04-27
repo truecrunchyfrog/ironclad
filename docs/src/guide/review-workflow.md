@@ -10,7 +10,7 @@ Capture the current state:
 ic resolve
 ```
 
-That writes `.ironclad/snapshots/actual.json`, the resolution snapshot.
+That writes `.ironclad/snapshots/resolution.json`, the resolution snapshot.
 
 ## Inspect
 

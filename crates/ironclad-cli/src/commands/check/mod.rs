@@ -4,7 +4,7 @@ use ironclad_core::catalog::SnapshotFile;
 
 pub(super) fn dispatch(context: &Context, args: CheckArgs) -> anyhow::Result<()> {
     let repository = context.catalog_repository()?;
-    let proposal = read_snapshot(&repository, args.proposal, SnapshotFile::Actual)?;
+    let proposal = read_snapshot(&repository, args.proposal, SnapshotFile::Resolution)?;
     let baseline = read_snapshot(&repository, args.baseline, SnapshotFile::Canon)?;
 
     let diff = proposal.diff(&baseline);

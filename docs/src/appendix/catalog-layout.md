@@ -10,7 +10,7 @@ Typical catalog tree:
 │   └── 01...
 ├── index.toml
 └── snapshots/
-    ├── actual.json
+    ├── resolution.json
     └── canon.json
 ```
 

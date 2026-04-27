@@ -6,7 +6,7 @@ use clap_stdin::FileOrStdin;
 /// Without a label, `diff` prints a compact fact-level overview of changes. With a
 /// label, it prints sample-level changes for one fact.
 ///
-/// By default the command compares the resolution snapshot in `actual.json` with the
+/// By default the command compares the resolution snapshot in `resolution.json` with the
 /// approved snapshot in `canon.json`. Use `--proposal` or `--baseline` to override
 /// those inputs. `--raw` prints the diff model as JSON.
 #[derive(Args)]

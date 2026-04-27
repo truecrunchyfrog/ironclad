@@ -35,7 +35,7 @@ fn populate_catalog_dir(catalog: &Catalog) -> Result<(), CatalogError> {
         std::fs::write(
             gitignore_file_path,
             catalog
-                .snapshot_actual_file_path()
+                .snapshot_resolution_file_path()
                 .strip_prefix(catalog.dir())?
                 .to_str()
                 .unwrap(),

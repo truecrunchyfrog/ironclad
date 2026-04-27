@@ -16,7 +16,7 @@ ic apply --all
 - `--all`
   Replace the approved snapshot with the full resolution snapshot.
 - `--promotion FILE|-`
-  Use a snapshot other than `actual.json` as the resolved source.
+  Use a snapshot other than `resolution.json` as the resolution source.
 - `--baseline FILE|-`
   Use a snapshot other than `canon.json` as the approved source.
 - `--output FILE|-`

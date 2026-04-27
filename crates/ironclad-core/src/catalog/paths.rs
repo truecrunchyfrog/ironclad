@@ -55,7 +55,7 @@ impl Catalog {
     }
 
     #[must_use]
-    pub fn snapshot_actual_file_path(&self) -> PathBuf {
-        self.snapshots_dir_path().join("actual.json")
+    pub fn snapshot_resolution_file_path(&self) -> PathBuf {
+        self.snapshots_dir_path().join("resolution.json")
     }
 }

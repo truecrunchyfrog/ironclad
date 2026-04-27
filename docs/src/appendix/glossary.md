@@ -19,6 +19,6 @@
 - batch of samples
   the set of samples produced by one fact
 - resolution snapshot
-  the latest captured snapshot, usually stored in `actual.json`
+  the latest captured snapshot, usually stored in `resolution.json`
 - approved snapshot
   the reviewed snapshot, usually stored in `canon.json`

@@ -191,8 +191,8 @@ fn check_works_without_index_file() {
         .write_snapshot(SnapshotFile::Canon, &snapshot_with("fact", &["alpha"]))
         .expect("write canon");
     repository
-        .write_snapshot(SnapshotFile::Actual, &snapshot_with("fact", &["alpha"]))
-        .expect("write actual");
+        .write_snapshot(SnapshotFile::Resolution, &snapshot_with("fact", &["alpha"]))
+        .expect("write resolution");
     fs::remove_file(catalog.fact_index_file_path()).expect("remove index");
 
     let output = run_ic(
@@ -225,8 +225,8 @@ fn diff_missing_label_fails_clearly() {
         .write_snapshot(SnapshotFile::Canon, &snapshot_with("fact", &["alpha"]))
         .expect("write canon");
     repository
-        .write_snapshot(SnapshotFile::Actual, &snapshot_with("fact", &["alpha"]))
-        .expect("write actual");
+        .write_snapshot(SnapshotFile::Resolution, &snapshot_with("fact", &["alpha"]))
+        .expect("write resolution");
 
     let output = run_ic(
         &root,
@@ -269,7 +269,7 @@ fn diff_summary_shows_fact_level_changes() {
         .expect("write canon");
     repository
         .write_snapshot(
-            SnapshotFile::Actual,
+            SnapshotFile::Resolution,
             &Snapshot::new(HashMap::from([
                 (
                     "alpha".to_string(),
@@ -278,7 +278,7 @@ fn diff_summary_shows_fact_level_changes() {
                 ("gamma".to_string(), Batch::new(vec![sample("arrived")])),
             ])),
         )
-        .expect("write actual");
+        .expect("write resolution");
 
     let output = run_ic(
         &root,
@@ -320,13 +320,13 @@ fn diff_detail_shows_structured_before_after_records() {
         .expect("write canon");
     repository
         .write_snapshot(
-            SnapshotFile::Actual,
+            SnapshotFile::Resolution,
             &Snapshot::new(HashMap::from([(
                 "fact".to_string(),
                 Batch::new(vec![sample("same"), sample("new"), sample("multi\nline")]),
             )])),
         )
-        .expect("write actual");
+        .expect("write resolution");
 
     let output = run_ic(
         &root,

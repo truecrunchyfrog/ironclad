@@ -7,7 +7,7 @@ use clap_stdin::FileOrStdin;
 /// whether drift exists and exits with status `0` when the snapshots match or `1`
 /// when they differ.
 ///
-/// By default it compares the resolution snapshot in `actual.json` with the approved
+/// By default it compares the resolution snapshot in `resolution.json` with the approved
 /// snapshot in `canon.json`. Both inputs can be overridden.
 #[derive(Args)]
 pub(crate) struct CheckArgs {

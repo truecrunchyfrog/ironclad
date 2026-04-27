@@ -7,7 +7,7 @@ use clap_stdin::{FileOrStdin, FileOrStdout};
 /// You can promote selected labels or replace the whole approved snapshot with
 /// `--all`.
 ///
-/// By default the resolution snapshot comes from `actual.json` and the approved
+/// By default the resolution snapshot comes from `resolution.json` and the approved
 /// snapshot comes from `canon.json`. Both can be overridden, and the result can be
 /// written to another file instead of replacing `canon.json`.
 #[derive(Args)]

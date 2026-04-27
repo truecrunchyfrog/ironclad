@@ -3,7 +3,7 @@
 A snapshot is a map of fact labels to batches of samples.
 
 Ironclad usually deals with two snapshots:
-- the resolution snapshot, usually stored in `actual.json`
+- the resolution snapshot, usually stored in `resolution.json`
 - the approved snapshot, usually stored in `canon.json`
 
 ## What snapshots contain
