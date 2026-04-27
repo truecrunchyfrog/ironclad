@@ -1,13 +1,51 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 
 use crate::{operation::OperationContext, recipe::RecipeError, registry::Registry, sample::Sample};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Step {
-    #[serde(rename = "use")]
     operation_id: String,
     options: toml::Value,
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum StepDef {
+    Shorthand(String),
+    Full {
+        r#use: String,
+        #[serde(default = "empty_options")]
+        options: toml::Value,
+    },
+}
+
+fn empty_options() -> toml::Value {
+    toml::Value::Table(Default::default())
+}
+
+impl From<StepDef> for Step {
+    fn from(value: StepDef) -> Self {
+        match value {
+            StepDef::Shorthand(operation_id) => Self {
+                operation_id,
+                options: empty_options(),
+            },
+            StepDef::Full { r#use, options } => Self {
+                operation_id: r#use,
+                options,
+            },
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for Step {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        Ok(StepDef::deserialize(deserializer)?.into())
+    }
 }
 
 impl Step {
@@ -92,7 +130,7 @@ mod tests {
 
     use crate::sample::{Sample, Trace};
 
-    use super::resolve_imports;
+    use super::{Step, resolve_imports};
 
     fn sample(content: &str) -> Sample {
         Sample::new(Trace::new(HashMap::new()), content.to_string())
@@ -129,5 +167,60 @@ mod tests {
         let nested = table["nested"].as_array().expect("array");
         assert_eq!(nested[0].as_str(), Some("resolved"));
         assert_eq!(nested[1].as_str(), Some("$(missing)"));
+    }
+
+    #[test]
+    fn deserializes_step_from_string() {
+        #[derive(serde::Deserialize)]
+        struct Wrapper {
+            steps: Vec<Step>,
+        }
+
+        let wrapper: Wrapper = toml::from_str(
+            r#"
+steps = ["text.trim"]
+"#,
+        )
+        .expect("deserialize steps");
+
+        let step = &wrapper.steps[0];
+
+        assert_eq!(step.operation_id(), "text.trim");
+        assert_eq!(step.options(), &toml::Value::Table(Default::default()));
+    }
+
+    #[test]
+    fn deserializes_step_from_table_without_options() {
+        let step: Step = toml::from_str(
+            r#"
+use = "compact"
+"#,
+        )
+        .expect("deserialize step");
+
+        assert_eq!(step.operation_id(), "compact");
+        assert_eq!(step.options(), &toml::Value::Table(Default::default()));
+    }
+
+    #[test]
+    fn deserializes_step_from_full_table() {
+        let step: Step = toml::from_str(
+            r#"
+use = "seed.file.text"
+
+[options]
+files = ["a.txt"]
+"#,
+        )
+        .expect("deserialize step");
+
+        assert_eq!(step.operation_id(), "seed.file.text");
+        assert_eq!(
+            step.options(),
+            &toml::Value::Table(toml::map::Map::from_iter([(
+                String::from("files"),
+                toml::Value::Array(vec![toml::Value::String(String::from("a.txt"))]),
+            )]))
+        );
     }
 }
