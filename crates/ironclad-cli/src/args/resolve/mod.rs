@@ -2,13 +2,14 @@ use clap::Args;
 use clap_stdin::FileOrStdout;
 
 /// Resolve facts into a snapshot.
+///
+/// `resolve` evaluates fact pipelines and writes the resulting resolution snapshot.
+/// Without selectors, it resolves every indexed fact.
+///
+/// Use positional labels to resolve only specific facts, `--exclude` to skip
+/// selected labels, `--output` to write elsewhere, and `--no-redact` to keep
+/// secret facts unredacted in the result.
 #[derive(Args)]
-#[command(long_about = "Capture a snapshot of currently evaluated state.\n\n\
-`resolve` evaluates fact pipelines and writes the resulting resolution snapshot. \
-Without selectors, it resolves every indexed fact.\n\n\
-Use positional labels to resolve only specific facts, `--exclude` to skip \
-selected labels, `--output` to write elsewhere, and `--no-redact` to keep \
-secret facts unredacted in the result.")]
 pub(crate) struct ResolveArgs {
     /// Labels to resolve.
     pub(crate) include: Vec<String>,

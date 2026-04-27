@@ -9,32 +9,18 @@ use crate::args::operation::{
 };
 
 /// Inspect and evaluate operations.
+///
+/// The `op` command family is for operation-level work: listing available
+/// operations, showing one operation in detail, and evaluating an operation
+/// without writing a fact.
+///
+/// This is useful when you are designing a pipeline or debugging one step at a
+/// time.
 #[derive(Subcommand)]
 pub(crate) enum OperationCommand {
-    #[command(
-        about = "Evaluate one operation by hand.",
-        long_about = "Evaluate one operation by hand.\n\n\
-`op eval` runs a single operation without creating a fact. It is intended for \
-pipeline prototyping and debugging.\n\n\
-Pass an input batch as JSON, pass operation options as TOML, and inspect the \
-resulting batch on stdout."
-    )]
     Eval(EvalOperationArgs),
     #[command(alias = "ls")]
-    #[command(
-        about = "List registered operation IDs.",
-        long_about = "List registered operation IDs.\n\n\
-`op list` prints one operation ID per line. Use it to discover the operation \
-names available in the current build."
-    )]
     List(ListOperationArgs),
     #[command(alias = "sh")]
-    #[command(
-        about = "Show one operation in detail.",
-        long_about = "Show one operation in detail.\n\n\
-`op show` prints an operation's ID, description, and default options template. \
-Use it when you want to understand one operation before using it in a fact or \
-with `op eval`."
-    )]
     Show(ShowOperationArgs),
 }
