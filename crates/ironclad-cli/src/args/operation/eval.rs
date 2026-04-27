@@ -1,17 +1,24 @@
 use clap::Args;
 use clap_stdin::MaybeStdin;
 
-/// Evaluate an operation.
+/// Evaluate one operation by hand.
 #[derive(Args)]
+#[command(long_about = "Evaluate an operation.\n\n\
+`op eval` runs one operation against a JSON batch of samples and prints the \
+resulting batch as JSON.\n\n\
+This command is useful when you want to prototype a step before adding it to a \
+fact. Operations that do not require a catalog can be evaluated outside a \
+catalog directory.\n\n\
+Avoid reading both `--input` and `--options` from stdin in the same invocation.")]
 pub(crate) struct EvalOperationArgs {
-    /// ID of operation to evaluate.
+    /// Operation ID to evaluate.
     pub(crate) operation_id: String,
 
-    /// File with batch to send to operation, instead of passing an empty batch. '-' for stdin.
+    /// Input batch as JSON. Use `-` for stdin.
     #[arg(short, long)]
     pub(crate) input: Option<MaybeStdin<String>>,
 
-    /// Options to pass to the operation, in TOML.
+    /// Operation options as TOML. Use `-` for stdin.
     #[arg(short, long)]
     pub(crate) options: Option<MaybeStdin<toml::Value>>,
 }
