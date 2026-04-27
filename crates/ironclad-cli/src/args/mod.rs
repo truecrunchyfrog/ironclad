@@ -32,7 +32,7 @@ use crate::{
     about = "Track and review small pieces of external state.",
     long_about = "Track and review small pieces of external state.\n\n\
 Ironclad stores facts in a catalog, resolves them into snapshots, compares the \
-resolved snapshot with the approved snapshot, and lets you apply reviewed \
+resolution snapshot with the approved snapshot, and lets you apply reviewed \
 changes.\n\n\
 The CLI is organized around a short workflow:\n\
 - create and maintain facts\n\
@@ -136,7 +136,7 @@ time."
     #[command(
         about = "Resolve facts into a snapshot.",
         long_about = "Resolve facts into a snapshot.\n\n\
-`resolve` evaluates fact pipelines and writes the resulting resolved snapshot. \
+`resolve` evaluates fact pipelines and writes the resulting resolution snapshot. \
 Without arguments it resolves all indexed facts.\n\n\
 You can limit the run to selected labels, exclude selected labels, choose a \
 different output location, and disable secret redaction."
@@ -158,7 +158,7 @@ can point it at another file or stdin."
         long_about = "Compare two snapshots.\n\n\
 Without a label, `diff` prints a compact fact-level summary of changes. With a \
 label, it shows structured sample-level changes for one fact.\n\n\
-By default the command compares the resolved snapshot in `actual.json` with the \
+By default the command compares the resolution snapshot in `actual.json` with the \
 approved snapshot in `canon.json`, but both can be overridden."
     )]
     Diff(DiffArgs),
@@ -176,7 +176,7 @@ This is the command intended for CI or shell scripts."
     #[command(
         about = "Apply changes into the approved snapshot.",
         long_about = "Apply changes into the approved snapshot.\n\n\
-`apply` promotes facts from the resolved snapshot into the approved snapshot. \
+`apply` promotes facts from the resolution snapshot into the approved snapshot. \
 You can apply selected labels or replace the entire approved snapshot with \
 `--all`.\n\n\
 This is the final step in the review loop after resolving, inspecting, and \

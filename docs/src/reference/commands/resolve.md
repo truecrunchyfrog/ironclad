@@ -15,7 +15,7 @@ ic resolve [<include> ...] [--exclude <label> ...] [--output FILE|-] [--no-redac
 - `--exclude <label> ...`
   Resolve all indexed facts except these labels.
 - `--output FILE|-`
-  Write the resolved snapshot somewhere other than `actual.json`.
+  Write the resolution snapshot somewhere other than `actual.json`.
 - `--no-redact`
   Do not redact secret facts.
 

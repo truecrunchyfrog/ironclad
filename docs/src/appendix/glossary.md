@@ -18,7 +18,7 @@
   provenance metadata attached to a sample
 - batch of samples
   the set of samples produced by one fact
-- resolved snapshot
+- resolution snapshot
   the latest captured snapshot, usually stored in `actual.json`
 - approved snapshot
   the reviewed snapshot, usually stored in `canon.json`

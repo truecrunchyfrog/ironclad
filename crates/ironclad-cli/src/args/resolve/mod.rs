@@ -4,7 +4,7 @@ use clap_stdin::FileOrStdout;
 /// Resolve facts into a snapshot.
 #[derive(Args)]
 #[command(long_about = "Capture a snapshot of currently evaluated state.\n\n\
-`resolve` evaluates fact pipelines and writes the resulting resolved snapshot. \
+`resolve` evaluates fact pipelines and writes the resulting resolution snapshot. \
 Without selectors, it resolves every indexed fact.\n\n\
 Use positional labels to resolve only specific facts, `--exclude` to skip \
 selected labels, `--output` to write elsewhere, and `--no-redact` to keep \
@@ -17,7 +17,7 @@ pub(crate) struct ResolveArgs {
     #[arg(short = 'x', long, conflicts_with = "include")]
     pub(crate) exclude: Vec<String>,
 
-    /// File to write the resolved snapshot to.
+    /// File to write the resolution snapshot to.
     #[arg(short, long)]
     pub(crate) output: Option<FileOrStdout>,
 

@@ -9,10 +9,10 @@ use clap_stdin::{FileOrStdin, FileOrStdout};
         .required(true)
 ))]
 #[command(long_about = "Upgrade a snapshot with batches.\n\n\
-`apply` promotes facts from the resolved snapshot into the approved snapshot. \
+`apply` promotes facts from the resolution snapshot into the approved snapshot. \
 You can promote selected labels or replace the whole approved snapshot with \
 `--all`.\n\n\
-By default the resolved snapshot comes from `actual.json` and the approved \
+By default the resolution snapshot comes from `actual.json` and the approved \
 snapshot comes from `canon.json`. Both can be overridden, and the result can be \
 written to another file instead of replacing `canon.json`.")]
 pub(crate) struct ApplyArgs {
@@ -23,7 +23,7 @@ pub(crate) struct ApplyArgs {
     #[arg(short, long)]
     pub(crate) all: bool,
 
-    /// Resolved snapshot to promote from.
+    /// Resolution snapshot to promote from.
     #[arg(short, long)]
     pub(crate) promotion: Option<FileOrStdin>,
 

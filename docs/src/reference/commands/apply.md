@@ -14,7 +14,7 @@ ic apply --all
 - `<label> ...`
   Promote only these facts.
 - `--all`
-  Replace the approved snapshot with the full resolved snapshot.
+  Replace the approved snapshot with the full resolution snapshot.
 - `--promotion FILE|-`
   Use a snapshot other than `actual.json` as the resolved source.
 - `--baseline FILE|-`
@@ -25,4 +25,4 @@ ic apply --all
 ## Notes
 
 - Applying selected labels can add, replace, or remove those labels in the approved snapshot.
-- If a requested label is absent from both the resolved snapshot and the approved snapshot, the command fails.
+- If a requested label is absent from both the resolution snapshot and the approved snapshot, the command fails.

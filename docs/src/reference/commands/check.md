@@ -11,7 +11,7 @@ ic check [--proposal FILE|-] [--baseline FILE|-]
 ## Options
 
 - `--proposal FILE|-`
-  Read the resolved snapshot from somewhere other than `actual.json`.
+  Read the resolution snapshot from somewhere other than `actual.json`.
 - `--baseline FILE|-`
   Read the approved snapshot from somewhere other than `canon.json`.
 

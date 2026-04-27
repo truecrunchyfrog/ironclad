@@ -44,5 +44,5 @@ If you do pass `--catalog-dir`, it must point to the catalog directory itself. I
 
 - `facts/` holds fact files.
 - `index.toml` maps labels to fact IDs.
-- `snapshots/actual.json` stores the resolved snapshot.
+- `snapshots/actual.json` stores the resolution snapshot.
 - `snapshots/canon.json` stores the approved snapshot.

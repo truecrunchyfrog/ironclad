@@ -6,7 +6,7 @@ use clap_stdin::FileOrStdin;
 #[command(long_about = "Show comparison between two snapshots.\n\n\
 Without a label, `diff` prints a compact fact-level overview of changes. With a \
 label, it prints sample-level changes for one fact.\n\n\
-By default the command compares the resolved snapshot in `actual.json` with the \
+By default the command compares the resolution snapshot in `actual.json` with the \
 approved snapshot in `canon.json`. Use `--proposal` or `--baseline` to override \
 those inputs. `--raw` prints the diff model as JSON.")]
 pub(crate) struct DiffArgs {
@@ -17,7 +17,7 @@ pub(crate) struct DiffArgs {
     #[arg(short, long, requires = "label")]
     pub(crate) trace: bool,
 
-    /// Resolved snapshot to compare from.
+    /// Resolution snapshot to compare from.
     #[arg(short, long)]
     pub(crate) proposal: Option<FileOrStdin>,
 
