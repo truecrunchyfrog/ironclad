@@ -29,7 +29,7 @@ A fact may include:
 - `steps`
 - `secret`
 
-The important part is the `steps` array. Each step uses an operation and optional options.
+The central part is the `steps` array. Each step uses an operation and optional options.
 
 ```toml
 description = "Track the names of dragons currently listed in the registry."

@@ -20,7 +20,7 @@ The usual habit is:
 - keep `.ironclad/` in the project root
 - keep the files you observe next to it in the same container directory
 
-That makes relative paths in fact files pleasantly boring.
+That keeps relative paths in fact files simple and predictable.
 
 ## Using an explicit catalog
 

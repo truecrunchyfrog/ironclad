@@ -30,7 +30,7 @@ Typical causes:
 - two facts exported the same key
 - the export trace match no longer identifies any sample
 
-## `op eval` feels odd with stdin
+## `op eval` with stdin
 
 Remember that `--input -` consumes stdin for the batch itself.
 Avoid also trying to source `--options` from stdin in the same invocation.

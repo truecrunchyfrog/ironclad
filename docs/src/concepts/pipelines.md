@@ -1,6 +1,6 @@
 # Pipelines
 
-A fact pipeline is just the ordered list of steps in a fact.
+A fact pipeline is the ordered list of steps in a fact.
 
 Each step:
 - chooses an operation with `use`

@@ -58,7 +58,7 @@ options.path = "$.checks[*].name"
 
 ## Trim then remove empties
 
-This is such a common pattern that it deserves to be muscle memory:
+This is a common cleanup pattern:
 
 ```toml
 [[steps]]

@@ -7,7 +7,7 @@ The most reliable style is usually:
 1. seed a source
 2. split it into useful pieces
 3. normalize noisy whitespace
-4. narrow it to the parts you truly care about
+4. narrow it to the parts you care about
 
 ## Example: from messy bulletin board to clean samples
 
@@ -21,7 +21,7 @@ Moonlight Chess Club
 Lantern Repair Night
 ```
 
-A neat fact might look like:
+One fact might look like:
 
 ```toml
 [[steps]]
@@ -38,7 +38,7 @@ use = "text.trim"
 use = "compact"
 ```
 
-This is more stable than diffing the whole file. You keep the meaningful lines and discard the empty dramatic pauses.
+This is more stable than diffing the whole file. You keep the meaningful lines and discard the empty ones.
 
 ## Prototype with `op eval`
 
@@ -49,4 +49,4 @@ ic op eval text.trim --input -
 ic op eval text.find --input - --options '{ text = "Neptune" }'
 ```
 
-That is often faster than repeatedly editing the fact file.
+This is often faster than repeatedly editing the fact file.

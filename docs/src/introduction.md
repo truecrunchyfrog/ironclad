@@ -1,14 +1,14 @@
 # Introduction
 
-Ironclad watches the assumptions your software quietly leans on.
+Ironclad records and compares the assumptions your software depends on.
 
-Tests catch a lot, but they do not usually notice when:
-- a vendor quietly changes an HTTP response
+Tests catch many failures, but they do not usually notice when:
+- a vendor changes an HTTP response
 - a CLI tool starts printing one extra warning line
-- a config file grows a field you were not expecting
-- an internal dashboard moves the one sentence you scrape every Monday morning
+- a config file gains a field you were not expecting
+- an internal dashboard moves the sentence you scrape every Monday morning
 
-Ironclad turns those assumptions into facts, facts into snapshots, and snapshots into something you can review with intent instead of surprise.
+Ironclad turns those assumptions into facts, facts into snapshots, and snapshots into material you can review directly.
 
 ## The basic rhythm
 
@@ -20,7 +20,7 @@ Most Ironclad workflows follow the same loop:
 4. Review the drift.
 5. Apply the approved changes.
 
-That loop is small on purpose. The interesting part is not the number of commands. It is the fact that each fact can describe a tiny pipeline: read a file, fetch a page, split some text, pull out the one line you actually care about, and keep only that.
+The command loop is intentionally small. The main flexibility comes from the fact pipeline itself: read a file, fetch a page, split some text, extract the line that matters, and keep only that.
 
 ## What Ironclad stores
 
@@ -40,7 +40,7 @@ An Ironclad catalog lives in `.ironclad/` and usually contains:
 - `snapshots/canon.json` is your approved baseline.
 - `snapshots/actual.json` is the latest resolved state.
 
-## Why this feels different from plain diffing
+## Why this differs from plain diffing
 
 Ironclad does not only diff files. It diffs processed observations.
 
@@ -50,4 +50,4 @@ That means you can compare:
 - the output of a command after trimming noise
 - a section of a file selected by tags
 
-The end result is often much calmer than “watch the whole file and hope for the best”.
+The result is usually more targeted than watching an entire file and diffing every incidental change.

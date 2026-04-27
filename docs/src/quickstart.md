@@ -1,6 +1,6 @@
 # Quickstart
 
-This is the fastest route from “empty directory” to “first useful fact”.
+This chapter shows the shortest path from an empty directory to a working fact.
 
 ## 1. Initialize a catalog
 
@@ -58,7 +58,7 @@ Ube Oolong
 ic resolve tea-menu --output -
 ```
 
-You should see a snapshot containing three samples.
+The snapshot should contain three samples.
 
 ## 5. Accept it as the baseline
 
@@ -81,4 +81,4 @@ ic inspect tea-menu
 ic check
 ```
 
-At that point you have the full cycle: capture, compare, inspect, approve.
+At that point you have the basic workflow: capture, compare, inspect, and approve.

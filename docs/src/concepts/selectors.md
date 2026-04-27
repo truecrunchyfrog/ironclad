@@ -28,4 +28,4 @@ That lets you answer questions such as:
 
 If a selector does not resolve to a known indexed label or an existing fact file, Ironclad fails explicitly.
 
-That is intentional. Quietly ignoring a misspelled selector is how calm weekends become loud Mondays.
+That is intentional. Ignoring a misspelled selector would make command results ambiguous and harder to trust.
