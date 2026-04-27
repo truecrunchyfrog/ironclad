@@ -15,7 +15,7 @@ ic inspect [<label>] [--trace] [--snapshot FILE|-] [--raw]
 - `--trace`
   Include trace lines in detailed output.
 - `--snapshot FILE|-`
-  Read a snapshot from a file or stdin instead of the default `canon.json`.
+  Read a snapshot from a file or stdin instead of the default approved snapshot, `canon.json`.
 - `--raw`
   Print the entire snapshot as JSON.
 

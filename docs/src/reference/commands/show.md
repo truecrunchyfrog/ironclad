@@ -11,7 +11,7 @@ ic show <selector> [--path]
 ## Arguments and options
 
 - `<selector>`
-  A fact label or fact ID.
+  A fact selector: either a label or a fact ID.
 - `--path`
   Print the fact file path instead of its description.
 

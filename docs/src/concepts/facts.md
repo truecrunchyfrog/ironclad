@@ -18,7 +18,7 @@ Facts have two identities:
 - a label
   a human-friendly name stored in `index.toml`
 
-You can operate on many fact commands using either the label or the raw fact ID.
+Many commands accept a fact selector, which can be either the label or the fact ID.
 
 ## Fact shape
 

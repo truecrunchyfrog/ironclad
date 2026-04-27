@@ -16,7 +16,7 @@ Most Ironclad workflows follow the same loop:
 
 1. Define one or more facts.
 2. Resolve the current state into a snapshot.
-3. Compare that snapshot with the baseline.
+3. Compare that snapshot with the approved snapshot.
 4. Review the drift.
 5. Apply the approved changes.
 
@@ -37,8 +37,8 @@ An Ironclad catalog lives in `.ironclad/` and usually contains:
 
 - `facts/` holds fact definitions.
 - `index.toml` maps friendly labels to fact IDs.
-- `snapshots/canon.json` is your approved baseline.
-- `snapshots/actual.json` is the latest resolved state.
+- `snapshots/canon.json` is the approved snapshot.
+- `snapshots/actual.json` is the resolved snapshot.
 
 ## Why this differs from plain diffing
 

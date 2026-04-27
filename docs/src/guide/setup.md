@@ -30,4 +30,4 @@ You can point commands at a specific catalog directory with `--catalog-dir`:
 ic --catalog-dir /path/to/workspace/.ironclad inspect
 ```
 
-Pass the actual `.ironclad/` path, not its parent.
+Pass the `.ironclad/` path itself, not its parent.

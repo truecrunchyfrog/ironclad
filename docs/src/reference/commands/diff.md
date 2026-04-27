@@ -15,9 +15,9 @@ ic diff [<label>] [--trace] [--proposal FILE|-] [--baseline FILE|-] [--raw]
 - `--trace`
   Include traces in detailed output.
 - `--proposal FILE|-`
-  Read the proposal snapshot from somewhere other than `actual.json`.
+  Read the resolved snapshot from somewhere other than `actual.json`.
 - `--baseline FILE|-`
-  Read the baseline snapshot from somewhere other than `canon.json`.
+  Read the approved snapshot from somewhere other than `canon.json`.
 - `--raw`
   Print the whole diff structure as JSON.
 

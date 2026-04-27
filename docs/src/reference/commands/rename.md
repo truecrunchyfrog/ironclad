@@ -11,7 +11,7 @@ ic rename <selector> <new-label>
 ## Arguments
 
 - `<selector>`
-  A fact label or fact ID.
+  A fact selector: either a label or a fact ID.
 - `<new-label>`
   The new label.
 

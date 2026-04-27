@@ -1,10 +1,10 @@
 # Selectors
 
-Several commands let you choose facts by selector.
+Several commands let you choose facts by fact selector.
 
-A selector can be:
+A fact selector can be:
 - a label
-- a raw fact ID
+- a fact ID
 
 This applies to commands such as:
 - `ic show`
@@ -26,6 +26,6 @@ That lets you answer questions such as:
 
 ## Missing selectors
 
-If a selector does not resolve to a known indexed label or an existing fact file, Ironclad fails explicitly.
+If a fact selector does not resolve to a known indexed label or an existing fact file, Ironclad fails explicitly.
 
 That is intentional. Ignoring a misspelled selector would make command results ambiguous and harder to trust.

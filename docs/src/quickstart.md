@@ -16,7 +16,7 @@ This creates `.ironclad/` in the current directory.
 ic add tea-menu
 ```
 
-Ironclad prints either the label you chose or a raw fact ID if you created an unindexed fact.
+Ironclad prints either the label you chose or a fact ID if you created an unindexed fact.
 
 ## 3. Open the fact
 
@@ -60,7 +60,7 @@ ic resolve tea-menu --output -
 
 The snapshot should contain three samples.
 
-## 5. Accept it as the baseline
+## 5. Accept it as the approved snapshot
 
 ```bash
 ic apply tea-menu

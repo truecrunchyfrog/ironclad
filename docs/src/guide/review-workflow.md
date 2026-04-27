@@ -10,7 +10,7 @@ Capture the current state:
 ic resolve
 ```
 
-That writes `.ironclad/snapshots/actual.json`.
+That writes `.ironclad/snapshots/actual.json`, the resolved snapshot.
 
 ## Inspect
 
@@ -66,4 +66,4 @@ Approve everything:
 ic apply --all
 ```
 
-That promotes entries from the proposal snapshot into the baseline snapshot.
+That promotes entries from the resolved snapshot into the approved snapshot.

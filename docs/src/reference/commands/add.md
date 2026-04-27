@@ -19,7 +19,7 @@ ic add --no-index
 ## Notes
 
 - When indexed, the command prints the label.
-- When unindexed, the command prints the raw fact ID.
+- When unindexed, the command prints the fact ID.
 - Duplicate labels are rejected.
 
 ## Example

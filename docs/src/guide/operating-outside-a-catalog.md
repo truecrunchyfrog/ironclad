@@ -19,4 +19,4 @@ That makes `op eval` useful as a tiny pipeline laboratory.
 
 ## When a catalog is still required
 
-Operations that need filesystem context or catalog-backed paths still expect a meaningful working directory, and fact-related commands still require an actual catalog.
+Operations that need filesystem context or catalog-backed paths still expect a meaningful working directory, and fact-related commands still require a real catalog directory.

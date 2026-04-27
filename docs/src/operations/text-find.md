@@ -10,7 +10,7 @@ regex = ""
 expand = ""
 ```
 
-The actual options are:
+The supported options are:
 - `text`
   plain substring match
 - `regex`

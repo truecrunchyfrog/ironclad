@@ -15,11 +15,11 @@ You asked for a fact or snapshot entry that does not exist.
 Fixes:
 - run `ic list`
 - check spelling
-- if you meant a raw fact file, use the fact ID instead
+- if you meant a fact file directly, use the fact ID instead
 
 ## `fact selector not found`
 
-The selector is neither:
+The fact selector is neither:
 - an indexed label
 - nor an existing fact ID file
 

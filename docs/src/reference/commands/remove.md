@@ -11,7 +11,7 @@ ic remove <selector>
 ## Arguments
 
 - `<selector>`
-  A fact label or fact ID.
+  A fact selector: either a label or a fact ID.
 
 ## Notes
 

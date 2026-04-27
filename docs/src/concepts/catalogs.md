@@ -28,9 +28,7 @@ Here:
 
 If you do not pass `--catalog-dir`, Ironclad searches upward from the current working directory until it finds `.ironclad/`.
 
-If you do pass `--catalog-dir`, it must point to the actual catalog directory itself. Ironclad does not append `.ironclad` for you.
-
-That is deliberate. It keeps explicit paths explicit.
+If you do pass `--catalog-dir`, it must point to the catalog directory itself. Ironclad does not append `.ironclad` for you.
 
 ## Catalog layout
 
@@ -46,5 +44,5 @@ That is deliberate. It keeps explicit paths explicit.
 
 - `facts/` holds fact files.
 - `index.toml` maps labels to fact IDs.
-- `snapshots/actual.json` stores the last resolved state.
-- `snapshots/canon.json` stores the approved baseline.
+- `snapshots/actual.json` stores the resolved snapshot.
+- `snapshots/canon.json` stores the approved snapshot.

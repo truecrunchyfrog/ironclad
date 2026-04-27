@@ -32,9 +32,10 @@ Examples:
 - `IC_CATALOG_DIR`
 - `IC_VERBOSE`
 
-## Precedence
+## Practical use
 
-Practical rule of thumb:
-- explicit CLI flags win
-- environment can override file defaults
-- config file provides the baseline
+Use CLI flags when you need an explicit override.
+
+The simplest rule is:
+- use `--catalog-dir` when you want one command to target a specific catalog directory
+- use environment variables or a config file for longer-lived defaults

@@ -1,6 +1,6 @@
 # `ic apply`
 
-Promote snapshot entries into the baseline.
+Promote snapshot entries into the approved snapshot.
 
 ## Syntax
 
@@ -14,15 +14,15 @@ ic apply --all
 - `<label> ...`
   Promote only these facts.
 - `--all`
-  Replace the baseline with the full promotion snapshot.
+  Replace the approved snapshot with the full resolved snapshot.
 - `--promotion FILE|-`
-  Use a snapshot other than `actual.json` as the promotion source.
+  Use a snapshot other than `actual.json` as the resolved source.
 - `--baseline FILE|-`
-  Use a snapshot other than `canon.json` as the baseline source.
+  Use a snapshot other than `canon.json` as the approved source.
 - `--output FILE|-`
-  Write the promoted result somewhere other than `canon.json`.
+  Write the updated approved snapshot somewhere other than `canon.json`.
 
 ## Notes
 
-- Applying selected labels can add, replace, or remove those labels in the baseline.
-- If a requested label is absent from both the promotion and the baseline, the command fails.
+- Applying selected labels can add, replace, or remove those labels in the approved snapshot.
+- If a requested label is absent from both the resolved snapshot and the approved snapshot, the command fails.
