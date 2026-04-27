@@ -1,6 +1,7 @@
 use ironclad_core::operation::Operation;
 
 mod json_find;
+mod run;
 mod seed_file_text;
 mod seed_net_http;
 mod seed_run;
@@ -21,6 +22,7 @@ pub(crate) fn operations() -> Vec<(&'static str, Box<dyn Operation>)> {
         ("seed.file.text", seed_file_text::SeedFileText.into()),
         ("seed.net.http", seed_net_http::SeedNetHttp.into()),
         ("seed.run", seed_run::SeedRun.into()),
+        ("run", run::Run.into()),
         ("html.attribute", html_attribute::HtmlAttribute.into()),
         ("html.find", html_find::HtmlFind.into()),
         ("html.inner.html", html_inner_html::HtmlInnerHtml.into()),
