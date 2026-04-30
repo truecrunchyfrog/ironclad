@@ -76,6 +76,15 @@ Marks the fact as sensitive.
 secret = true
 ```
 
+When `secret = true`, a normal `resolve` run redacts the sample contents before
+writing the resolution snapshot.
+
+The snapshot still records enough information to detect drift, but it does not
+store the original secret value in plaintext.
+
+If you need the raw values for one run, `ic resolve --no-redact` disables
+redaction for that invocation.
+
 ## Full example
 
 ```toml
