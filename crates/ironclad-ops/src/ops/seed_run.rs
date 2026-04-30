@@ -37,7 +37,15 @@ impl TypedOperation for SeedRun {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Execute a program."
+        "Run one program and capture its stdout as a sample.\n\n\
+This operation uses Rust's process API:\n\
+https://doc.rust-lang.org/std/process/struct.Command.html\n\n\
+The program runs once for the whole step in the operation working directory. \
+Its stdout becomes one output sample. Non-zero exit status causes the operation \
+to fail and stderr is surfaced in the error.\n\n\
+Options:\n\
+- `program`: executable to run.\n\
+- `args`: argument vector passed to the program."
     }
 
     fn eval_all(

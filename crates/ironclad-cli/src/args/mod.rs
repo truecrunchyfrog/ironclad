@@ -26,6 +26,19 @@ use crate::{
     config::Config,
 };
 
+/// Track and review small pieces of external state.
+///
+/// Ironclad stores facts in a catalog, resolves them into snapshots, compares the
+/// resolution snapshot with the approved snapshot, and lets you apply reviewed
+/// changes.
+///
+/// The CLI is organized around a short workflow:
+/// - create and maintain facts
+/// - resolve current state
+/// - inspect or diff snapshots
+/// - apply approved changes
+///
+/// Use `ic <command> --help` for detailed help on any command.
 #[derive(Parser)]
 pub(crate) struct Cli {
     #[command(flatten)]

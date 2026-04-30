@@ -10,7 +10,7 @@ use crate::{args::diff::DiffArgs, context::Context, helper::read_snapshot};
 
 pub(super) fn dispatch(context: &Context, args: DiffArgs) -> anyhow::Result<()> {
     let repository = context.catalog_repository()?;
-    let proposal = read_snapshot(&repository, args.proposal, SnapshotFile::Actual)?;
+    let proposal = read_snapshot(&repository, args.proposal, SnapshotFile::Resolution)?;
     let baseline = read_snapshot(&repository, args.baseline, SnapshotFile::Canon)?;
 
     let mut diff = proposal.diff(&baseline);

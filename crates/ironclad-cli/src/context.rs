@@ -1,5 +1,5 @@
 use ironclad_core::{
-    catalog::{CatalogRepository, CatalogSession},
+    catalog::{CatalogError, CatalogRepository, CatalogSession},
     operation::OperationContext,
     registry::Registry,
 };
@@ -40,11 +40,13 @@ impl Context {
 
     pub(crate) fn operation_context(&self) -> anyhow::Result<OperationContext> {
         let cwd = std::env::current_dir()?;
-        let repository = CatalogRepository::open(&cwd, self.config.catalog_dir.as_deref()).ok();
 
-        Ok(match repository {
-            Some(repository) => OperationContext::with_catalog(repository.catalog().clone()),
-            None => OperationContext::for_working_dir(cwd),
-        })
+        match CatalogRepository::open(&cwd, self.config.catalog_dir.as_deref()) {
+            Ok(repository) => Ok(OperationContext::with_catalog(repository.catalog().clone())),
+            Err(CatalogError::PathNotFound(_)) if self.config.catalog_dir.is_none() => {
+                Ok(OperationContext::for_working_dir(cwd))
+            }
+            Err(err) => Err(err.into()),
+        }
     }
 }

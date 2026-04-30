@@ -22,7 +22,14 @@ impl TypedOperation for HtmlAttribute {
     type Error = FragmentError;
 
     fn description(&self) -> &'static str {
-        "Select the value of an HTML element's attribute."
+        "Extract one attribute from the first HTML element in each sample.\n\n\
+The sample content is parsed as an HTML fragment with the `scraper` crate:\n\
+https://docs.rs/scraper/latest/scraper/\n\n\
+The operation looks at the first element child in the fragment and returns the \
+value of the requested attribute. If the attribute is missing, the result is an \
+empty string. If there is no element at all, the operation fails.\n\n\
+Options:\n\
+- `attribute`: attribute name to read, such as `href`, `src`, or `data-id`."
     }
 
     fn eval_each(

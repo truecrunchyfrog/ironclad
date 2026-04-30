@@ -15,7 +15,13 @@ impl TypedOperation for HtmlInnerText {
     type Error = FragmentError;
 
     fn description(&self) -> &'static str {
-        "Select the inner text of an HTML element."
+        "Extract the inner text of the first HTML element in each sample.\n\n\
+The sample content is parsed as an HTML fragment with the `scraper` crate:\n\
+https://docs.rs/scraper/latest/scraper/\n\n\
+The operation selects the first element child in the fragment and concatenates \
+its text nodes. If the fragment does not contain an element, the operation \
+fails.\n\n\
+Options: none."
     }
 
     fn eval_each(

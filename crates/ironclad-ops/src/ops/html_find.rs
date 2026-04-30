@@ -27,7 +27,17 @@ impl TypedOperation for HtmlFind {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Find elements in HTML."
+        "Find HTML elements with a CSS selector.\n\n\
+The sample content is parsed with the `scraper` crate:\n\
+https://docs.rs/scraper/latest/scraper/\n\
+Selector syntax follows CSS selectors as implemented by `scraper`.\n\n\
+Each matching node becomes one output sample containing that node's HTML. A \
+`node_id` trace entry is added so later steps can identify the match that \
+produced the sample.\n\n\
+Options:\n\
+- `selector`: CSS selector to match.\n\
+- `document`: when `true`, parse as a full HTML document; when `false`, parse \
+  as an HTML fragment."
     }
 
     fn eval_each(

@@ -31,14 +31,14 @@ An Ironclad catalog lives in `.ironclad/` and usually contains:
 ├── facts/
 ├── index.toml
 └── snapshots/
-    ├── actual.json
+    ├── resolution.json
     └── canon.json
 ```
 
 - `facts/` holds fact definitions.
 - `index.toml` maps friendly labels to fact IDs.
 - `snapshots/canon.json` is the approved snapshot.
-- `snapshots/actual.json` is the resolved snapshot.
+- `snapshots/resolution.json` is the resolution snapshot.
 
 ## Why this differs from plain diffing
 

@@ -191,8 +191,8 @@ fn check_works_without_index_file() {
         .write_snapshot(SnapshotFile::Canon, &snapshot_with("fact", &["alpha"]))
         .expect("write canon");
     repository
-        .write_snapshot(SnapshotFile::Actual, &snapshot_with("fact", &["alpha"]))
-        .expect("write actual");
+        .write_snapshot(SnapshotFile::Resolution, &snapshot_with("fact", &["alpha"]))
+        .expect("write resolution");
     fs::remove_file(catalog.fact_index_file_path()).expect("remove index");
 
     let output = run_ic(
@@ -225,8 +225,8 @@ fn diff_missing_label_fails_clearly() {
         .write_snapshot(SnapshotFile::Canon, &snapshot_with("fact", &["alpha"]))
         .expect("write canon");
     repository
-        .write_snapshot(SnapshotFile::Actual, &snapshot_with("fact", &["alpha"]))
-        .expect("write actual");
+        .write_snapshot(SnapshotFile::Resolution, &snapshot_with("fact", &["alpha"]))
+        .expect("write resolution");
 
     let output = run_ic(
         &root,
@@ -269,7 +269,7 @@ fn diff_summary_shows_fact_level_changes() {
         .expect("write canon");
     repository
         .write_snapshot(
-            SnapshotFile::Actual,
+            SnapshotFile::Resolution,
             &Snapshot::new(HashMap::from([
                 (
                     "alpha".to_string(),
@@ -278,7 +278,7 @@ fn diff_summary_shows_fact_level_changes() {
                 ("gamma".to_string(), Batch::new(vec![sample("arrived")])),
             ])),
         )
-        .expect("write actual");
+        .expect("write resolution");
 
     let output = run_ic(
         &root,
@@ -320,13 +320,13 @@ fn diff_detail_shows_structured_before_after_records() {
         .expect("write canon");
     repository
         .write_snapshot(
-            SnapshotFile::Actual,
+            SnapshotFile::Resolution,
             &Snapshot::new(HashMap::from([(
                 "fact".to_string(),
                 Batch::new(vec![sample("same"), sample("new"), sample("multi\nline")]),
             )])),
         )
-        .expect("write actual");
+        .expect("write resolution");
 
     let output = run_ic(
         &root,
@@ -385,6 +385,79 @@ fn show_accepts_fact_id_selector() {
 }
 
 #[test]
+fn show_prints_structured_fact_definition() {
+    let root = temp_path("show-structured");
+    let home = temp_path("home-show-structured");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let catalog = Catalog::create_catalog(&root).expect("create catalog");
+    fs::write(
+        catalog.fact_file_path("01TESTFACTID00000000000000"),
+        r#"
+description = "hello"
+imports = ["base_url"]
+secret = true
+
+[[steps]]
+use = "text.trim"
+"#,
+    )
+    .expect("write fact");
+
+    let output = run_ic(
+        &root,
+        &home,
+        &[
+            "--catalog-dir",
+            catalog.dir().to_str().expect("utf8"),
+            "show",
+            "01TESTFACTID00000000000000",
+        ],
+    );
+
+    assert!(output.status.success(), "{:?}", output);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("description = \"hello\""));
+    assert!(stdout.contains("imports = [\"base_url\"]"));
+    assert!(stdout.contains("secret = true"));
+    assert!(stdout.contains("text.trim"));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}
+
+#[test]
+fn rename_rejects_unindexed_fact_id() {
+    let root = temp_path("rename-unindexed");
+    let home = temp_path("home-rename-unindexed");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let catalog = Catalog::create_catalog(&root).expect("create catalog");
+    let fact_id = "01TESTFACTID00000000000000";
+    fs::write(catalog.fact_file_path(fact_id), "description = \"hello\"\n").expect("write fact");
+
+    let output = run_ic(
+        &root,
+        &home,
+        &[
+            "--catalog-dir",
+            catalog.dir().to_str().expect("utf8"),
+            "rename",
+            fact_id,
+            "new-label",
+        ],
+    );
+
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("cannot rename unindexed fact"));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}
+
+#[test]
 fn op_eval_runs_outside_catalog_for_catalog_free_operation() {
     let root = temp_path("op-eval-no-catalog");
     let home = temp_path("home-op-eval-no-catalog");
@@ -413,6 +486,35 @@ fn op_eval_runs_outside_catalog_for_catalog_free_operation() {
 }
 
 #[test]
+fn op_eval_fails_for_invalid_explicit_catalog_dir() {
+    let root = temp_path("op-eval-bad-catalog");
+    let home = temp_path("home-op-eval-bad-catalog");
+    let missing_catalog = root.join(".ironclad");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let output = run_ic(
+        &root,
+        &home,
+        &[
+            "--catalog-dir",
+            missing_catalog.to_str().expect("utf8"),
+            "op",
+            "eval",
+            "text.lines",
+            "--input",
+            r#"[{"traces":[{}],"content":"a\nb"}]"#,
+        ],
+    );
+
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("catalog not found"));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}
+
+#[test]
 fn op_list_only_shows_ids() {
     let root = temp_path("op-list");
     let home = temp_path("home-op-list");
@@ -432,7 +534,7 @@ fn op_list_only_shows_ids() {
 }
 
 #[test]
-fn op_show_displays_description_and_options() {
+fn op_show_displays_description() {
     let root = temp_path("op-show");
     let home = temp_path("home-op-show");
     fs::create_dir_all(&root).expect("mkdir root");
@@ -443,9 +545,55 @@ fn op_show_displays_description_and_options() {
     assert!(output.status.success(), "{:?}", output);
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("seed.run"));
-    assert!(stdout.contains("Execute a program."));
-    assert!(stdout.contains("program = \"\""));
-    assert!(stdout.contains("args = []"));
+    assert!(stdout.contains("Run one program and capture its stdout as a sample."));
+    assert!(stdout.contains("Rust's process API"));
+    assert!(!stdout.contains("```toml"));
+
+    fs::remove_dir_all(root).expect("cleanup root");
+    fs::remove_dir_all(home).expect("cleanup home");
+}
+
+#[test]
+fn resolve_rejects_duplicate_include_labels() {
+    let root = temp_path("resolve-duplicate-include");
+    let home = temp_path("home-resolve-duplicate-include");
+    fs::create_dir_all(&root).expect("mkdir root");
+    fs::create_dir_all(&home).expect("mkdir home");
+
+    let catalog = Catalog::create_catalog(&root).expect("create catalog");
+    let repository = CatalogRepository::new(catalog.clone());
+    fs::write(
+        catalog.fact_file_path("01TESTFACTID00000000000000"),
+        r#"
+[[steps]]
+use = "text.trim"
+"#,
+    )
+    .expect("write fact");
+    repository
+        .save_fact_index(&ironclad_core::catalog::FactIndex::new())
+        .expect("save index");
+    let mut index = ironclad_core::catalog::FactIndex::new();
+    index.insert(
+        "fact".to_string(),
+        "01TESTFACTID00000000000000".to_string(),
+    );
+    repository.save_fact_index(&index).expect("save fact index");
+
+    let output = run_ic(
+        &root,
+        &home,
+        &[
+            "--catalog-dir",
+            catalog.dir().to_str().expect("utf8"),
+            "resolve",
+            "fact",
+            "fact",
+        ],
+    );
+
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("duplicate fact label in selection"));
 
     fs::remove_dir_all(root).expect("cleanup root");
     fs::remove_dir_all(home).expect("cleanup home");

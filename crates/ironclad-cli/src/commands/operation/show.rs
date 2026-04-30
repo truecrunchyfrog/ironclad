@@ -7,20 +7,5 @@ pub(super) fn dispatch(context: &Context, args: ShowOperationArgs) -> anyhow::Re
     println!();
     println!("{}", operation.description());
 
-    match operation.options_template()? {
-        Some(options) => {
-            println!();
-            println!("Options:");
-            println!();
-            println!("```toml");
-            println!("{}", toml::to_string_pretty(&options)?);
-            println!("```");
-        }
-        None => {
-            println!();
-            println!("Options: none");
-        }
-    }
-
     Ok(())
 }

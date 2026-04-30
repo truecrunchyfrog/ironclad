@@ -7,6 +7,9 @@ Each step:
 - optionally passes `options`
 - receives the output samples of the previous step
 
+Steps can be written either as full tables or, in `steps = [ ... ]` form, as
+string shorthand for optionless operations.
+
 ## A tiny example
 
 ```toml

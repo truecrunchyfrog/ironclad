@@ -42,7 +42,16 @@ impl TypedOperation for SeedFileText {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Read text content from files."
+        "Read UTF-8 text from one or more files.\n\n\
+File matching uses the `glob` crate:\n\
+https://docs.rs/glob/latest/glob/\n\n\
+Patterns are resolved relative to the operation working directory. Each matched \
+file becomes one output sample, and a `path` trace entry records the relative \
+path from the working directory. The operation fails if a pattern is invalid, a \
+matched file cannot be read, the text is not valid UTF-8, or a matched file \
+falls outside the catalog container.\n\n\
+Options:\n\
+- `files`: list of glob patterns to read."
     }
 
     fn eval_all(

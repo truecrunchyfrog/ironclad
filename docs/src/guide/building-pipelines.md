@@ -40,6 +40,41 @@ use = "compact"
 
 This is more stable than diffing the whole file. You keep the meaningful lines and discard the empty ones.
 
+## Choosing a step syntax
+
+Ironclad accepts two TOML shapes for `steps`.
+
+The first is the traditional array-of-tables form:
+
+```toml
+[[steps]]
+use = "seed.file.text"
+options.files = ["bulletin.txt"]
+
+[[steps]]
+use = "text.lines"
+
+[[steps]]
+use = "text.trim"
+```
+
+The second is a normal array value:
+
+```toml
+steps = [
+  { use = "seed.file.text", options = { files = ["bulletin.txt"] } },
+  "text.lines",
+  "text.trim",
+  "compact",
+]
+```
+
+Use `steps = [ ... ]` when you want shorthand strings for simple steps. Use
+`[[steps]]` when most steps are multiline and carry options.
+
+These styles cannot be mixed for the same `steps` field. TOML allows either an
+array of tables or a normal array value, but not both at once.
+
 ## Prototype with `op eval`
 
 When a step is tricky, prototype it before baking it into a fact:

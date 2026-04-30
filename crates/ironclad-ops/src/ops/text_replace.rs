@@ -27,7 +27,18 @@ impl TypedOperation for TextReplace {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Replace text."
+        "Replace text inside each sample.\n\n\
+This operation supports either plain substring replacement or regular \
+expression replacement. Regex syntax follows the Rust `regex` crate:\n\
+https://docs.rs/regex/latest/regex/#syntax\n\n\
+The operation returns one output sample for each input sample. Replacement is \
+global by default; `max` can limit the number of replacements.\n\n\
+Options:\n\
+- `text`: plain substring to replace.\n\
+- `regex`: regular expression to replace.\n\
+- `replacement`: replacement string.\n\
+- `max`: optional maximum number of replacements.\n\n\
+Exactly one of `text` or `regex` should be provided."
     }
 
     fn eval_each(

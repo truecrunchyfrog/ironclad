@@ -15,7 +15,7 @@ pub struct CatalogRepository {
 }
 
 pub enum SnapshotFile {
-    Actual,
+    Resolution,
     Canon,
 }
 
@@ -145,7 +145,7 @@ impl CatalogRepository {
 
     fn snapshot_file_path(&self, snapshot_file: SnapshotFile) -> std::path::PathBuf {
         match snapshot_file {
-            SnapshotFile::Actual => self.catalog.snapshot_actual_file_path(),
+            SnapshotFile::Resolution => self.catalog.snapshot_resolution_file_path(),
             SnapshotFile::Canon => self.catalog.snapshot_canon_file_path(),
         }
     }

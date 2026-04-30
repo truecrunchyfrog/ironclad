@@ -35,4 +35,4 @@ Snapshots are JSON objects keyed by fact label.
 ## Stability notes
 
 - Snapshot files are a practical storage format, not a public network protocol.
-- They are suitable for `inspect`, `diff`, `check`, `apply`, and `op eval` experiments.
+- They are suitable for `inspect`, `diff`, `check`, and `apply`.

@@ -9,7 +9,7 @@ pub(crate) fn dispatch(context: &Context, args: ShowFactArgs) -> anyhow::Result<
         println!("{}", path.to_string_lossy());
     } else {
         let fact = session.load_fact(&resolved.fact_id)?;
-        println!("{}", fact.description().clone().unwrap_or_default());
+        print!("{}", toml::to_string_pretty(&fact)?);
     }
 
     Ok(())

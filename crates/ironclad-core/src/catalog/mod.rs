@@ -10,6 +10,7 @@ mod session;
 mod snapshots;
 
 pub use catalog::Catalog;
+pub use error::CatalogError;
 pub use fact_index::FactIndex;
 pub use repository::{CatalogRepository, SnapshotFile};
 pub use session::{CatalogSession, FactSelection, ResolvedFactRef};

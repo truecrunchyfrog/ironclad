@@ -51,7 +51,7 @@ pub(super) fn dispatch(context: &Context, args: ResolveArgs) -> anyhow::Result<(
     write_snapshot(
         session.repository(),
         args.output,
-        SnapshotFile::Actual,
+        SnapshotFile::Resolution,
         &snapshot,
     )?;
 

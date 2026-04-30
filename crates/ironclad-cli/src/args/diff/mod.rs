@@ -1,25 +1,32 @@
 use clap::Args;
 use clap_stdin::FileOrStdin;
 
-/// Show comparison between two snapshots.
+/// Compare two snapshots.
+///
+/// Without a label, `diff` prints a compact fact-level overview of changes. With a
+/// label, it prints sample-level changes for one fact.
+///
+/// By default the command compares the resolution snapshot in `resolution.json` with the
+/// approved snapshot in `canon.json`. Use `--proposal` or `--baseline` to override
+/// those inputs. `--raw` prints the diff model as JSON.
 #[derive(Args)]
 pub(crate) struct DiffArgs {
-    /// Fact whose samples to inspect.
+    /// Fact label to diff in detail.
     pub(crate) label: Option<String>,
 
-    /// Show trace.
+    /// Include traces in the detailed view.
     #[arg(short, long, requires = "label")]
     pub(crate) trace: bool,
 
-    /// Proposed snapshot (default: catalog's actual).
+    /// Resolution snapshot to compare from.
     #[arg(short, long)]
     pub(crate) proposal: Option<FileOrStdin>,
 
-    /// Baseline snapshot (default: catalog's canon).
+    /// Approved snapshot to compare against.
     #[arg(short, long)]
     pub(crate) baseline: Option<FileOrStdin>,
 
-    /// Print the snapshot in its JSON format.
+    /// Print the diff as JSON.
     #[arg(short, long, conflicts_with = "label")]
     pub(crate) raw: bool,
 }

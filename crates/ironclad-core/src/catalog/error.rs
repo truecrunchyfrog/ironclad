@@ -25,6 +25,9 @@ pub enum CatalogError {
     #[error("fact selector not found: {0}")]
     FactNotFound(String),
 
+    #[error("duplicate fact label in selection: {0}")]
+    DuplicateLabelInSelection(String),
+
     #[error("fact import not found: {0}")]
     ImportNotFound(String),
 

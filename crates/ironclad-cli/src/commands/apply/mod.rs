@@ -10,7 +10,7 @@ use crate::{
 
 pub(super) fn dispatch(context: &Context, args: ApplyArgs) -> anyhow::Result<()> {
     let session = context.catalog_session()?;
-    let promotion = read_snapshot(session.repository(), args.promotion, SnapshotFile::Actual)?;
+    let promotion = read_snapshot(session.repository(), args.promotion, SnapshotFile::Resolution)?;
     let baseline = read_snapshot(session.repository(), args.baseline, SnapshotFile::Canon)?;
 
     let promoted_baseline = match args {

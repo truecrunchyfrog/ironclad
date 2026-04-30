@@ -23,7 +23,15 @@ impl TypedOperation for Slice {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Select a subslice of the samples."
+        "Take a slice of the current batch.\n\n\
+This operation runs over the whole input batch rather than per sample. It can \
+drop a number of samples from the front and optionally keep only a limited \
+number after that. If the requested range is out of bounds, the result is an \
+empty batch rather than an error.\n\n\
+Options:\n\
+- `drop`: number of samples to skip from the start.\n\
+- `take`: number of samples to keep after dropping. If omitted, the rest of the \
+  batch is kept."
     }
 
     fn eval_all(

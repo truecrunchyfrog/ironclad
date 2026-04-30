@@ -3,7 +3,7 @@
 A snapshot is a map of fact labels to batches of samples.
 
 Ironclad usually deals with two snapshots:
-- the resolved snapshot, usually stored in `actual.json`
+- the resolution snapshot, usually stored in `resolution.json`
 - the approved snapshot, usually stored in `canon.json`
 
 ## What snapshots contain
@@ -19,15 +19,15 @@ Each sample contains:
 The `content` is what you actually compare.
 The `traces` explain where that content came from.
 
-## Approved and resolved snapshots
+## Approved and resolution snapshots
 
 In review-oriented terms:
 - the approved snapshot is the baseline
-- the resolved snapshot is the proposal
+- the resolution snapshot is the proposal
 
 `ic diff` compares the two.
 `ic inspect` lets you read one snapshot.
-`ic apply` promotes approved entries from the resolved snapshot into the approved snapshot.
+`ic apply` promotes approved entries from the resolution snapshot into the approved snapshot.
 
 ## What counts as drift
 

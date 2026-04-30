@@ -1,13 +1,19 @@
 use clap::{ArgGroup, Args};
 
-/// Create a fact.
+/// Create a fact file.
+///
+/// `add` creates a new fact file under the catalog's `facts/` directory.
+///
+/// If you pass a label, the fact is also added to `index.toml` and can be used by
+/// that label in later commands. If you pass `--no-index`, the fact is created
+/// without a label and must be addressed by fact ID.
 #[derive(Args)]
 #[command(group(ArgGroup::new("indexing").args(["label", "no_index"]).required(true)))]
 pub(crate) struct AddFactArgs {
-    /// Assign a label to the fact.
+    /// Label to assign and add to the index.
     pub(crate) label: Option<String>,
 
-    /// Don't index the fact.
+    /// Create the fact without adding it to the index.
     #[arg(long)]
     pub(crate) no_index: bool,
 }
