@@ -2,9 +2,9 @@
 
 Ironclad configuration comes from:
 
-1. CLI flags
+1. a config file
 2. environment variables prefixed with `IC_`
-3. a config file
+3. CLI flags
 
 ## CLI flags
 
@@ -39,3 +39,4 @@ Use CLI flags when you need an explicit override.
 The simplest rule is:
 - use `--catalog-dir` when you want one command to target a specific catalog directory
 - use environment variables or a config file for longer-lived defaults
+- if the same setting appears in multiple places, CLI wins over environment, and environment wins over the config file

@@ -29,19 +29,25 @@ fn main() -> ExitCode {
 fn start() -> anyhow::Result<()> {
     let cli = args::parse();
 
-    let mut figment_builder = Figment::new()
+    let config_path_builder = Figment::new()
         .merge(Serialized::defaults(&cli.config))
         .merge(Env::prefixed("IC_"));
 
-    let config_file = figment_builder
+    let config_file = config_path_builder
         .extract::<Config>()?
         .config_file
         .clone()
         .or_else(|| home_dir().map(|home_dir| home_dir.join(".config/ironclad/config.toml")));
 
+    let mut figment_builder = Figment::new();
+
     if let Some(file) = config_file {
         figment_builder = figment_builder.merge(Toml::file(file));
     }
+
+    figment_builder = figment_builder
+        .merge(Env::prefixed("IC_"))
+        .merge(Serialized::defaults(&cli.config));
 
     let config: Config = figment_builder.extract()?;
 
