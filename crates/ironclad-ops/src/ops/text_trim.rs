@@ -15,7 +15,13 @@ impl TypedOperation for TextTrim {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Trim leading and trailing whitespace from each sample."
+        "Trim leading and trailing whitespace from each sample.\n\n\
+This operation applies Rust string trimming semantics, equivalent to \
+`str::trim()`:\n\
+https://doc.rust-lang.org/std/primitive.str.html#method.trim\n\n\
+Leading and trailing Unicode whitespace is removed from each sample. The \
+operation returns one output sample for each input sample.\n\n\
+Options: none."
     }
 
     fn eval_each(

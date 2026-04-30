@@ -44,7 +44,17 @@ impl TypedOperation for Run {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Execute a program for each sample, piping sample content to stdin."
+        "Run a program once per sample, piping sample content to stdin.\n\n\
+This operation uses Rust's process API:\n\
+https://doc.rust-lang.org/std/process/struct.Command.html\n\n\
+For each input sample, Ironclad starts the configured program in the operation \
+working directory, writes the sample content to child stdin, waits for the \
+process to finish, and replaces the sample content with child stdout. The \
+sample lineage is preserved by appending an empty trace step. Non-zero exit \
+status causes the operation to fail and stderr is surfaced in the error.\n\n\
+Options:\n\
+- `program`: executable to run.\n\
+- `args`: argument vector passed to the program."
     }
 
     fn eval_each(

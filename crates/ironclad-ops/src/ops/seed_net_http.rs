@@ -35,7 +35,15 @@ impl TypedOperation for SeedNetHttp {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "HTTP GET a web resource."
+        "Fetch one URL with HTTP GET.\n\n\
+HTTP requests use blocking `reqwest`:\n\
+https://docs.rs/reqwest/latest/reqwest/\n\n\
+The operation performs one GET request, checks for HTTP error status with \
+`error_for_status()`, and returns the response body as a single sample. A \
+custom user-agent can be provided when the default is not appropriate.\n\n\
+Options:\n\
+- `url`: request target.\n\
+- `user_agent`: HTTP user-agent header value."
     }
 
     fn eval_all(

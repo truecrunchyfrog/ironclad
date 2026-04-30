@@ -33,7 +33,17 @@ impl TypedOperation for TextSplit {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Split text into samples."
+        "Split each sample into multiple samples.\n\n\
+This operation supports three modes: split at a byte index, split on a text \
+delimiter, or split inclusively while keeping the delimiter on each piece.\n\n\
+Each produced piece becomes one output sample. When the requested byte index is \
+invalid or out of bounds, the result is an empty output for that input sample.\n\n\
+Options:\n\
+- `at_index = N`: split into two pieces at byte index `N`.\n\
+- `on_text = { text = \"...\", max = N? }`: split on a delimiter, optionally \
+  limiting the number of pieces.\n\
+- `on_text_inclusive = { text = \"...\" }`: split while keeping the delimiter \
+  attached to each returned piece."
     }
 
     fn eval_each(

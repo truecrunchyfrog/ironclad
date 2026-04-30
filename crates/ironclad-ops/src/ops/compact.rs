@@ -13,7 +13,12 @@ impl TypedOperation for Compact {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Remove samples whose content is empty."
+        "Remove samples whose content is empty.\n\n\
+This operation runs over the whole input batch and keeps only samples whose \
+content is not exactly `\"\"`.\n\n\
+Options: none.\n\n\
+This is usually paired with `text.trim` so that blank lines become empty \
+strings first and are then removed."
     }
 
     fn eval_all(

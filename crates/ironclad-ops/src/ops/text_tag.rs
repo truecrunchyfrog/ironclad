@@ -25,7 +25,15 @@ impl TypedOperation for TextTag {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Find tags."
+        "Extract text using Ironclad tags.\n\n\
+This operation parses the sample content with Ironclad's embedded tag syntax \
+and selects only tags whose ID matches the requested `tag` option. For each \
+match, it applies the tag's left and right selection rules, removes the tag \
+marker itself from the output, and records `start` and `end` trace entries for \
+the tag span.\n\n\
+Options:\n\
+- `tag`: tag ID to select.\n\n\
+For the full tag language, see the Tags chapter in the manual."
     }
 
     fn eval_each(

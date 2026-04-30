@@ -443,7 +443,8 @@ fn op_show_displays_description_and_options() {
     assert!(output.status.success(), "{:?}", output);
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("seed.run"));
-    assert!(stdout.contains("Execute a program."));
+    assert!(stdout.contains("Run one program and capture its stdout as a sample."));
+    assert!(stdout.contains("Rust's process API"));
     assert!(stdout.contains("program = \"\""));
     assert!(stdout.contains("args = []"));
 

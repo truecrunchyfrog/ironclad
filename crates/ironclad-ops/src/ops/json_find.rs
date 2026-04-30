@@ -26,7 +26,15 @@ impl TypedOperation for JsonFind {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Find values in a JSON object or array. https://docs.rs/serde_json_path/latest/serde_json_path/struct.JsonPath.html"
+        "Find values in JSON with JSONPath.\n\n\
+The sample content is parsed as JSON with `serde_json`, then queried with \
+`serde_json_path`:\n\
+https://docs.rs/serde_json_path/latest/serde_json_path/\n\n\
+Each match becomes one output sample. String values stay plain strings; other \
+JSON values are serialized back to JSON text. A `json_node_path` trace entry is \
+added for each match.\n\n\
+Options:\n\
+- `path`: JSONPath expression used to select values."
     }
 
     fn eval_each(

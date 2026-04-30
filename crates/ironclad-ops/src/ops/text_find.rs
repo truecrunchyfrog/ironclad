@@ -26,7 +26,18 @@ impl TypedOperation for TextFind {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Match text. https://docs.rs/regex/latest/regex/#syntax"
+        "Find text matches inside each sample.\n\n\
+This operation supports either plain substring matching or regular expressions. \
+Regex syntax follows the Rust `regex` crate:\n\
+https://docs.rs/regex/latest/regex/#syntax\n\n\
+Each match becomes one output sample. The operation records `start` and `end` \
+trace entries for the matched byte range. When regex mode is used, `expand` can \
+build the output content from capture groups.\n\n\
+Options:\n\
+- `text`: plain substring to match.\n\
+- `regex`: regular expression to match.\n\
+- `expand`: optional regex expansion template used instead of the full match.\n\n\
+Exactly one of `text` or `regex` should be provided."
     }
 
     fn eval_each(

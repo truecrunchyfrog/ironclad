@@ -15,7 +15,13 @@ impl TypedOperation for TextLines {
     type Error = Error;
 
     fn description(&self) -> &'static str {
-        "Split lines into samples."
+        "Split each sample into one sample per line.\n\n\
+This operation uses Rust string line splitting semantics, equivalent to \
+`str::lines()`:\n\
+https://doc.rust-lang.org/std/primitive.str.html#method.lines\n\n\
+Each line becomes a new sample. The original sample trace is preserved by \
+appending an empty trace step.\n\n\
+Options: none."
     }
 
     fn eval_each(
