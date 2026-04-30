@@ -22,23 +22,6 @@
   - [Multiple Facts](./guide/multiple-facts.md)
   - [Operating Outside A Catalog](./guide/operating-outside-a-catalog.md)
 
-- [Command Reference](./reference/commands/README.md)
-  - [init](./reference/commands/init.md)
-  - [add](./reference/commands/add.md)
-  - [edit](./reference/commands/edit.md)
-  - [show](./reference/commands/show.md)
-  - [list](./reference/commands/list.md)
-  - [rename](./reference/commands/rename.md)
-  - [remove](./reference/commands/remove.md)
-  - [resolve](./reference/commands/resolve.md)
-  - [inspect](./reference/commands/inspect.md)
-  - [diff](./reference/commands/diff.md)
-  - [check](./reference/commands/check.md)
-  - [apply](./reference/commands/apply.md)
-  - [op list](./reference/commands/op-list.md)
-  - [op show](./reference/commands/op-show.md)
-  - [op eval](./reference/commands/op-eval.md)
-
 - [Fact File Reference](./reference/fact-files.md)
 - [Snapshot Reference](./reference/snapshots.md)
 
