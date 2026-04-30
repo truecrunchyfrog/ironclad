@@ -80,9 +80,13 @@ impl Step {
     ) -> Result<Vec<Sample>, RecipeError> {
         let operation = registry.resolve_op(&self.operation_id)?;
         let options = resolve_imports(self.options.clone(), imports);
+        let options = match options {
+            toml::Value::Table(table) if table.is_empty() => None,
+            other => Some(other),
+        };
 
         operation
-            .eval(context, input, Some(options))
+            .eval(context, input, options)
             .map_err(|err| RecipeError::Operation {
                 operation_id: self.operation_id.clone(),
                 source: err,
@@ -128,9 +132,13 @@ fn visit_toml_strings_mut<F: FnMut(&mut String)>(value: &mut toml::Value, f: &mu
 mod tests {
     use std::collections::HashMap;
 
-    use crate::sample::{Sample, Trace};
+    use crate::{
+        operation::{OperationContext, TypedOperation},
+        registry::Registry,
+        sample::{Sample, Trace},
+    };
 
-    use super::{Step, resolve_imports};
+    use super::{Step, empty_options, resolve_imports};
 
     fn sample(content: &str) -> Sample {
         Sample::new(Trace::new(HashMap::new()), content.to_string())
@@ -222,5 +230,46 @@ files = ["a.txt"]
                 toml::Value::Array(vec![toml::Value::String(String::from("a.txt"))]),
             )]))
         );
+    }
+
+    struct NoOptionsOp;
+
+    impl TypedOperation for NoOptionsOp {
+        type Options = ();
+        type Error = std::convert::Infallible;
+
+        fn description(&self) -> &'static str {
+            "No-op operation."
+        }
+
+        fn eval_each(
+            &self,
+            _context: &OperationContext,
+            input: Sample,
+            _options: Self::Options,
+        ) -> Result<Vec<Sample>, Self::Error> {
+            Ok(vec![input])
+        }
+    }
+
+    #[test]
+    fn shorthand_step_evaluates_without_passing_empty_table_options() {
+        let step = Step::new(String::from("test.no-options"), empty_options());
+        let mut registry = Registry::new();
+        registry
+            .register_op(String::from("test.no-options"), NoOptionsOp.into())
+            .expect("register op");
+
+        let output = step
+            .eval(
+                &registry,
+                &OperationContext::for_working_dir(std::env::temp_dir()),
+                &HashMap::new(),
+                vec![sample("hello")],
+            )
+            .expect("eval step");
+
+        assert_eq!(output.len(), 1);
+        assert_eq!(output[0].content(), "hello");
     }
 }
