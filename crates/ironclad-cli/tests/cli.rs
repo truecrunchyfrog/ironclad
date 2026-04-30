@@ -432,7 +432,7 @@ fn op_list_only_shows_ids() {
 }
 
 #[test]
-fn op_show_displays_description_and_options() {
+fn op_show_displays_description() {
     let root = temp_path("op-show");
     let home = temp_path("home-op-show");
     fs::create_dir_all(&root).expect("mkdir root");
@@ -445,8 +445,7 @@ fn op_show_displays_description_and_options() {
     assert!(stdout.contains("seed.run"));
     assert!(stdout.contains("Run one program and capture its stdout as a sample."));
     assert!(stdout.contains("Rust's process API"));
-    assert!(stdout.contains("program = \"\""));
-    assert!(stdout.contains("args = []"));
+    assert!(!stdout.contains("```toml"));
 
     fs::remove_dir_all(root).expect("cleanup root");
     fs::remove_dir_all(home).expect("cleanup home");

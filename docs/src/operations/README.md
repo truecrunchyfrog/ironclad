@@ -9,4 +9,4 @@ Each operation page documents:
 - examples
 
 `ic op list` shows the available IDs.
-`ic op show <id>` shows the description and default options template.
+`ic op show <id>` shows the description carried by the operation itself.
