@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::collections::HashSet;
 
 use crate::{
     catalog::{Catalog, CatalogRepository, FactIndex, SnapshotEvaluator, error::CatalogError},
@@ -73,6 +74,7 @@ impl CatalogSession {
         &self,
         labels: &[String],
     ) -> Result<Vec<LabeledFact>, CatalogError> {
+        ensure_unique_labels(labels)?;
         self.repository
             .load_labeled_facts_including(&self.index, labels)
     }
@@ -81,6 +83,7 @@ impl CatalogSession {
         &self,
         labels: &[String],
     ) -> Result<Vec<LabeledFact>, CatalogError> {
+        ensure_unique_labels(labels)?;
         for label in labels {
             if !self.index.contains_label(label) {
                 return Err(CatalogError::LabelNotInIndex(label.clone()));
@@ -116,6 +119,16 @@ impl CatalogSession {
             on_progress,
         )
     }
+}
+
+fn ensure_unique_labels(labels: &[String]) -> Result<(), CatalogError> {
+    let mut seen = HashSet::new();
+    for label in labels {
+        if !seen.insert(label) {
+            return Err(CatalogError::DuplicateLabelInSelection(label.clone()));
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
